@@ -1,0 +1,64 @@
+version: '3.4'
+
+services:
+  adminer:
+    container_name: adminer_goshop
+    image: adminer:latest
+    ports:
+      - 8083:8080
+    restart: unless-stopped
+    networks:
+      - goshoplocal
+    depends_on:
+      - db
+
+  db:
+    container_name: mysql_goshop
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: 'goshoplocal.com'
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - goshoplocal
+    ports:
+      - 3302:3306
+
+  redis:
+    container_name: redis_goshop
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redisdata:/data
+    networks:
+      - goshoplocal
+
+  app:
+    container_name: app_goshop
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    ports:
+      - 3020:3000
+      - 9225:9228
+    env_file:
+      - .env
+    networks:
+      - goshoplocal
+    volumes:
+      - ./:/home/node/app
+    command: yarn start:debug
+volumes:
+  dbdata:
+  redisdata:
+
+networks:
+  goshoplocal:
+    name: goshoplocal

@@ -21,12 +21,22 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs-modules/ioredis": "^1.0.1",
+    "@nestjs/bullmq": "^1.0.0",
     "@nestjs/common": "^9.0.0",
+    "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/typeorm": "^9.0.1",
+    "bullmq": "^3.3.2",
+    "env-var": "^7.3.0",
+    "ioredis": "^5.2.4",
+    "mysql2": "^2.3.3",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "typeorm": "^0.3.11",
+    "typeorm-transactional": "^0.4.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
