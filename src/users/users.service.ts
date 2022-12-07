@@ -30,4 +30,12 @@ export class UsersService {
   remove(id: number) {
     return `This action removes a #${id} user`;
   }
+
+  findMe(me: any) {
+    return this.repo.findOneBy([{ id: me }, { email: me }, { username: me }]);
+  }
+
+  repository(): Repository<User> {
+    return this.repo;
+  }
 }
