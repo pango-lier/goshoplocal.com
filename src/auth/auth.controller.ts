@@ -1,8 +1,17 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
 import { AuthService } from './auth.service';
 import { jwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { RefreshTokenGuard } from './guards/refresh-token-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -14,10 +23,12 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
-  @UseGuards(LocalAuthGuard)
-  @Post('jwt/refresh-token')
+  @UseGuards(RefreshTokenGuard)
+  @Get('jwt/refresh-token')
   async refreshToken(@Request() req) {
-    return await this.authService.createAccessTokenFromRefreshToken(
+    console.log(req.user);
+    return await this.authService.refreshTokens(
+      req.user.id,
       req.user.refreshToken,
     );
   }
@@ -29,8 +40,13 @@ export class AuthController {
   }
 
   @UseGuards(jwtAuthGuard)
-  @Get('logout')
+  @Get('jwt/logout')
   async logout(@Request() req): Promise<any> {
     return await this.authService.removeRefreshToken(req.user.id);
+  }
+
+  @Post('jwt/signup')
+  signup(@Body() createUserDto: CreateUserDto) {
+    return this.authService.signUp(createUserDto);
   }
 }

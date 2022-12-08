@@ -12,7 +12,8 @@ export class UsersService {
   ) {}
 
   create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+    const user = this.repo.create(createUserDto);
+    return this.repo.save(user);
   }
 
   findAll() {
