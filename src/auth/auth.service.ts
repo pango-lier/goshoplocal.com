@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { AuthenticatedUser } from './interface/authenticated-user.interface';
 import { User } from 'src/users/entities/user.entity';
+import { comparePwd } from 'src/utils/bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -21,18 +22,18 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login({ id, username }: any) {
+  async login(user: User) {
     const payload: JwtPayload = {
-      sub: id,
-      username: username,
+      sub: user.id,
+      username: user.username,
     };
     const refreshToken = await this.jwtService.signAsync(
       payload,
       this.getTokenOptions('refresh'),
     );
-    await this.setCurrentRefreshToken(refreshToken, id);
+    await this.setCurrentRefreshToken(refreshToken, user.id);
     return {
-      userData: { id, username },
+      userData: { id: user.id, username: user.username, email: user.email },
       accessToken: await this.jwtService.signAsync(
         payload,
         this.getTokenOptions('access'),
@@ -42,12 +43,16 @@ export class AuthService {
   }
 
   async validateUser(username: string, password: string): Promise<any> {
-    const user = await this.userService.findOne(username);
-    if (user && user.password === password) {
-      const { password, username, ...rest } = user;
-      return rest;
+    console.log(username, password);
+    const user = await this.userService.findMe(username);
+    if (user) {
+      const matched = comparePwd(password, user.password);
+      if (matched) {
+        const { password, ...rest } = user;
+        return rest;
+      }
     }
-    return undefined;
+    return null;
   }
 
   public async createAccessTokenFromRefreshToken(refreshToken: string) {

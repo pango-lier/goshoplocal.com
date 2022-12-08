@@ -16,7 +16,7 @@ export class UsersService {
   }
 
   findAll() {
-    return `This action returns all users`;
+    return this.repo.find();
   }
 
   findOne(username: string) {
