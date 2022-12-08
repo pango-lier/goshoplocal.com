@@ -24,6 +24,7 @@
     "migrate:down": "ts-node ./node_modules/typeorm/cli.js migration:revert"
   },
   "dependencies": {
+    "@bull-board/express": "^4.8.0",
     "@nestjs-modules/ioredis": "^1.0.1",
     "@nestjs/bullmq": "^1.0.0",
     "@nestjs/common": "^9.0.0",
