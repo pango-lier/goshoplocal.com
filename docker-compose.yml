@@ -55,9 +55,27 @@ services:
     volumes:
       - ./:/home/node/app
     command: yarn start:debug
+  front:
+    container_name: front_goshop
+    restart: unless-stopped
+    depends_on:
+      - app
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile.dev
+    ports:
+      - 3021:3003
+    env_file:
+      - ./frontend/.env
+    networks:
+      - goshoplocal
+    volumes:
+      - ./frontend:/home/node/app
+    command: yarn start
 volumes:
   dbdata:
   redisdata:
+
 
 networks:
   goshoplocal:
