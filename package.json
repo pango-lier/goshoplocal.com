@@ -9,7 +9,7 @@
     "docker:dev": "docker-compose -f docker-compose-dev.yml",
     "docker:pro": "docker compose",
     "prebuild": "rimraf dist",
-    "build": "nest build",
+    "build": "nest build && cp .env dist/.env",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:fe": "yarn --cwd ./frontend start",
