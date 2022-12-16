@@ -18,8 +18,8 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: 'root'
-      MYSQL_DATABASE: 'goshoplocal.com'
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
     volumes:
       - dbdata:/var/lib/mysql
     networks:
@@ -35,6 +35,8 @@ services:
       - redisdata:/data
     networks:
       - goshoplocal
+    ports:
+      - 6377:6379
 volumes:
   dbdata:
   redisdata:
