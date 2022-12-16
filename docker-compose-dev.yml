@@ -35,6 +35,44 @@ services:
       - redisdata:/data
     networks:
       - goshoplocal
+
+  app:
+    container_name: app_goshop
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+      - front
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    ports:
+      - 3020:3000
+      - 9225:9228
+      - 81:80
+    env_file:
+      - .env
+    networks:
+      - goshoplocal
+    volumes:
+      - ./:/home/node/app
+      - .nginx.conf:/etc/nginx/conf.d/default.conf
+    command: yarn start:debug
+  front:
+    container_name: front_goshop
+    restart: unless-stopped
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile.dev
+    ports:
+      - 3021:3003
+    env_file:
+      - ./frontend/.env
+    networks:
+      - goshoplocal
+    volumes:
+      - ./frontend:/home/node/app
+    command: yarn start
 volumes:
   dbdata:
   redisdata:
