@@ -10,6 +10,7 @@ import queueConfig from './queue.config';
     ConfigModule.forRoot({
       isGlobal: true,
       expandVariables: true,
+      cache: false,
       load: [databaseConfig, authConfig, queueConfig, ioredis],
     }),
   ],

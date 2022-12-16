@@ -24,15 +24,14 @@ WORKDIR /home/node/app
 # yarn
 RUN npm install yarn
 RUN npm install -g @nestjs/cli
-RUN apk add nginx
+# RUN apk add nginx
 # pm2
 
-RUN yarn global add pm2
+# RUN yarn global add pm2
 
 USER node
 RUN mkdir tmp
 
 COPY --chown=node:node ./package*.json ./
-RUN yarn
 COPY --chown=node:node . .
 

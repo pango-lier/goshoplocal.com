@@ -6,8 +6,8 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "docker:dev":"docker-compose -f docker-compose-dev.yml",
-    "docker:pro":"docker compose",
+    "docker:dev": "docker-compose -f docker-compose-dev.yml",
+    "docker:pro": "docker compose",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -25,7 +25,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migrate:create": "ts-node ./node_modules/typeorm/cli.js migration:create -n",
     "migrate:up": "ts-node ./node_modules/typeorm/cli.js migration:run",
-    "migrate:down": "ts-node ./node_modules/typeorm/cli.js migration:revert"
+    "migrate:down": "ts-node ./node_modules/typeorm/cli.js migration:revert",
+    "db:create": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js db:create",
+    "db:drop": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js db:drop",
+    "seed": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js seed"
   },
   "dependencies": {
     "@bull-board/express": "^4.8.0",
@@ -54,6 +57,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "typeorm": "^0.3.11",
+    "typeorm-extension": "^2.3.1",
     "typeorm-transactional": "^0.4.1"
   },
   "devDependencies": {

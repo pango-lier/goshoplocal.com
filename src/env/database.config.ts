@@ -8,7 +8,7 @@ export default registerAs(
     <MysqlConnectionOptions>{
       type: 'mysql',
       extra: {
-        charset: 'utf8mb4',
+        charset: 'utf8mb4_general_ci',
       },
       host: env.get('DB_HOST').asString(),
       port: env.get('DB_PORT').asIntPositive(),
