@@ -2,7 +2,7 @@ import { useSkin } from '@hooks/useSkin'
 import { Link, useHistory } from 'react-router-dom'
 import { Facebook, Twitter, Mail, GitHub } from 'react-feather'
 import InputPasswordToggle from '@components/input-password-toggle'
-import { Row, Col, CardTitle, CardText, Form, Label, Input, Button } from 'reactstrap'
+import { Row, Col, CardTitle, CardText, Form, Label, Input, Button, Card, CardImg, CardBody, CardFooter } from 'reactstrap'
 import '@styles/react/pages/page-authentication.scss'
 import { useState } from 'react'
 import { setStorageData, STORAGE_CONSTANTS } from 'utility/localStorage'
@@ -99,13 +99,20 @@ const LoginCover = () => {
             </g>
           </svg>
           <h2 className='brand-text text-primary ms-1'>ListingManager</h2>
+          <div class="d-flex justify-content-start">
+            <h3 className='brand-text text-dark ms-1'>Platforms</h3>
+            <h3 className='brand-text text-dark ms-1'>Knowledge Base</h3>
+          </div>
         </Link>
         <Col className='d-none d-lg-flex align-items-center p-5' lg='8' sm='12'>
-          <div className='w-100 d-lg-flex align-items-center justify-content-center px-5'>
-            <KnowledgeBase />
-          </div>
+          <Row>
+            <div className='w-100 d-lg-flex align-items-center justify-content-center px-5'>
+              <KnowledgeBase />
+            </div>
+          </Row>
+
         </Col>
-        <Col className='d-flex  auth-bg px-2 p-lg-5' lg='4' sm='12'>
+        <Col style={{ position: "absolute", top: 100, right: 20 }} className='d-flex  auth-bg px-2 p-lg-5' lg='4' sm='12'>
           <Col className='px-xl-2 mx-auto' sm='8' md='6' lg='12'>
             <CardTitle tag='h2' className='fw-bold mb-1'>
               Welcome to ListingManager! 👋

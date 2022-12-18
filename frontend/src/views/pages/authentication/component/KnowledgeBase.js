@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Fragment, useState, useEffect } from 'react'
 
 // ** Reactstrap Imports
-import { Row, Col, Card, CardBody, CardImg } from 'reactstrap'
+import { Row, Col, Card, CardBody, CardImg, CardFooter, CardTitle } from 'reactstrap'
 
 // ** Styles
 import '@styles/base/pages/page-knowledge-base.scss'
@@ -11,6 +11,8 @@ import '@styles/base/pages/page-knowledge-base.scss'
 const KnowledgeBase = () => {
   // ** States
   const [data, setData] = useState([]);
+  const [dataMarket, setDataMarket] = useState([]);
+  const [supplier, setSupplier] = useState([]);
 
   useEffect(() => {
     setData([
@@ -78,10 +80,63 @@ const KnowledgeBase = () => {
       //   desc: 'Chip uses a smart fulfillment network to source and fulfill products from all over the world'
       // }
     ])
+    setDataMarket([
+      {
+        id: 1,
+        img: require('@src/assets/images/market/etsy.jpg').default,
+        title: 'Etsy',
+      },
+      {
+        id: 2,
+
+        img: require('@src/assets/images/market/amazon.svg').default,
+        title: 'Amazon'
+      },
+      {
+        id: 3,
+        img: require('@src/assets/images/market/ebay.svg').default,
+        title: 'Ebay',
+      },]);
+    setSupplier([
+      {
+        id: 1,
+        img: require('@src/assets/images/market/customcat.png').default,
+        title: 'Customcat',
+      },
+      {
+        id: 2,
+
+        img: require('@src/assets/images/market/dreamship.png').default,
+        title: 'Dreamship'
+      },
+      {
+        id: 3,
+        img: require('@src/assets/images/market/geargag.png').default,
+        title: 'Geargag',
+      },
+
+      {
+        id: 4,
+        img: require('@src/assets/images/market/gearment.png').default,
+        title: 'Customcat',
+      },
+      {
+        id: 5,
+
+        img: require('@src/assets/images/market/printify.png').default,
+        title: 'Printify'
+      },
+      {
+        id: 6,
+        img: require('@src/assets/images/market/printway.ico').default,
+        title: 'Printway',
+      },
+    ]);
+
   }, [])
 
   const Content = ({ item }) => (
-    <Col className='kb-search-content' key={item.id} md='4' sm='6'>
+    <Col className='kb-search-content' key={item.id} xxl='4' xl='6' sm='12'>
       <Card>
         <Link to={`/pages/knowledge-base/${item.category}`}>
           <CardImg src={item.img} alt='knowledge-base-image' top />
@@ -100,10 +155,51 @@ const KnowledgeBase = () => {
     })
   }
 
+  const ContentMarket = ({ item }) => (
+    <Col className='kb-search-content' key={item.id} xxl='4' xl='6' sm='12'>
+      <Card>
+        <CardImg className='text-center' style={{ marginLeft: "40px", height: "35px", width: "100px" }} src={item.img} alt='knowledge-base-image' top />
+      </Card>
+    </Col>
+  )
+  const renderContentMarket = () => {
+    return dataMarket.map(item => {
+      return <ContentMarket key={item.id} item={item} />
+    })
+  }
+
+  const ContentSupplier = ({ item }) => (
+    <Col className='kb-search-content' key={item.id} xxl='4' xl='6' sm='12'>
+      <Card>
+        <CardImg className='text-center' style={{ marginLeft: "40px", height: "100px", width: "100px" }} src={item.img} alt='knowledge-base-image' top />
+        <CardBody>
+          <h4>{item.title}</h4>
+        </CardBody>
+      </Card>
+    </Col>
+  )
+  const renderContentSupplier = () => {
+    return supplier.map(item => {
+      return <ContentSupplier key={item.id} item={item} />
+    })
+  }
   return (
     <Fragment>
-      <div id='knowledge-base-content'>
+      <div id='knowledge-base-content' className='mt-3'>
         <Row className='kb-search-content-info match-height'>{renderContent()}</Row>
+        <Card style={{ padding: "20px" }}>
+          <CardTitle className='text-center'>Our Partner and Suppliers</CardTitle>
+          <Row id="render-supplier">
+            {renderContentSupplier()}
+          </Row>
+        </Card>
+        <Card style={{ padding: "20px" }}>
+          <CardTitle className='text-center'>Our Supported Platforms</CardTitle>
+          <Row id="render-market">
+            {renderContentMarket()}
+          </Row>
+          <CardFooter className='text-center' style={{ fontWeight: "bold" }}>The term 'Etsy' is a trademark of Etsy, Inc. This application uses the Etsy API but is not endorsed or certified by Etsy, Inc.</CardFooter>
+        </Card>
       </div>
     </Fragment>
   )
