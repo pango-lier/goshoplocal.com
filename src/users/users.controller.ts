@@ -7,11 +7,16 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { jwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { UserPaginateInterface } from './interface/user-paginate';
+import { Request } from 'express';
+import { Paginate } from 'src/paginate/paginate.decorator';
+import { IPaginate } from 'src/paginate/paginate.interface';
 
 @Controller('users')
 export class UsersController {
@@ -24,8 +29,8 @@ export class UsersController {
 
   @UseGuards(jwtAuthGuard)
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Req() req: Request, @Paginate() paginate: IPaginate) {
+    return this.usersService.paginate(paginate);
   }
 
   @Patch(':id')

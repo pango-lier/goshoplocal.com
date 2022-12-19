@@ -17,6 +17,7 @@ import {
 import { Queue } from 'bullmq';
 import { AccountsModule } from './accounts/accounts.module';
 import { ConnectsModule } from './connects/connects.module';
+import { PaginateModule } from './paginate/paginate.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { ConnectsModule } from './connects/connects.module';
     AuthModule,
     AccountsModule,
     ConnectsModule,
+    PaginateModule,
   ],
   controllers: [AppController],
   providers: [AppService],

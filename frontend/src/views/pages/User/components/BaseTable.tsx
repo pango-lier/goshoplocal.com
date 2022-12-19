@@ -1,18 +1,18 @@
-import React, { Fragment, useEffect, useMemo, useState } from "react";
-import { COLUMNS, UserI } from "./columns";
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import { COLUMNS, UserI } from './columns';
 import {
   ExpandedState,
   flexRender,
   getCoreRowModel,
   getExpandedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
-import { Table } from "reactstrap";
-import Group from "./sub";
-import { getUsers } from "api/users/getUsers";
-import { notifyError } from "utility/notify";
+} from '@tanstack/react-table';
+import { Table } from 'reactstrap';
+import Group from './sub';
+import { getUsers } from 'api/users/getUsers';
+import { notifyError } from 'utility/notify';
 
-import IconTextPagination from "./PaginationIconText";
+import IconTextPagination from './PaginationIconText';
 const BaseTable = () => {
   const [data, setData] = useState<UserI[]>([]);
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
@@ -30,7 +30,8 @@ const BaseTable = () => {
   const fetchData = async (params: any) => {
     try {
       const response = await getUsers(params);
-      setData(response.data);
+      setData(response.data[0]);
+      setPageCount(response.data[1] / perPage);
     } catch (error) {
       notifyError(error);
     }
@@ -76,7 +77,7 @@ const BaseTable = () => {
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </th>
                 ))}
@@ -100,7 +101,7 @@ const BaseTable = () => {
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </td>
                   ))}
