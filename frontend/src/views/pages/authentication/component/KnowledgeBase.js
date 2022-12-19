@@ -13,7 +13,7 @@ const KnowledgeBase = () => {
   const [data, setData] = useState([]);
   const [dataMarket, setDataMarket] = useState([]);
   const [supplier, setSupplier] = useState([]);
-
+  const [images, setImages] = useState([]);
   useEffect(() => {
     setData([
       {
@@ -28,35 +28,36 @@ const KnowledgeBase = () => {
         category: 'Listing-manager',
         img: require('@src/assets/images/illustration/email.svg').default,
         title: 'Listings Management',
-        desc: 'With our exclusive tool, you can sync your multi-platform business. Listing on Amazon is now easier than ever. Create stunning templates, handle requests, messages, and more.'
+        desc: 'With our exclusive tool, you can sync your multi-platform business. Listing on Platforms is now easier than ever. Create stunning templates, handle requests, messages, and more.'
+      },
+      {
+        id: 4,
+        category: 'personalization',
+        img: require('@src/assets/images/illustration/api.svg').default,
+        title: 'Statistic Powerful and Chart History',
+        desc: 'Powerful statistics help you choose the best products.View all active and historic activity. Revise active listings. Relist ended listings, using the same listing settings.'
       },
       {
         id: 3,
         category: 'api-questions',
         img: require('@src/assets/images/illustration/marketing.svg').default,
         title: 'Import, Export & Sync',
-        desc: 'Quickly select products and list to Amazon.Import existing products direct from your sales channels including Amazon or via CSV.'
+        desc: 'Quickly select products and list to Amazon, Etsy or Ebay. Import existing products direct from your sales channels including Amazon or via CSV.'
       },
-      {
-        id: 4,
-        category: 'personalization',
-        img: require('@src/assets/images/illustration/api.svg').default,
-        title: 'View Listings by Sales Channel',
-        desc: 'View all active and historic activity. Revise active listings. Relist ended listings, using the same listing settings.'
-      },
+
       {
         id: 5,
-        category: 'email-marketing',
+        category: 'Multiple Platforms and Suppliers',
         img: require('@src/assets/images/illustration/personalization.svg').default,
-        title: 'Smart product recommendations',
-        desc: 'AI-powered recommendations generate repeat sales while you focus on acquiring new customers'
+        title: 'Multiple Platforms and Suppliers',
+        desc: 'We provide useful solutions on many PlatForms (Etsy, Amazon, Ebay) and POD Suppliers (Printify, Gearment, Geargag, Printway, Customcat, Dreamship).'
       },
       {
         id: 6,
         category: 'demand-generation',
         img: require('@src/assets/images/illustration/demand.svg').default,
         title: 'Automated order fulfillment',
-        desc: 'Chip uses a smart fulfillment network to source and fulfill products from all over the world'
+        desc: 'Chip uses a smart fulfillment network to source and fulfill products from all over the world. Auto submit tracking on any platforms.'
       },
       // {
       //   id: 7,
@@ -133,6 +134,29 @@ const KnowledgeBase = () => {
       },
     ]);
 
+    setImages([
+      {
+        id: 1,
+        img: require('@src/assets/images/market/statitics.png').default,
+        title: 'Statitics Powerful',
+      },
+      {
+        id: 2,
+
+        img: require('@src/assets/images/market/chart.png').default,
+        title: 'History Sale Chart'
+      },
+      {
+        id: 3,
+        img: require('@src/assets/images/market/template.png').default,
+        title: 'Manage Easy Template',
+      },
+      {
+        id: 4,
+        img: require('@src/assets/images/market/designs.png').default,
+        title: 'Manage Designs',
+      },
+    ]);
   }, [])
 
   const Content = ({ item }) => (
@@ -170,7 +194,7 @@ const KnowledgeBase = () => {
 
   const ContentSupplier = ({ item }) => (
     <Col className='kb-search-content' key={item.id} xxl='4' xl='6' sm='12'>
-      <Card>
+      <Card >
         <CardImg className='text-center' style={{ marginLeft: "40px", height: "100px", width: "100px" }} src={item.img} alt='knowledge-base-image' top />
         <CardBody>
           <h4>{item.title}</h4>
@@ -183,19 +207,41 @@ const KnowledgeBase = () => {
       return <ContentSupplier key={item.id} item={item} />
     })
   }
+
+  const ContentImage = ({ item }) => (
+    <Col className='kb-search-content' key={item.id} sm='12'>
+      <Card style={{ padding: "20px" }}>
+        <CardTitle className='text-center'>{item.title}</CardTitle>
+        <CardImg className='text-center' style={{ height: "auto", width: "100%" }} src={item.img} alt='images' top />
+      </Card>
+    </Col>
+  )
+  const renderContentImage = () => {
+    return images.map(item => {
+      return <ContentImage key={item.id} item={item} />
+    })
+  }
   return (
     <Fragment>
       <div id='knowledge-base-content' className='mt-3'>
-        <Row className='kb-search-content-info match-height'>{renderContent()}</Row>
+        <div>
+          <div className='text-center mb-1' style={{ fontWeight: "bold", fontSize: "18px" }}>"Faster, easier and clearer and Use statistical power"</div>
+          <Row className='kb-search-content-info match-height'>{renderContent()}</Row>
+        </div>
         <Card style={{ padding: "20px" }}>
           <CardTitle className='text-center'>Our Partner and Suppliers</CardTitle>
-          <Row id="render-supplier">
+          <Row id="render-suppliers">
             {renderContentSupplier()}
           </Row>
         </Card>
+
+        <Row id="render-description">
+          {renderContentImage()}
+        </Row>
+
         <Card style={{ padding: "20px" }}>
           <CardTitle className='text-center'>Our Supported Platforms</CardTitle>
-          <Row id="render-market">
+          <Row id="render-platforms">
             {renderContentMarket()}
           </Row>
           <CardFooter className='text-center' style={{ fontWeight: "bold" }}>The term 'Etsy' is a trademark of Etsy, Inc. This application uses the Etsy API but is not endorsed or certified by Etsy, Inc.</CardFooter>
