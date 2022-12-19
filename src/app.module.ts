@@ -15,6 +15,8 @@ import {
   ExpressAdapter,
 } from '@bull-board/express';
 import { Queue } from 'bullmq';
+import { AccountsModule } from './accounts/accounts.module';
+import { ConnectsModule } from './connects/connects.module';
 
 @Module({
   imports: [
@@ -45,6 +47,8 @@ import { Queue } from 'bullmq';
     BullmqModule,
     UsersModule,
     AuthModule,
+    AccountsModule,
+    ConnectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

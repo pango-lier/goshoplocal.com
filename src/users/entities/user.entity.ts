@@ -1,3 +1,5 @@
+import { Account } from 'src/accounts/entities/account.entity';
+import { Connect } from 'src/connects/entities/connect.entity';
 import {
   Column,
   CreateDateColumn,
@@ -26,13 +28,13 @@ export class User {
   @Column({ length: 128, nullable: true })
   password: string;
 
-  @Column({ length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   rememberToken?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   refreshToken?: string;
 
-  @Column('bool', { default: true })
+  @Column('boolean', { default: true })
   active?: boolean;
 
   @CreateDateColumn({ type: 'timestamp' })
@@ -43,4 +45,10 @@ export class User {
 
   @DeleteDateColumn({ type: 'timestamp' })
   deletedAt?: Date;
+
+  @OneToMany(() => Account, (u) => u.user, { nullable: true })
+  accounts?: Account[];
+
+  @OneToMany(() => Connect, (u) => u.user, { nullable: true })
+  connects?: Connect[];
 }
