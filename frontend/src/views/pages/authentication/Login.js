@@ -104,7 +104,7 @@ const LoginCover = () => {
                   </g>
                 </g>
               </g>
-            </svg>
+            </svg> 
             <h2 className='brand-text text-primary ms-1'>ListingManager</h2>
             <div className="d-flex justify-content-start">
               <div to='#render-platforms' onClick={() => scrollToId("render-platforms")}>
