@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
-import { COLUMNS, UserI } from './columns';
+import { COLUMNS } from './columns';
 import {
   ExpandedState,
   flexRender,
@@ -9,16 +9,45 @@ import {
 } from '@tanstack/react-table';
 import { Table } from 'reactstrap';
 import Group from './sub';
-import { getUsers } from 'api/users/getUsers';
+import ModalGroup from './actions/ModalUser';
+import { getConnects } from 'api/connects/getConnects';
 import { notifyError } from 'utility/notify';
-
-import IconTextPagination from './PaginationIconText';
+import IconTextPagination from 'views/pages/User/components/PaginationIconText';
+import { ACTION_ENUM } from 'utility/enum/actions';
+import { IConnect } from './interface/connect.interface';
 const BaseTable = () => {
-  const [data, setData] = useState<UserI[]>([]);
+  const [isOpenModalGroup, setIsOpenModalGroup] = useState<boolean>(false);
+  const [row, setRow] = useState<IConnect | undefined>();
+  const [data, setData] = useState<IConnect[]>([]);
+  const [action, setAction] = useState<ACTION_ENUM>(ACTION_ENUM.None);
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(100);
   const [pageCount, setPageCount] = useState<number>(10);
+  const onCreateHandle = () => {
+    setAction(ACTION_ENUM.Create);
+    setRow(undefined);
+    setIsOpenModalGroup(true);
+  };
+
+  const onEditHandle = (row) => {
+    setRow(row);
+    setAction(ACTION_ENUM.Edit);
+    setIsOpenModalGroup(true);
+  };
+  const onDeleteHandle = (row) => {
+    setRow(row);
+    setAction(ACTION_ENUM.Delete);
+    setIsOpenModalGroup(true);
+  };
+  const onHandleModal = (row) => {
+    if (action === ACTION_ENUM.Create) {
+      const _data = [...data];
+      _data.unshift(row);
+      setData(_data);
+    }
+    setIsOpenModalGroup(false);
+  };
 
   const onPageChange = (selectedItem: { selected: number }) => {
     setCurrentPage(selectedItem.selected);
@@ -29,22 +58,20 @@ const BaseTable = () => {
   };
   const fetchData = async (params: any) => {
     try {
-      const response = await getUsers(params);
+      const response = await getConnects(params);
       setData(response.data[0]);
       setPageCount(response.data[1] / perPage);
     } catch (error) {
       notifyError(error);
     }
   };
-  // useEffect(() => {
-  //   fetchData({
-  //     limit: perPage.toString(),
-  //     offset: (currentPage * perPage).toString(),
-  //   });
-  // }, []);
+
   const table = useReactTable({
     data: useMemo(() => data, [data]),
-    columns: useMemo(() => COLUMNS, []),
+    columns: useMemo(
+      () => COLUMNS(onCreateHandle, onEditHandle, onDeleteHandle),
+      [],
+    ),
     state: {
       expanded,
     },
@@ -54,11 +81,11 @@ const BaseTable = () => {
     getExpandedRowModel: getExpandedRowModel(),
     debugTable: true,
   });
-
+  const rerender = React.useReducer(() => ({}), {})[1];
   return (
     <>
       <div>
-        <Table striped>
+        <Table>
           <thead className="table-dark">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -67,9 +94,9 @@ const BaseTable = () => {
                     {...{
                       key: header.id,
                       style: {
-                        width: header.getSize(),
-                        maxWidth: header.getSize(),
-                        minWidth: header.getSize(),
+                        width: header.column.columnDef.size,
+                        maxWidth: header.column.columnDef.maxSize,
+                        minWidth: header.column.columnDef.minSize,
                       },
                     }}
                   >
@@ -93,9 +120,9 @@ const BaseTable = () => {
                       {...{
                         key: cell.id,
                         style: {
-                          width: cell.column.getSize(),
-                          maxWidth: cell.column.getSize(),
-                          minWidth: cell.column.getSize(),
+                          width: cell.column.columnDef.size,
+                          maxWidth: cell.column.columnDef.maxSize,
+                          minWidth: cell.column.columnDef.minSize,
                         },
                       }}
                     >
@@ -110,33 +137,26 @@ const BaseTable = () => {
                   <tr>
                     {/* 2nd row is a custom 1 cell row */}
                     <td colSpan={row.getVisibleCells().length}>
-                      <Group />
+                      <Group user={row.original} />
                     </td>
                   </tr>
                 )}
               </Fragment>
             ))}
           </tbody>
-          {/* <tfoot>
-            {table.getFooterGroups().map((footerGroup) => (
-              <tr key={footerGroup.id}>
-                {footerGroup.headers.map((header) => (
-                  <th key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.footer,
-                          header.getContext()
-                        )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </tfoot> */}
         </Table>
         <div className="h-4" />
         <IconTextPagination onPageChange={onPageChange} pageCount={pageCount} />
       </div>
+      {isOpenModalGroup && (
+        <ModalGroup
+          action={action}
+          row={row}
+          isOpenModalGroup={isOpenModalGroup}
+          setIsOpenModalGroup={(value) => setIsOpenModalGroup(value)}
+          onHandleModal={onHandleModal}
+        />
+      )}
     </>
   );
 };

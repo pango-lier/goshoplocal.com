@@ -1,15 +1,16 @@
 import React from "react";
 import BaseTable from "./components/BaseTable";
-import '../../scss/react-table.scss';
+import { IConnect } from "../interface/connect.interface";
 
-const Group = () => {
-    return (
-        <div>
-            <BaseTable />
-        </div>
-    );
+interface Props {
+  user: IConnect;
 }
-
-Group.propTypes = {};
+const Group = ({ user }: Props) => {
+  return (
+    <div>
+      <BaseTable user={user} />
+    </div>
+  );
+};
 
 export default Group;

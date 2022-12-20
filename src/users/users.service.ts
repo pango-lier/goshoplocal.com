@@ -20,7 +20,7 @@ export class UsersService {
   }
 
   async findAll(filter: IPaginate) {
-    const query = this.repo.createQueryBuilder('users');
+    const query = this.repo.createQueryBuilder('user');
     return await this.paginateService.queryFilter<User>(query, filter);
   }
 
