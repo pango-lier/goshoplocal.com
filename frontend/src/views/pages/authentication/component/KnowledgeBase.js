@@ -224,6 +224,13 @@ const KnowledgeBase = () => {
   return (
     <Fragment>
       <div id='knowledge-base-content' className='mt-3'>
+        <Card style={{ padding: "20px" }}>
+          <CardTitle className='text-center'>Our Supported Platforms</CardTitle>
+          <Row id="render-platforms">
+            {renderContentMarket()}
+          </Row>
+          <CardFooter className='text-center' style={{ fontWeight: "bold" }}>The term 'Etsy' is a trademark of Etsy, Inc. This application uses the Etsy API but is not endorsed or certified by Etsy, Inc.</CardFooter>
+        </Card>
         <div>
           <div className='text-center mb-1' style={{ fontWeight: "bold", fontSize: "18px" }}>"Faster, easier and clearer and Use statistical power"</div>
           <Row className='kb-search-content-info match-height'>{renderContent()}</Row>
@@ -239,13 +246,6 @@ const KnowledgeBase = () => {
           {renderContentImage()}
         </Row>
 
-        <Card style={{ padding: "20px" }}>
-          <CardTitle className='text-center'>Our Supported Platforms</CardTitle>
-          <Row id="render-platforms">
-            {renderContentMarket()}
-          </Row>
-          <CardFooter className='text-center' style={{ fontWeight: "bold" }}>The term 'Etsy' is a trademark of Etsy, Inc. This application uses the Etsy API but is not endorsed or certified by Etsy, Inc.</CardFooter>
-        </Card>
       </div>
     </Fragment>
   )
