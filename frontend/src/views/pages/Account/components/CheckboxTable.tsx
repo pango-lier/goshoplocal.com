@@ -18,7 +18,10 @@ function CheckboxTable({
     <input
       type="checkbox"
       ref={ref}
-      className={className + " cursor-pointer" +" form-check-input"}
+      style={{
+        verticalAlign: "middle"
+      }}
+      className={className + " cursor-pointer" + " form-check-input"}
       {...rest}
     />
   );

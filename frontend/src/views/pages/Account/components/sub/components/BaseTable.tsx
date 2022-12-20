@@ -1,68 +1,71 @@
-import React, { useMemo } from "react";
-import { COLUMNS } from "./columns";
-import MOCK_DATA from "./MOCK_DATA.json";
+import React, { useEffect, useMemo, useState } from "react";
+import { COLUMNS, SubUserGroupI } from "./columns";
 import {
+  ExpandedState,
   flexRender,
   getCoreRowModel,
-  PaginationState,
+  getExpandedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { Table } from "reactstrap";
-import PaginationController from "./PaginationController";
+
 const BaseTable = () => {
-  const [{ pageIndex, pageSize }, setPagination] =
-    React.useState<PaginationState>({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
+  const [data, setData] = useState<SubUserGroupI[]>([]);
+  const [expanded, setExpanded] = React.useState<ExpandedState>({})
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [perPage, setPerPage] = useState<number>(25);
+  const fetchData = async () => {
+    // const response = await getGroups({ variables: { paging: { limit: 100, offset: 0 } } })
+    // setData(response.data.groupDtos.nodes)
+  }
+  useEffect(() => {
+    fetchData();
+  }, [])
   const table = useReactTable({
-    data: useMemo(() => MOCK_DATA, []),
+    data: useMemo(() => data, [data]),
     columns: useMemo(() => COLUMNS, []),
-    getCoreRowModel: getCoreRowModel(),
-    pageCount: 5,
     state: {
-      pagination: {
-        pageIndex,
-        pageSize,
-      },
+      expanded,
     },
-    onPaginationChange: setPagination,
-
-    manualPagination: true,
+    onExpandedChange: setExpanded,
+    getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    debugTable: true,
   });
   const rerender = React.useReducer(() => ({}), {})[1];
   return (
     <>
-      <div className="p-2 custom-rt">
-        <Table striped className="rt-table">
-          <thead className="table-dark rt-thead .-header">
+      <div>
+        <Table striped>
+          <thead className="table-dark">
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="rt-tr">
+              <tr key={headerGroup.id} >
                 {headerGroup.headers.map((header) => (
                   <th
                     {...{
                       key: header.id,
                       style: {
                         width: header.getSize(),
+                        maxWidth: header.getSize(),
+                        minWidth: header.getSize(),
                       },
                     }}
-                    className="rt-th"
+
                   >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </th>
                 ))}
               </tr>
             ))}
           </thead>
-          <tbody className="rt-tbody">
+          <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="rt-tr">
+              <tr key={row.id} className="table-default">
                 {row.getVisibleCells().map((cell) => (
                   <td
                     {...{
@@ -73,7 +76,7 @@ const BaseTable = () => {
                         minWidth: cell.column.getSize(),
                       },
                     }}
-                    className="rt-td"
+
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
@@ -82,11 +85,6 @@ const BaseTable = () => {
             ))}
           </tbody>
         </Table>
-        <PaginationController {...table} />
-        <div className="h-4" />
-        <button onClick={() => rerender()} className="border p-2">
-          Rerender
-        </button>
       </div>
     </>
   );

@@ -13,7 +13,6 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { jwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { UserPaginateInterface } from './interface/user-paginate';
 import { Request } from 'express';
 import { Paginate } from 'src/paginate/paginate.decorator';
 import { IPaginate } from 'src/paginate/paginate.interface';
@@ -30,7 +29,7 @@ export class UsersController {
   @UseGuards(jwtAuthGuard)
   @Get()
   findAll(@Req() req: Request, @Paginate() paginate: IPaginate) {
-    return this.usersService.paginate(paginate);
+    return this.usersService.findAll(paginate);
   }
 
   @Patch(':id')

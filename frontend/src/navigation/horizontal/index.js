@@ -9,7 +9,7 @@ export default [
   },
   {
     id: 'users',
-    title: 'users',
+    title: 'Users',
     icon: <Home size={20} />,
     navLink: '/users'
   },

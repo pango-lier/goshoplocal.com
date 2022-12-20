@@ -1,31 +1,28 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import {
-  ChevronDown,
-  ChevronRight,
-  ChevronsDown,
-  ChevronsRight,
-  ChevronsUp,
-  ChevronUp,
-} from "react-feather";
+import { ChevronsDown, ChevronsUp } from "react-feather";
 import { Button } from "reactstrap";
+import { Tooltip } from "views/pages/components/Tooltip";
 import Action from "./Action";
 import CheckboxTable from "./CheckboxTable";
-import { Tooltip } from "../../components/Tooltip";
 
-export interface UserI {
+export enum GroupEnum {
+  NONE = "none",
+  GOLOGIN = "Gologin",
+}
+
+export interface SubUserGroupI {
   checkbox?: any;
   expanded?: any;
   id: string | number;
   name: string;
-  email: string;
-  username: string;
-  active: boolean;
-  rolesId: number;
+  groupType: GroupEnum;
+  secrectName?: string;
+  secrectKey?: string;
   createdAt: Date;
   actions?: any;
 }
 
-const columnHelper = createColumnHelper<UserI>();
+const columnHelper = createColumnHelper<SubUserGroupI>();
 
 export const COLUMNS = [
   columnHelper.accessor((row) => row.checkbox, {
@@ -39,15 +36,6 @@ export const COLUMNS = [
             onChange: table.getToggleAllRowsSelectedHandler(),
           }}
         />
-        {""}
-        {/* <span
-          {...{
-            style: { cursor: "pointer" },
-            onClick: table.getToggleAllRowsExpandedHandler(),
-          }}
-        >
-          {table.getIsAllRowsExpanded() ? <ChevronsDown /> : <ChevronsRight />}
-        </span> */}
       </>
     ),
     cell: ({ row, getValue }) => (
@@ -74,11 +62,11 @@ export const COLUMNS = [
           {row.getCanExpand() ? (
             <span
               {...{
-                onClick: row.getToggleExpandedHandler(),
                 style: { cursor: "pointer" },
+                onClick: row.getToggleExpandedHandler(),
               }}
             >
-              {row.getIsExpanded() ? <ChevronDown /> : <ChevronRight />}
+              {row.getIsExpanded() ? <ChevronsUp /> : <ChevronsDown />}
             </span>
           ) : (
             ""
@@ -101,22 +89,18 @@ export const COLUMNS = [
     size: 100,
     maxSize: 100,
   }),
-  columnHelper.accessor("username", {
-    header: () => "username",
+  columnHelper.accessor("secrectName", {
+    header: () => "Secrect Name",
     cell: (info) => (
       <Tooltip id={"c" + info.row.id} message={info.getValue() ?? ""} />
     ),
     size: 100,
     maxSize: 100,
   }),
-  columnHelper.accessor("email", {
-    header: () => <span>Email</span>,
+  columnHelper.accessor("secrectKey", {
+    header: () => <span>Secrect Key</span>,
     size: 100,
     maxSize: 200,
-  }),
-  columnHelper.accessor("active", {
-    header: "active",
-    size: 100,
   }),
   columnHelper.accessor("createdAt", {
     header: "Date",

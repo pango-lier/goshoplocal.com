@@ -1,0 +1,49 @@
+$border-light: #e9ecef;
+$bg-light: #f6f9fc;
+$bg-dark: #1c345d;
+$bg-dark-1: #162b4d;
+$border-dark: #1f3a68;
+$text-dark: #4d7bca;
+
+table {
+    padding: 5px !important;
+}
+
+thead {
+    vertical-align: middle;
+    background-color: $bg-light;
+    border-top: 1px solid $border-light;
+    border-bottom: 1px solid $border-light;
+
+    height: 30px;
+    line-height: 30px;
+    padding: 5px !important;
+    font-weight: 700;
+    text-align: left;
+    border: none;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+tbody {
+
+    max-height: 75vh;
+    overflow-y: scroll;
+}
+
+th {
+    padding: 7px 10px !important;
+    height: auto;
+    line-height: 30px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+
+td {
+    padding: 5px 10px !important;
+    height: auto;
+    line-height: 30px;
+    white-space: nowrap;
+    overflow: hidden;
+}

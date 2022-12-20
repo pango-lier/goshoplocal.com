@@ -7,7 +7,8 @@ import {
   UncontrolledDropdown,
 } from "reactstrap";
 
-const Action = () => {
+const Action = (row: any) => {
+
   return (
     <>
       <div className="d-flex justify-content-around align-content-between flex-nowrap">
@@ -18,7 +19,7 @@ const Action = () => {
           onClick={(e) => e.preventDefault()}
         >
           {" "}
-          <i className="fa-solid fa-pen" style={{ fontSize: 13 }} />
+          <i className="fa-solid fa-pen" style={{ fontSize: 12 }} />
         </Button>
         <Button
           size="sm"
@@ -27,7 +28,7 @@ const Action = () => {
           onClick={(e) => e.preventDefault()}
         >
           {" "}
-          <i className="fa-solid fa-pen" style={{ fontSize: 13 }} />
+          <i className="fa-solid fa-pen" style={{ fontSize: 12 }} />
         </Button>
         <Button
           size="sm"
@@ -36,7 +37,7 @@ const Action = () => {
           onClick={(e) => e.preventDefault()}
         >
           {" "}
-          <i className="fa-solid fa-pen" style={{ fontSize: 13 }} />
+          <i className="fa-solid fa-pen" style={{ fontSize: 12 }} />
         </Button>
         <UncontrolledDropdown>
           <DropdownToggle

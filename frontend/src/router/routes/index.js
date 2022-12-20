@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import Auth from './Auth'
+import Connect from './Connect'
 // ** Document title
 const TemplateTitle = '%s - Vuexy React Admin Template'
 
@@ -20,10 +21,11 @@ const Routes = [
     path: '/about-us',
     component: lazy(() => import('../../views/SecondPage')),
     meta: {
-      publicRoute:true
+      publicRoute: true
     }
   },
   ...Auth,
+  ...Connect,
   {
     path: '/error',
     component: lazy(() => import('../../views/Error')),

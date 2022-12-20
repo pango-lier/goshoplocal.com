@@ -23,6 +23,7 @@ export class AppService implements OnApplicationBootstrap {
       userDto.email = 'admin@gmail.com';
       userDto.password = encodePwd('123456');
       userDto.active = true;
+      userDto.role = 'super-admin';
 
       await this.userService.repository().upsert(userDto, ['email']);
     } catch (error) {

@@ -1,4 +1,4 @@
-import { Mail, Home, User } from 'react-feather'
+import { Mail, Home, User, ExternalLink } from 'react-feather'
 
 export default [
   {
@@ -8,8 +8,14 @@ export default [
     navLink: '/home'
   },
   {
+    id: 'connect',
+    title: 'Connect',
+    icon: <ExternalLink size={20} />,
+    navLink: '/connects'
+  },
+  {
     id: 'users',
-    title: 'users',
+    title: 'Users',
     icon: <User size={20} />,
     navLink: '/users'
   },

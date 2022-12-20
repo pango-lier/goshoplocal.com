@@ -37,6 +37,9 @@ export class User {
   @Column('boolean', { default: true })
   active?: boolean;
 
+  @Column({ type: 'varchar', length: 255, nullable: true, default: 'guest' })
+  role?: string;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 

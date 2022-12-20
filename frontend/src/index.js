@@ -32,7 +32,7 @@ import '@styles/react/libs/toastify/toastify.scss'
 
 // ** Core styles
 import './@core/assets/fonts/feather/iconfont.css'
-import "@fortawesome/fontawesome-free/css/all.min.css";
+// import "@fortawesome/fontawesome-free/css/all.min.css";
 import './@core/scss/core.scss'
 import './assets/scss/style.scss'
 

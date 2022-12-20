@@ -5,11 +5,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { IPaginate } from 'src/paginate/paginate.interface';
+import { PaginateService } from 'src/paginate/paginate.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly repo: Repository<User>,
+    private readonly paginateService: PaginateService,
   ) {}
 
   create(createUserDto: CreateUserDto) {
@@ -17,27 +19,9 @@ export class UsersService {
     return this.repo.save(user);
   }
 
-  paginate(paginate: IPaginate) {
+  async findAll(filter: IPaginate) {
     const query = this.repo.createQueryBuilder('users');
-    if (paginate.q) {
-      query.where('users.name LIKE :s OR users.id = :q', {
-        s: `%${paginate.q}%`,
-        q: paginate.q,
-      });
-    }
-    if (paginate.limit) {
-      query.limit(paginate.limit);
-    }
-    if (paginate.offset) {
-      query.offset(paginate.offset);
-    }
-    if (paginate.sort) {
-      Object.entries(paginate.sort).forEach((entry) => {
-        const [key, value] = entry;
-        query.orderBy(key, value as any);
-      });
-    }
-    return query.getManyAndCount();
+    return await this.paginateService.queryFilter<User>(query, filter);
   }
 
   findOne(username: string) {

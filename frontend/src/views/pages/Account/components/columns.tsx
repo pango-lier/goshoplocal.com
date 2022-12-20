@@ -40,14 +40,14 @@ export const COLUMNS = [
           }}
         />
         {""}
-        {/* <span
+        <span
           {...{
             style: { cursor: "pointer" },
             onClick: table.getToggleAllRowsExpandedHandler(),
           }}
         >
           {table.getIsAllRowsExpanded() ? <ChevronsDown /> : <ChevronsRight />}
-        </span> */}
+        </span>
       </>
     ),
     cell: ({ row, getValue }) => (

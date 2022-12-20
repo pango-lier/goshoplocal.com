@@ -48,7 +48,7 @@ const BaseTable = () => {
     state: {
       expanded,
     },
-    getRowCanExpand: () => false,
+    getRowCanExpand: () => true,
     onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),

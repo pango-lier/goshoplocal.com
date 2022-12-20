@@ -1,24 +1,30 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { IPaginate } from './paginate.interface';
+import { Request } from 'express';
 
 export const Paginate = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
-    const req = ctx.switchToHttp().getRequest();
-    const paginate: IPaginate = {};
-    if (req.query?.limit && typeof req.query.limit === 'string') {
-      paginate.limit = parseInt(req.query.limit);
-    }
-    if (req.query?.limit && typeof req.query.limit === 'string') {
-      paginate.limit = parseInt(req.query.limit);
-    }
-    if (req.query?.q && typeof req.query.q === 'string') {
-      paginate.q = req.query?.q;
-    }
-    if (req.query?.sort && typeof req.query.sort === 'object') {
-      paginate.sort = req.query?.sort;
-    }
-    if (req.query?.filter && typeof req.query.filter === 'object') {
-      paginate.filter = req.query?.filter;
+    const request = ctx.switchToHttp().getRequest() as Request;
+    let paginate: IPaginate = { offset: undefined, limit: undefined };
+    if (request.query.filter && typeof request.query.filter === 'string') {
+      const filter = JSON.parse(request.query.filter);
+
+      const pageIndex = parseInt(filter.pageIndex) || undefined;
+      const pageSize = parseInt(filter.pageIndex) || undefined;
+
+      const offset = pageIndex * pageSize || undefined;
+      const limit = filter.pageSize || undefined;
+      const sorted = filter.sorted || undefined;
+      const filtered = filter.filtered || undefined;
+      paginate = {
+        pageIndex,
+        pageSize,
+        limit,
+        offset,
+        sorted,
+        filtered,
+        q: filter.q || undefined,
+      };
     }
     return paginate;
   },
