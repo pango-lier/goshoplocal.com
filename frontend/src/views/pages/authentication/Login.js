@@ -113,6 +113,10 @@ const LoginCover = () => {
               <div to='#render-suppliers' onClick={() => scrollToId("render-suppliers")}>
                 <h3 className='brand-text  ms-1 link-info'>Suppliers</h3>
               </div>
+              <div to='#render-description' onClick={() => scrollToId("render-description")}>
+                <h3 className='brand-text  ms-1 link-danger'>How to Connect</h3>
+              </div>
+              
             </div>
           </Link>
           <Col className='d-none d-lg-flex align-items-center p-5' lg='8' sm='12'>
@@ -123,7 +127,7 @@ const LoginCover = () => {
             </Row>
 
           </Col>
-          <Col style={{ position: "absolute", top: 100, right: 20 }} className='d-flex  auth-bg px-2 p-lg-5' lg='4' sm='12'>
+          <Col  className='d-flex  auth-bg px-2 p-lg-5' lg='4' sm='12'>
             <Col className='px-xl-2 mx-auto' sm='8' md='6' lg='12'>
               <CardTitle tag='h2' className='fw-bold mb-1'>
                 Welcome to ListingManager! 👋

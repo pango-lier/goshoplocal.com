@@ -116,25 +116,24 @@ const KnowledgeBase = () => {
         title: 'Geargag',
       },
 
-      {
-        id: 4,
-        img: require('@src/assets/images/market/gearment.png').default,
-        title: 'Customcat',
-      },
-      {
-        id: 5,
-
-        img: require('@src/assets/images/market/printify.png').default,
-        title: 'Printify'
-      },
-      {
-        id: 6,
-        img: require('@src/assets/images/market/printway.ico').default,
-        title: 'Printway',
-      },
     ]);
 
     setImages([
+      {
+        id: 5,
+        img: require('@src/assets/images/etsy/connect.png').default,
+        title: 'Connect Etsy Step 1: Click connect button',
+      },
+      {
+        id: 6,
+        img: require('@src/assets/images/etsy/enable.png').default,
+        title: 'Connect Etsy Step 2: Click "Grant Access" to enable access OAuth 2.',
+      },
+      {
+        id: 7,
+        img: require('@src/assets/images/etsy/success.png').default,
+        title: 'Status is active .Connect Etsy is success .',
+      },
       {
         id: 1,
         img: require('@src/assets/images/market/statitics.png').default,
@@ -156,6 +155,7 @@ const KnowledgeBase = () => {
         img: require('@src/assets/images/market/designs.png').default,
         title: 'Manage Designs',
       },
+
     ]);
   }, [])
 
