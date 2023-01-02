@@ -9,27 +9,178 @@ import { useParams } from 'react-router-dom'
 import '@styles/base/pages/page-misc.scss'
 import React from 'react'
 import { getUrlRedirectOauth2 } from 'api/etsy/oauth2/getUrlRedirectOauth2'
+import ReactSelect from 'react-select'
+import { notifyError } from 'utility/notify'
+
+
+
+const scopeOptions = [
+  {
+    'label': 'address_r',
+    'value': 'address_r',
+    'description': "Read a member's shipping addresses"
+  },
+  {
+    'label': 'address_w',
+    'value': 'address_w',
+    'description': "Update and delete a member's shipping address"
+  },
+  {
+    'label': 'billing_r',
+    'value': 'billing_r',
+    'description': "Read a member's Etsy bill charges and payments"
+  },
+  {
+    'label': 'cart_r',
+    'value': 'cart_r',
+    'description': "Read the contents of a member’s cart"
+  },
+  {
+    'label': 'cart_w',
+    'value': 'cart_w',
+    'description': "Add and remove listings from a member's cart"
+  },
+  {
+    'label': 'listings_d',
+    'value': 'listings_d',
+    'description': "Delete a member's listings."
+  },
+  {
+    'label': 'listings_r',
+    'value': 'listings_r',
+    'description': "Read a member's inactive and expired (i.e., non-public) listings.",
+    isFixed: true
+  },
+  {
+    'label': 'listings_w',
+    'value': 'listings_w',
+    'description': "Create and edit a member's listings."
+  },
+  {
+    'label': 'email_r',
+    'value': 'email_r',
+    'description': "Read a member's email address"
+  },
+  {
+    'label': 'favorites_r',
+    'value': 'favorites_r',
+    'description': "View a member's favorite listings and users."
+  },
+  {
+    'label': 'favorites_w',
+    'value': 'favorites_w',
+    'description': "Add to and remove from a member's favorite listings and users."
+  },
+  {
+    'label': 'feedback_r',
+    'value': 'feedback_r',
+    'description': "View all details of a member's feedback (including purchase history.)"
+  },
+  {
+    'label': 'profile_r',
+    'value': 'profile_r',
+    'description': "Read a member's private profile information.",
+    isFixed: true
+  },
+  {
+    'label': 'profile_w',
+    'value': 'profile_w',
+    'description': "Update a member's private profile information."
+  },
+  {
+    'label': 'recommend_r',
+    'value': 'recommend_r',
+    'description': "View a member's recommended listings."
+  },
+  {
+    'label': 'recommend_w',
+    'value': 'recommend_w',
+    'description': "Remove a member's recommended listings."
+  },
+  {
+    'label': 'shops_r',
+    'value': 'shops_r',
+    'description': "See a member's shop description, messages and sections, even if not (yet) public.",
+    isFixed: true
+  },
+  {
+    'label': 'shops_w',
+    'value': 'shops_w',
+    'description': "Update a member's shop description, messages and sections."
+  },
+  {
+    'label': 'transactions_r',
+    'value': 'transactions_r',
+    'description': "Read a member's purchase and sales data. This applies to buyers as well as sellers."
+  },
+  ,
+  {
+    'label': 'transactions_w',
+    'value': 'transactions_w',
+    'description': "Update a member's sales data."
+  },
+]
 
 const RegisterEtsyOauth2 = () => {
   // ** Hooks
   const { skin } = useSkin()
   const [urlRedirect, setUrlRedirect] = React.useState('');
+  const [scopes, setScopes] = React.useState(scopeOptions);
+
   const params = useParams();
 
   const illustration = skin === 'dark' ? 'coming-soon-dark.svg' : 'coming-soon.svg',
     source = require(`@src/assets/images/pages/${illustration}`).default
 
-  const getUrl = async () => {
-    const url = await getUrlRedirectOauth2('', params?.uuid || null);
-    setUrlRedirect(url.data);
-  };
-  const onConnectEtsy = () => {
-    window.location.href = urlRedirect;
-  }
-  React.useEffect(() => {
-    getUrl();
-  }, []);
+  const onConnectEtsy = async () => {
+    try {
 
+
+      const scopesAr = scopes.map((scope) => scope.value);
+      console.log(scopesAr.join(' '));
+      const url = await getUrlRedirectOauth2(scopesAr.join(' '), params?.uuid || null);
+      window.location.href = url.data;
+    } catch (error) {
+      notifyError(error);
+    }
+  }
+
+  const orderOptions = (values) => {
+    return scopes
+      .filter((v) => v.isFixed)
+      .concat(values.filter((v) => !v.isFixed));
+  };
+  const onChangeScopes = (
+    newValue,
+    actionMeta
+  ) => {
+    switch (actionMeta.action) {
+      case 'remove-value':
+      case 'pop-value':
+        if (actionMeta.removedValue.isFixed) {
+          return;
+        }
+        break;
+      case 'clear':
+        newValue = scopeOptions.filter((v) => v.isFixed);
+        break;
+    }
+
+    setScopes(orderOptions(newValue));
+  };
+  const styles = {
+    multiValue: (base, state) => {
+      return state.data.isFixed ? { ...base, backgroundColor: 'gray' } : base;
+    },
+    multiValueLabel: (base, state) => {
+      return state.data.isFixed
+        ? { ...base, fontWeight: 'bold', color: 'white', paddingRight: 6 }
+        : base;
+    },
+    multiValueRemove: (base, state) => {
+      return state.data.isFixed ? { ...base, display: 'none' } : base;
+    },
+  };
   return (
     <div className='misc-wrapper'>
       <a className='brand-logo' href='/'>
@@ -81,23 +232,32 @@ const RegisterEtsyOauth2 = () => {
             </g>
           </g>
         </svg>
-        <h2 className='brand-text text-primary ms-1'>Vuexy</h2>
+        <h2 className='brand-text text-primary ms-1'>ListingManager</h2>
       </a>
       <div className='misc-inner p-2 p-sm-3'>
         <div className='w-100 text-center'>
-          <h2 className='mb-1'>We are launching soon 🚀</h2>
-          <p className='mb-3'>We're creating something awesome. Please subscribe to get notified when it's ready!</p>
+          <h2 className='mb-1'>Go to connect Etsy Api 🚀</h2>
+          <p className='mb-3'>"The term 'Etsy' is a trademark of Etsy, Inc. This application uses the Etsy API but is not endorsed or certified by Etsy, Inc."</p>
           <Form
             tag={Row}
             onSubmit={e => e.preventDefault()}
             className='row-cols-md-auto justify-content-center align-items-center m-0 mb-2 gx-3'
           >
-            <Col sm='12' className='m-0 mb-1'>
-              <Input placeholder='john@example.com' />
+            <Col sm='12' className='m-0 mb-1' style={{ width: '100%' }}>
+              <ReactSelect
+                value={scopes}
+                isMulti
+                styles={styles}
+                isClearable={scopes.some((v) => !v.isFixed)}
+                name="scopes"
+                options={scopeOptions}
+                placeholder='Scopes ...'
+                onChange={onChangeScopes}
+              />
             </Col>
             <Col sm='12' className='d-md-block d-grid ps-md-0 ps-auto'>
               <Button className='mb-1 btn-sm-block' color='primary' onClick={() => onConnectEtsy()}>
-                Notify
+                Connect
               </Button>
             </Col>
           </Form>

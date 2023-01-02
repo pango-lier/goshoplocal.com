@@ -15,21 +15,21 @@ export class Oauth2Service {
     private readonly etsyApi: EtsyApiService,
   ) {}
   // Step 1: Authorization Code
-  async getUrlRedirect() {
+  async getUrlRedirect(scope) {
     const state = this.generateState();
     const codeVerifier = this.generateVerifier();
     console.log(state, codeVerifier);
     await this.redis.hset('state_oauth2', state, 1);
     await this.redis.hset('code_verifier_oauth2', state, codeVerifier);
-    return this.getCoreUrlRedirect(codeVerifier, state);
+    return this.getCoreUrlRedirect(codeVerifier, state, scope);
   }
 
-  private getCoreUrlRedirect(codeVerifier, state) {
+  private getCoreUrlRedirect(codeVerifier, state, scope) {
     const codeChallenge = this.generateS256Challenge(codeVerifier);
     const query = new URLSearchParams({
       response_type: 'code',
       redirect_uri: this.configService.get('etsy.redirectUri'),
-      scope: this.configService.get('etsy.scope'),
+      scope: scope,
       client_id: this.configService.get('etsy.clientId'),
       state,
       code_challenge: codeChallenge,

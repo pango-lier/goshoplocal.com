@@ -115,7 +115,22 @@ const KnowledgeBase = () => {
         img: require('@src/assets/images/market/geargag.png').default,
         title: 'Geargag',
       },
+      {
+        id: 4,
+        img: require('@src/assets/images/market/gearment.png').default,
+        title: 'Customcat',
+      },
+      {
+        id: 5,
 
+        img: require('@src/assets/images/market/printify.png').default,
+        title: 'Printify'
+      },
+      {
+        id: 6,
+        img: require('@src/assets/images/market/printway.ico').default,
+        title: 'Printway',
+      },
     ]);
 
     setImages([
@@ -125,9 +140,14 @@ const KnowledgeBase = () => {
         title: 'Connect Etsy Step 1: Click connect button',
       },
       {
+        id: 9,
+        img: require('@src/assets/images/etsy/connect2.png').default,
+        title: 'Connect Etsy Step 2: Select scope',
+      },
+      {
         id: 6,
         img: require('@src/assets/images/etsy/enable.png').default,
-        title: 'Connect Etsy Step 2: Click "Grant Access" to enable access OAuth 2.',
+        title: 'Connect Etsy Step 3: Click "Grant Access" to enable access OAuth 2.',
       },
       {
         id: 7,
@@ -235,17 +255,17 @@ const KnowledgeBase = () => {
           <div className='text-center mb-1' style={{ fontWeight: "bold", fontSize: "18px" }}>"Faster, easier and clearer and Use statistical power"</div>
           <Row className='kb-search-content-info match-height'>{renderContent()}</Row>
         </div>
+
+
+        <Row id="render-description">
+          {renderContentImage()}
+        </Row>
         <Card style={{ padding: "20px" }}>
           <CardTitle className='text-center'>Our Partner and Suppliers</CardTitle>
           <Row id="render-suppliers">
             {renderContentSupplier()}
           </Row>
         </Card>
-
-        <Row id="render-description">
-          {renderContentImage()}
-        </Row>
-
       </div>
     </Fragment>
   )

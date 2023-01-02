@@ -7,8 +7,8 @@ export class Oauth2Controller {
   constructor(private readonly oauth2Service: Oauth2Service) {}
 
   @Get('url-redirect')
-  getUrlRedirect() {
-    return this.oauth2Service.getUrlRedirect();
+  getUrlRedirect(@Query() query) {
+    return this.oauth2Service.getUrlRedirect(query.scope);
   }
 
   @Get('verifier')
