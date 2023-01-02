@@ -23,7 +23,7 @@ export class ConnectsService {
     date.setHours(date.getHours() + 48);
     createConnectDto.expiredAt = date;
     createConnectDto.accessToken =
-      randomstring.generate(24) + '-' + new Date().getTime();
+      randomstring.generate(24) + '_' + new Date().getTime();
     const connect = this.repo.create(createConnectDto);
     return this.repo.save(connect);
   }

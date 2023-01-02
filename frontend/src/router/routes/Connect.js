@@ -13,7 +13,14 @@ const ConnectRoutes = [
       publicRoute: true
     }
   },
-
+  {
+    path: '/connects/:uuid/oauth2',
+    component: lazy(() => import('../../views/pages/misc/RegisterEtsyOauth2')),
+    layout: 'BlankLayout',
+    meta: {
+      publicRoute: true
+    }
+  },
 ]
 
 export default ConnectRoutes

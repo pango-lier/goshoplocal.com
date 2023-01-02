@@ -20,7 +20,7 @@ export class Account {
   name?: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  rememberToken?: string;
+  accessToken?: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   refreshToken?: string;
@@ -29,7 +29,7 @@ export class Account {
   status?: string;
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
-  user_id?: number;
+  etsy_user_id?: number;
 
   @Column('varchar', { length: 255, nullable: true })
   primary_email?: string;

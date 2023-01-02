@@ -1,9 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
+import { Paginate } from 'src/paginate/paginate.decorator';
+import { IPaginate } from 'src/paginate/paginate.interface';
+import { jwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('accounts')
+@UseGuards(jwtAuthGuard)
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
@@ -13,8 +26,8 @@ export class AccountsController {
   }
 
   @Get()
-  findAll() {
-    return this.accountsService.findAll();
+  findAll(@Paginate() paginate: IPaginate) {
+    return this.accountsService.findAll(paginate);
   }
 
   @Get(':id')
