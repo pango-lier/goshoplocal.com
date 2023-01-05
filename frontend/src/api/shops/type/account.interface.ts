@@ -1,7 +1,9 @@
-export class CreateAccountDto {
-  name?: string;
+import { CrawlerLinkEnum } from '../enum/crawler-link.enum';
 
-  message?: string;
+export interface IAaccount {
+  id?: number;
+
+  name?: string;
 
   scope?: string;
 

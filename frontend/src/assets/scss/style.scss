@@ -17,3 +17,39 @@ WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BET
 	height: auto;
 	display: block;
   }
+  
+  .rt-td {
+	padding: 0 0.9375rem;
+	height: auto;
+	line-height: 30px;
+	white-space: nowrap;
+	overflow: hidden;
+  }
+  .rt-th {
+	height: 40px;
+	line-height: 40px;
+	padding: 0 0.9375rem;
+	font-weight: 700;
+	text-align: left;
+	border: none;
+	white-space: nowrap;
+	overflow: hidden;
+  }
+  .rt-tbody {
+	//	display: inline-block;
+	//	max-height: 75vh;
+	//	overflow-y: scroll;
+	min-height: 30vh;
+  }
+  table > :not(caption) > * > * {
+	padding: 2px 2px !important;
+  }
+  .paginate-relative {
+	position:fixed;
+	right: 40px;
+	bottom: 40px;
+  }
+  .table-card{
+	min-height: 25vh;
+	max-height: 85vh;
+  }

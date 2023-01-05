@@ -23,10 +23,16 @@ export class Account {
   accessToken?: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
+  scope?: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
   refreshToken?: string;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   status?: string;
+
+  @Column({ type: 'text', nullable: true })
+  message?: string;
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
   etsy_user_id?: number;

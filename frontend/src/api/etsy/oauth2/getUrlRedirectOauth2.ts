@@ -5,6 +5,6 @@ export const getUrlRedirectOauth2 = async (
   connectId = null,
 ) => {
   return await axios.get(
-    `${process.env.REACT_APP_SERVER_URL}/oauth/url-redirect?scope=${scope}&&connectId=${connectId}`,
+    `${process.env.REACT_APP_SERVER_URL}/oauth2/url-redirect?scope=${scope}&&connectId=${connectId}`,
   );
 };

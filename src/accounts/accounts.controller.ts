@@ -26,8 +26,12 @@ export class AccountsController {
   }
 
   @Get()
-  findAll(@Paginate() paginate: IPaginate) {
-    return this.accountsService.findAll(paginate);
+  async findAll(@Paginate() paginate: IPaginate) {
+    const [result, total] = await this.accountsService.findAll(paginate);
+    return {
+      result,
+      total,
+    };
   }
 
   @Get(':id')

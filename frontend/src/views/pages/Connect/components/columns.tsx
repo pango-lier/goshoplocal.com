@@ -62,7 +62,7 @@ export const COLUMNS = (
               onChange: row.getToggleSelectedHandler(),
             }}
           />
-          {''}
+          {/* {''}
           {row.getCanExpand() ? (
             <span
               {...{
@@ -74,7 +74,7 @@ export const COLUMNS = (
             </span>
           ) : (
             ''
-          )}
+          )} */}
         </>
       </div>
     ),
@@ -88,18 +88,10 @@ export const COLUMNS = (
     minSize: 10,
     maxSize: 20,
   }),
-  columnHelper.accessor((row) => row.name, {
-    id: 'name',
-    cell: (info) => <i>{info.getValue()}</i>,
-    header: () => <span>Name</span>,
-    size: 50,
-    minSize: 20,
-    maxSize: 50,
-  }),
   columnHelper.accessor('name', {
     header: () => 'name',
     cell: (info) => (
-      <Tooltip id={'c' + info.row.id} message={info.getValue() ?? ''} />
+      <Tooltip id={'name' + info.row.id} message={info.getValue() ?? ''} />
     ),
     size: 40,
     minSize: 40,
@@ -108,7 +100,7 @@ export const COLUMNS = (
   columnHelper.accessor('status', {
     header: () => 'status',
     cell: (info) => (
-      <Tooltip id={'c' + info.row.id} message={info.getValue() ?? ''} />
+      <Tooltip id={'status' + info.row.id} message={info.getValue() ?? ''} />
     ),
     size: 40,
     minSize: 40,

@@ -18,7 +18,6 @@ export class Oauth2Service {
   async getUrlRedirect(scope) {
     const state = this.generateState();
     const codeVerifier = this.generateVerifier();
-    console.log(state, codeVerifier);
     await this.redis.hset('state_oauth2', state, 1);
     await this.redis.hset('code_verifier_oauth2', state, codeVerifier);
     return this.getCoreUrlRedirect(codeVerifier, state, scope);
@@ -40,16 +39,23 @@ export class Oauth2Service {
 
   // Step 2: Grant Access#
   async getAccessToken(state, code) {
-    if (
-      !(await this.redis.hexists('state_oauth2', state)) &&
-      !(await this.redis.hexists('code_verifier_oauth2', state))
-    ) {
-      throw new Error('State not match');
+    try {
+      if (
+        !(await this.redis.hexists('state_oauth2', state)) &&
+        !(await this.redis.hexists('code_verifier_oauth2', state))
+      ) {
+        throw new Error('State not match');
+      }
+      const codeVerifier = await this.redis.hget('code_verifier_oauth2', state);
+      this.redis.hdel('state_oauth2', state);
+      this.redis.hdel('code_verifier_oauth2', state);
+      await this.requestGetAccessToken(codeVerifier, code);
+      return this.configService.get('etsy.redirectUriSuccess');
+    } catch (error) {
+      return `${this.configService.get(
+        'etsy.redirectUriError',
+      )}?error_message=${error.message}`;
     }
-    const codeVerifier = await this.redis.hget('code_verifier_oauth2', state);
-    this.redis.hdel('state_oauth2', state);
-    this.redis.hdel('code_verifier_oauth2', state);
-    return await this.requestGetAccessToken(codeVerifier, code);
   }
 
   async requestGetAccessToken(codeVerifier, code) {
@@ -64,7 +70,7 @@ export class Oauth2Service {
         code: code,
       },
     });
-    console.log(res.data);
+
     await this.setRedisToken(res.data);
     const [account] = res.data.access_token.split('.');
     await this.etsyApi.syncAccount(account);
@@ -74,7 +80,6 @@ export class Oauth2Service {
 
   async setRedisToken(data) {
     const [account] = data.access_token.split('.');
-    console.log(`token_oauth2_${account}`);
     await this.redis.hmset(`token_oauth2_${account}`, {
       account_id: account,
       updated_at_token: new Date().getTime(),

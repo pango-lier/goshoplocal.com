@@ -2,7 +2,7 @@ import { Controller, Get, Query, Res } from '@nestjs/common';
 import { Oauth2Service } from './oauth2.service';
 import { Response } from 'express';
 
-@Controller('oauth')
+@Controller('oauth2')
 export class Oauth2Controller {
   constructor(private readonly oauth2Service: Oauth2Service) {}
 
@@ -11,13 +11,12 @@ export class Oauth2Controller {
     return this.oauth2Service.getUrlRedirect(query.scope);
   }
 
-  @Get('verifier')
+  @Get('etsy-callback')
   async callbackUrl(@Query() query, @Res() res: Response) {
-    console.log(query);
-    const status = await this.oauth2Service.getAccessToken(
+    const urlCallback = await this.oauth2Service.getAccessToken(
       query.state,
       query.code,
     );
-    return res.redirect('http://localhost:3003/connects');
+    return res.redirect(urlCallback);
   }
 }
