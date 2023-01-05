@@ -21,7 +21,7 @@ const BaseTable = () => {
   const [data, setData] = useState<IRow[]>([]);
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
   const [currentPage, setCurrentPage] = useState<number>(0);
-  const [perPage, setPerPage] = useState<number>(10);
+  const [perPage, setPerPage] = useState<number>(100);
   const [total, setTotal] = useState<number>(0);
   const [action, setAction] = useState<ACTION_ENUM>(ACTION_ENUM.None);
 

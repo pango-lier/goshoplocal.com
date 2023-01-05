@@ -50,6 +50,7 @@ export class EtsyApiService {
       name: `${user.data.first_name} ${user.data.last_name}`,
       accessToken: account.access_token,
       refreshToken: account.refresh_token,
+      scope: account.scope,
     });
     return user.data;
   }

@@ -5,4 +5,5 @@ export interface IRedisAccount {
   token_type: string;
   expires_in: number | string;
   refresh_token: string;
+  scope: string;
 }

@@ -20,6 +20,7 @@ export class Oauth2Service {
     const codeVerifier = this.generateVerifier();
     await this.redis.hset('state_oauth2', state, 1);
     await this.redis.hset('code_verifier_oauth2', state, codeVerifier);
+    await this.redis.hset('scope_oauth2', state, scope);
     return this.getCoreUrlRedirect(codeVerifier, state, scope);
   }
 
@@ -47,9 +48,11 @@ export class Oauth2Service {
         throw new Error('State not match');
       }
       const codeVerifier = await this.redis.hget('code_verifier_oauth2', state);
+      const scope = await this.redis.hget('scope_oauth2', state);
+      this.redis.hdel('scope_oauth2', state);
       this.redis.hdel('state_oauth2', state);
       this.redis.hdel('code_verifier_oauth2', state);
-      await this.requestGetAccessToken(codeVerifier, code);
+      await this.requestGetAccessToken(codeVerifier, code, scope);
       return this.configService.get('etsy.redirectUriSuccess');
     } catch (error) {
       return `${this.configService.get(
@@ -58,7 +61,7 @@ export class Oauth2Service {
     }
   }
 
-  async requestGetAccessToken(codeVerifier, code) {
+  async requestGetAccessToken(codeVerifier, code, scope) {
     const res = await axios.request({
       method: 'POST',
       url: 'https://api.etsy.com/v3/public/oauth/token',
@@ -71,7 +74,7 @@ export class Oauth2Service {
       },
     });
 
-    await this.setRedisToken(res.data);
+    await this.setRedisToken({ ...res.data, scope });
     const [account] = res.data.access_token.split('.');
     await this.etsyApi.syncAccount(account);
 
