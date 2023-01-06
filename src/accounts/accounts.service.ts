@@ -31,13 +31,11 @@ export class AccountsService {
   async update(id: number, updateAccountDto: UpdateAccountDto) {
     const account = await this.account.findOneBy({ id });
     account.name = updateAccountDto.name;
-    account.accessToken = updateAccountDto.accessToken;
-    account.refreshToken = updateAccountDto.refreshToken;
     account.active = updateAccountDto.active;
     account.primary_email = updateAccountDto.primary_email;
     account.last_name = updateAccountDto?.last_name || null;
     account.first_name = updateAccountDto?.first_name || null;
-    account.etsy_user_id = updateAccountDto?.etsy_user_id || null;
+    account.vendor = updateAccountDto.vendor;
     return await this.account.save(account);
   }
 
@@ -55,6 +53,8 @@ export class AccountsService {
       account.last_name = createAccountDto?.last_name || null;
       account.first_name = createAccountDto?.first_name || null;
       account.etsy_user_id = createAccountDto?.etsy_user_id || null;
+      account.scope = createAccountDto?.scope || null;
+      account.vendor = createAccountDto?.vendor || null;
       return await this.account.save(account);
     }
   }

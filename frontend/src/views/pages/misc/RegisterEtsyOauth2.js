@@ -16,9 +16,28 @@ import { notifyError } from 'utility/notify'
 
 const scopeOptions = [
   {
+    'label': 'listings_r',
+    'value': 'listings_r',
+    'description': "Read a member's inactive and expired (i.e., non-public) listings.",
+    isFixed: true
+  },
+  {
+    'label': 'profile_r',
+    'value': 'profile_r',
+    'description': "Read a member's private profile information.",
+    isFixed: true
+  },
+  {
+    'label': 'shops_r',
+    'value': 'shops_r',
+    'description': "See a member's shop description, messages and sections, even if not (yet) public.",
+    isFixed: true
+  },
+  {
     'label': 'address_r',
     'value': 'address_r',
-    'description': "Read a member's shipping addresses"
+    'description': "Read a member's shipping addresses",
+    isFixed: true
   },
   {
     'label': 'address_w',
@@ -46,12 +65,6 @@ const scopeOptions = [
     'description': "Delete a member's listings."
   },
   {
-    'label': 'listings_r',
-    'value': 'listings_r',
-    'description': "Read a member's inactive and expired (i.e., non-public) listings.",
-    isFixed: true
-  },
-  {
     'label': 'listings_w',
     'value': 'listings_w',
     'description': "Create and edit a member's listings."
@@ -77,12 +90,6 @@ const scopeOptions = [
     'description': "View all details of a member's feedback (including purchase history.)"
   },
   {
-    'label': 'profile_r',
-    'value': 'profile_r',
-    'description': "Read a member's private profile information.",
-    isFixed: true
-  },
-  {
     'label': 'profile_w',
     'value': 'profile_w',
     'description': "Update a member's private profile information."
@@ -98,12 +105,6 @@ const scopeOptions = [
     'description': "Remove a member's recommended listings."
   },
   {
-    'label': 'shops_r',
-    'value': 'shops_r',
-    'description': "See a member's shop description, messages and sections, even if not (yet) public.",
-    isFixed: true
-  },
-  {
     'label': 'shops_w',
     'value': 'shops_w',
     'description': "Update a member's shop description, messages and sections."
@@ -113,7 +114,6 @@ const scopeOptions = [
     'value': 'transactions_r',
     'description': "Read a member's purchase and sales data. This applies to buyers as well as sellers."
   },
-  ,
   {
     'label': 'transactions_w',
     'value': 'transactions_w',
@@ -134,11 +134,9 @@ const RegisterEtsyOauth2 = () => {
 
   const onConnectEtsy = async () => {
     try {
-
-
-      const scopesAr = scopes.map((scope) => scope.value);
-      console.log(scopesAr.join(' '));
-      const url = await getUrlRedirectOauth2(scopesAr.join(' '), params?.uuid || null);
+      const vendor = '';
+      const scopesAr = scopes.map((scope) => scope.value.trim());
+      const url = await getUrlRedirectOauth2(scopesAr.join(' '), vendor, params?.uuid || null);
       window.location.href = url.data;
     } catch (error) {
       notifyError(error);

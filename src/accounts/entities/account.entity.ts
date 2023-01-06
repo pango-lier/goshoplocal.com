@@ -31,6 +31,9 @@ export class Account {
   @Column({ type: 'varchar', length: 50, nullable: true })
   status?: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  vendor?: string;
+
   @Column({ type: 'text', nullable: true })
   message?: string;
 

@@ -15,12 +15,13 @@ export class Oauth2Service {
     private readonly etsyApi: EtsyApiService,
   ) {}
   // Step 1: Authorization Code
-  async getUrlRedirect(scope) {
+  async getUrlRedirect(scope, vendor) {
     const state = this.generateState();
     const codeVerifier = this.generateVerifier();
     await this.redis.hset('state_oauth2', state, 1);
     await this.redis.hset('code_verifier_oauth2', state, codeVerifier);
     await this.redis.hset('scope_oauth2', state, scope);
+    await this.redis.hset('vendor_oauth2', state, vendor);
     return this.getCoreUrlRedirect(codeVerifier, state, scope);
   }
 
@@ -49,10 +50,12 @@ export class Oauth2Service {
       }
       const codeVerifier = await this.redis.hget('code_verifier_oauth2', state);
       const scope = await this.redis.hget('scope_oauth2', state);
+      const vendor = await this.redis.hget('vendor_oauth2', state);
+      this.redis.hdel('vendor_oauth2', state);
       this.redis.hdel('scope_oauth2', state);
       this.redis.hdel('state_oauth2', state);
       this.redis.hdel('code_verifier_oauth2', state);
-      await this.requestGetAccessToken(codeVerifier, code, scope);
+      await this.requestGetAccessToken(codeVerifier, code, scope, vendor);
       return this.configService.get('etsy.redirectUriSuccess');
     } catch (error) {
       return `${this.configService.get(
@@ -61,7 +64,7 @@ export class Oauth2Service {
     }
   }
 
-  async requestGetAccessToken(codeVerifier, code, scope) {
+  async requestGetAccessToken(codeVerifier, code, scope, vendor) {
     const res = await axios.request({
       method: 'POST',
       url: 'https://api.etsy.com/v3/public/oauth/token',
@@ -73,8 +76,7 @@ export class Oauth2Service {
         code: code,
       },
     });
-
-    await this.setRedisToken({ ...res.data, scope });
+    await this.setRedisToken({ ...res.data, scope, vendor });
     const [account] = res.data.access_token.split('.');
     await this.etsyApi.syncAccount(account);
 

@@ -8,6 +8,8 @@ export class CreateAccountDto {
   accessToken?: string;
 
   refreshToken?: string;
+  
+  vendor?: string;
 
   status?: string;
 
