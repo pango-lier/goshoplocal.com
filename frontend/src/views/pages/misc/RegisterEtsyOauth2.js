@@ -1,5 +1,5 @@
 // ** Reactstrap Imports
-import { Button, Form, Input, Row, Col } from 'reactstrap'
+import { Button, Form, Input, Row, Col, Label } from 'reactstrap'
 
 // ** Custom Hooks
 import { useSkin } from '@hooks/useSkin'
@@ -124,7 +124,7 @@ const scopeOptions = [
 const RegisterEtsyOauth2 = () => {
   // ** Hooks
   const { skin } = useSkin()
-  const [urlRedirect, setUrlRedirect] = React.useState('');
+  const [vendor, setVendor] = React.useState('');
   const [scopes, setScopes] = React.useState(scopeOptions);
 
   const params = useParams();
@@ -166,6 +166,9 @@ const RegisterEtsyOauth2 = () => {
 
     setScopes(orderOptions(newValue));
   };
+  const onChangeVendor = (e) => {
+    setVendor(e.target.value);
+  }
   const styles = {
     multiValue: (base, state) => {
       return state.data.isFixed ? { ...base, backgroundColor: 'gray' } : base;
@@ -240,7 +243,12 @@ const RegisterEtsyOauth2 = () => {
             tag={Row}
             onSubmit={e => e.preventDefault()}
             className='row-cols-md-auto justify-content-center align-items-center m-0 mb-2 gx-3'
-          >
+          ><div className='mb-1'>
+              <Label className='form-label' for='name-vendor'>
+                Vendor name
+              </Label>
+              <Input value={vendor} onChange={(e) => onChangeVendor(e)} type='text' id='name-vendor' placeholder='Enter your vendor name' autoFocus />
+            </div>
             <Col sm='12' className='m-0 mb-1' style={{ width: '100%' }}>
               <ReactSelect
                 value={scopes}
