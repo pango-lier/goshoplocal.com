@@ -3,6 +3,10 @@ import { CrawlerLinkEnum } from '../enum/crawler-link.enum';
 export interface IAaccount {
   id?: number;
 
+  message?: string;
+
+  vendor?: string;
+
   name?: string;
 
   scope?: string;

@@ -54,7 +54,6 @@ const BaseTable = () => {
       setData(_data);
     } else if (action === ACTION_ENUM.Delete) {
       let _data = data.filter((i) => i.id !== row.id);
-      console.log(_data);
       setData(_data);
     }
     setIsOpenModalGroup(false);
@@ -73,7 +72,6 @@ const BaseTable = () => {
       limit,
       offset,
     });
-    console.log(response.data);
     setData(response.data.result);
     setTotal(response.data.total);
   };
@@ -178,22 +176,6 @@ const BaseTable = () => {
                 </Fragment>
               ))}
             </tbody>
-            {/* <tfoot>
-            {table.getFooterGroups().map((footerGroup) => (
-              <tr key={footerGroup.id}>
-                {footerGroup.headers.map((header) => (
-                  <th key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.footer,
-                          header.getContext()
-                        )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </tfoot> */}
           </Table>
           <div className="h-4" />
           <div className="paginate-relative">

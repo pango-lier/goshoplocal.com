@@ -85,7 +85,13 @@ export const COLUMNS = (
       minSize: 20,
       maxSize: 70,
     }),
-
+    columnHelper.accessor('vendor', {
+      header: () => 'Vendor',
+      cell: (info) => info.getValue(),
+      size: 10,
+      minSize: 20,
+      maxSize: 70,
+    }),
     columnHelper.accessor('primary_email', {
       header: () => 'Email',
       cell: (info) => (
@@ -106,7 +112,7 @@ export const COLUMNS = (
           message={info.row.original?.name ?? ''}
         />
       ),
-      size: 0,
+      size: 10,
       minSize: 50,
       maxSize: 200,
     }),
@@ -118,7 +124,7 @@ export const COLUMNS = (
           message={info.row.original?.scope ?? ''}
         />
       ),
-      size: 0,
+      size: 8,
       minSize: 50,
       maxSize: 200,
     }),
@@ -130,7 +136,7 @@ export const COLUMNS = (
           message={info.row.original?.status ?? ''}
         />
       ),
-      size: 0,
+      size: 10,
       minSize: 50,
       maxSize: 200,
     }),

@@ -14,6 +14,7 @@ export class OauthRedisService {
       expires_in,
       refresh_token,
       scope,
+      vendor,
     ] = await this.redis.hmget(
       `token_oauth2_${accountId}`,
       'account_id',
@@ -23,6 +24,7 @@ export class OauthRedisService {
       'expires_in',
       'refresh_token',
       'scope',
+      'vendor',
     );
     const res: IRedisAccount = {
       account_id,
@@ -32,6 +34,7 @@ export class OauthRedisService {
       expires_in,
       refresh_token,
       scope,
+      vendor,
     };
     return res;
   }

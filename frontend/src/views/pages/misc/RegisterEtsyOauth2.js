@@ -124,7 +124,7 @@ const scopeOptions = [
 const RegisterEtsyOauth2 = () => {
   // ** Hooks
   const { skin } = useSkin()
-  const [vendor, setVendor] = React.useState('');
+  const [vendor, setVendor] = React.useState();
   const [scopes, setScopes] = React.useState(scopeOptions);
 
   const params = useParams();
@@ -134,7 +134,9 @@ const RegisterEtsyOauth2 = () => {
 
   const onConnectEtsy = async () => {
     try {
-      const vendor = '';
+      if (!vendor) {
+        return notifyError("Vendor is require !.");
+      }
       const scopesAr = scopes.map((scope) => scope.value.trim());
       const url = await getUrlRedirectOauth2(scopesAr.join(' '), vendor, params?.uuid || null);
       window.location.href = url.data;

@@ -51,6 +51,7 @@ export class EtsyApiService {
       accessToken: account.access_token,
       refreshToken: account.refresh_token,
       scope: account.scope,
+      vendor: account.vendor,
     });
     return user.data;
   }

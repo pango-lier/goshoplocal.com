@@ -21,6 +21,22 @@ const ConnectRoutes = [
       publicRoute: true
     }
   },
+  {
+    path: '/connects/oauth2/error',
+    component: lazy(() => import('../../views/pages/misc/ErrorEtsyOauth2')),
+    layout: 'BlankLayout',
+    meta: {
+      publicRoute: true
+    }
+  },
+  {
+    path: '/connects/oauth2/success',
+    component: lazy(() => import('../../views/pages/misc/SuccessEtsyOauth2')),
+    layout: 'BlankLayout',
+    meta: {
+      publicRoute: true
+    }
+  },
 ]
 
 export default ConnectRoutes
