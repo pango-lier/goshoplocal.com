@@ -18,15 +18,15 @@ const Routes = [
     component: lazy(() => import('../../views/pages/Shop'))
   },
   {
-    path: '/users',
-    component: lazy(() => import('../../views/pages/User'))
-  },
-  {
-    path: '/about-us',
-    component: lazy(() => import('../../views/SecondPage')),
+    path: '/listings',
+    component: lazy(() => import('../../views/pages/Listing')),
     meta: {
       publicRoute: true
     }
+  },
+  {
+    path: '/users',
+    component: lazy(() => import('../../views/pages/User'))
   },
   ...Auth,
   ...Connect,

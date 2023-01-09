@@ -1,4 +1,5 @@
 import { Connect } from 'src/connects/entities/connect.entity';
+import { Listing } from 'src/listings/entities/listing.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -75,4 +76,7 @@ export class Account {
 
   @OneToMany(() => Connect, (u) => u.account, { nullable: true })
   connects?: Connect[];
+
+  @OneToMany(() => Listing, (u) => u.account, { nullable: true })
+  listings?: Listing[];
 }

@@ -1,6 +1,6 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { IPaginate } from './paginate.interface';
+import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 import { Request } from 'express';
+import { IPaginate } from './paginate.interface';
 
 export const Paginate = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {

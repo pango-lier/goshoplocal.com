@@ -20,8 +20,12 @@ export class AccountsService {
 
   async findAll(paginate: IPaginate) {
     const query = this.account.createQueryBuilder('account');
+    query.select('account.*');
 
-    return await this.paginateService.queryFilter(query, paginate);
+    return await this.paginateService.queryFilter(query, paginate, [
+      'account.vendor',
+      'account.email',
+    ]);
   }
 
   findOne(id: number) {

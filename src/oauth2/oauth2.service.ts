@@ -5,13 +5,14 @@ import axios from 'axios';
 import { createHash, randomBytes } from 'crypto';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { EtsyApiService } from '../etsy-api/etsy-api.service';
+import { OauthRedisService } from 'src/etsy-api/oauth-redis/oauth-redis.service';
 
 @Injectable()
 export class Oauth2Service {
   constructor(
     @InjectRedis() private readonly redis: Redis,
     private readonly configService: ConfigService,
-    private readonly accountService: AccountsService,
+    private readonly oauthRedis: OauthRedisService,
     private readonly etsyApi: EtsyApiService,
   ) {}
   // Step 1: Authorization Code
@@ -76,20 +77,11 @@ export class Oauth2Service {
         code: code,
       },
     });
-    await this.setRedisToken({ ...res.data, scope, vendor });
+    await this.oauthRedis.setRedisToken({ ...res.data, scope, vendor });
     const [account] = res.data.access_token.split('.');
     await this.etsyApi.syncAccount(account);
 
     return res;
-  }
-
-  async setRedisToken(data) {
-    const [account] = data.access_token.split('.');
-    await this.redis.hmset(`token_oauth2_${account}`, {
-      account_id: account,
-      updated_at_token: new Date().getTime(),
-      ...data,
-    });
   }
 
   base64URLEncode = (str) =>

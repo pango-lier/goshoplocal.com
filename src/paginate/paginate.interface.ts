@@ -4,7 +4,8 @@ export interface ISorted {
 }
 export interface IFiltered {
   id: string;
-  desc: boolean;
+  value: string | number;
+  operator?: string;
 }
 export interface IPaginate {
   pageIndex?: number | string;

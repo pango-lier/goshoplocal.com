@@ -1,4 +1,4 @@
-import { Mail, Home, User, ExternalLink, ShoppingBag } from 'react-feather'
+import { Mail, Home, User, ExternalLink, ShoppingBag, List } from 'react-feather'
 
 export default [
   {
@@ -20,15 +20,21 @@ export default [
     navLink: '/shops'
   },
   {
-    id: 'users',
-    title: 'Users',
-    icon: <User size={20} />,
-    navLink: '/users'
+    id: 'listings',
+    title: 'Listing',
+    icon: <List size={20} />,
+    navLink: '/listings'
   },
-  {
-    id: 'secondPage',
-    title: 'Second Page',
-    icon: <Mail size={20} />,
-    navLink: '/second-page'
-  }
+  // {
+  //   id: 'users',
+  //   title: 'Users',
+  //   icon: <User size={20} />,
+  //   navLink: '/users'
+  // },
+  // {
+  //   id: 'secondPage',
+  //   title: 'Second Page',
+  //   icon: <Mail size={20} />,
+  //   navLink: '/second-page'
+  // }
 ]

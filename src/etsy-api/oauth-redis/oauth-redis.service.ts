@@ -38,4 +38,15 @@ export class OauthRedisService {
     };
     return res;
   }
+
+  async setRedisToken(data) {
+    const [account] = data.access_token.split('.');
+    const response = {
+      account_id: account,
+      updated_at_token: new Date().getTime(),
+      ...data,
+    };
+    await this.redis.hmset(`token_oauth2_${account}`, response);
+    return response;
+  }
 }
