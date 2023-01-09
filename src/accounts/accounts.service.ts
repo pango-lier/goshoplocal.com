@@ -32,6 +32,10 @@ export class AccountsService {
     return `This action returns a #${id} account`;
   }
 
+  findEtsyUserId(etsyUserId: number) {
+    return this.account.findOneBy({ etsy_user_id: etsyUserId });
+  }
+
   async update(id: number, updateAccountDto: UpdateAccountDto) {
     const account = await this.account.findOneBy({ id });
     account.name = updateAccountDto.name;
@@ -59,6 +63,7 @@ export class AccountsService {
       account.etsy_user_id = createAccountDto?.etsy_user_id || null;
       account.scope = createAccountDto?.scope || null;
       account.vendor = createAccountDto?.vendor || null;
+      account.shop_id = createAccountDto.shop_id || null;
       return await this.account.save(account);
     }
   }

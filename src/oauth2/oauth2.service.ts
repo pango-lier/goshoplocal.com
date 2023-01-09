@@ -77,7 +77,13 @@ export class Oauth2Service {
         code: code,
       },
     });
-    await this.oauthRedis.setRedisToken({ ...res.data, scope, vendor });
+    const me = await this.etsyApi.getMe(res.data.access_token);
+    await this.oauthRedis.setRedisToken({
+      ...res.data,
+      scope,
+      vendor,
+      shop_id: me.shop_id,
+    });
     const [account] = res.data.access_token.split('.');
     await this.etsyApi.syncAccount(account);
 

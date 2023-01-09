@@ -111,12 +111,17 @@ export const COLUMNS = (
     }),
     columnHelper.accessor('price', {
       header: () => 'Price',
-      cell: (info) => (
-        <Tooltip
-          id={'name' + info.row.id}
-          message={info.row.original?.price ?? ''}
-        />
-      ),
+      cell: (info) => {
+        if(!info.row.original.price) return ''
+        const price = JSON.parse(info.row.original.price);
+        if(!price.amount)return ''
+        return (
+          <Tooltip
+            id={'price' + info.row.id}
+            message={`${price.amount/price.divisor}${price.currency_code}`|| ''}
+          />
+        );
+      },
       size: 10,
       minSize: 50,
       maxSize: 200,

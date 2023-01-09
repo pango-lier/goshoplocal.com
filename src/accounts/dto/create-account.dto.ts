@@ -8,7 +8,11 @@ export class CreateAccountDto {
   accessToken?: string;
 
   refreshToken?: string;
-  
+
+  shop_id?: number;
+
+  shop_name?: string;
+
   vendor?: string;
 
   status?: string;

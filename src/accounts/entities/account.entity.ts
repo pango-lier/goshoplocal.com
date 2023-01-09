@@ -41,6 +41,12 @@ export class Account {
   @Column({ type: 'bigint', unsigned: true, nullable: true })
   etsy_user_id?: number;
 
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
+  shop_id?: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  shop_name?: string;
+
   @Column('varchar', { length: 255, nullable: true })
   primary_email?: string;
 

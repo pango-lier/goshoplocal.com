@@ -3,77 +3,77 @@ export class CreateListingDto {
 
   userId?: number;
 
-  'etsy_listing_id'?: number;
+  etsy_listing_id?: number;
 
-  'etsy_user_id'?: number;
+  etsy_user_id?: number;
 
-  'status'?: string;
+  status?: string;
 
-  'message'?: string;
+  message?: string;
 
-  'shop_id'?: number;
+  shop_id?: number;
 
-  'title'?: string;
+  title?: string;
 
-  'description'?: string;
+  description?: string;
 
-  'state'?: string;
+  state?: 'active' | 'inactive' | 'sold_out' | 'draft' | 'expired';
 
-  'creation_timestamp'?: number;
+  creation_timestamp?: number;
 
-  'created_timestamp'?: number;
+  created_timestamp?: number;
 
-  'ending_timestamp'?: number;
+  ending_timestamp?: number;
 
-  'original_creation_timestamp'?: number;
+  original_creation_timestamp?: number;
 
-  'last_modified_timestamp'?: number;
+  last_modified_timestamp?: number;
 
-  'updated_timestamp'?: number;
+  updated_timestamp?: number;
 
-  'state_timestamp'?: number;
+  state_timestamp?: number;
 
-  'quantity'?: number;
+  quantity?: number;
 
-  'shop_section_id'?: number;
+  shop_section_id?: number;
 
-  'featured_rank'?: number;
+  featured_rank?: number;
 
-  'url'?: string;
+  url?: string;
 
-  'num_favorers'?: number;
+  num_favorers?: number;
 
-  'non_taxable'?: boolean;
+  non_taxable?: boolean;
 
-  'is_taxable'?: boolean;
+  is_taxable?: boolean;
 
-  'is_customizable'?: boolean;
+  is_customizable?: boolean;
 
-  'is_personalizable'?: boolean;
+  is_personalizable?: boolean;
 
-  'personalization_is_required'?: boolean;
+  personalization_is_required?: boolean;
 
-  'personalization_char_count_max'?: number;
+  personalization_char_count_max?: number;
 
-  'personalization_instructions'?: string;
+  personalization_instructions?: string;
 
-  'listing_type'?: 'physical' | 'download' | 'both';
+  listing_type?: 'physical' | 'download' | 'both';
 
-  'tags'?: string; //[]
+  tags?: string; //[]
 
-  'materials'?: string; //[]
+  materials?: string; //[]
 
-  'shipping_profile_id'?: number;
+  shipping_profile_id?: number;
 
-  'return_policy_id'?: number;
+  return_policy_id?: number;
 
-  'processing_min'?: number;
+  processing_min?: number;
 
-  'processing_max'?: number;
+  processing_max?: number;
 
-  'who_made'?: 'i_did' | 'someone_else' | 'collective';
+  who_made?: 'i_did' | 'someone_else' | 'collective';
 
-  'when_made'?:
+  when_made?:
     | 'made_to_order'
     | '2020_2023'
     | '2010_2019'
@@ -94,52 +94,52 @@ export class CreateListingDto {
     | '1700s'
     | 'before_1700';
 
-  'is_supply'?: boolean;
+  is_supply?: boolean;
 
-  'item_weight'?: number;
-  'item_weight_unit': 'oz' | 'lb' | 'g' | 'kg';
+  item_weight?: number;
+  item_weight_unit?: 'oz' | 'lb' | 'g' | 'kg';
 
-  'item_length'?: number;
+  item_length?: number;
 
-  'item_width'?: number;
+  item_width?: number;
 
-  'item_height'?: number;
+  item_height?: number;
 
-  'item_dimensions_unit': 'in' | 'ft' | 'mm' | 'cm' | 'm' | 'yd' | 'inches';
+  item_dimensions_unit?: 'in' | 'ft' | 'mm' | 'cm' | 'm' | 'yd' | 'inches';
 
-  'is_private'?: boolean;
+  is_private?: boolean;
 
-  'style'?: string; //[];
+  style?: string; //[];
 
-  'file_data'?: string;
+  file_data?: string;
 
-  'has_variations'?: boolean;
+  has_variations?: boolean;
 
-  'should_auto_renew'?: boolean;
+  should_auto_renew?: boolean;
 
-  'language'?: string;
+  language?: string;
 
-  'price'?: string; //{};
+  price?: string; //{};
 
-  'taxonomy_id'?: number;
+  taxonomy_id?: number;
 
-  'taxonomy'?: string; //{}
+  taxonomy?: string; //{}
 
-  'shipping_profile'?: string; //{}
+  shipping_profile?: string; //{}
 
-  'user'?: string; //{}
+  user?: string; //{}
 
-  'shop'?: string; //{}
+  shop?: string; //{}
 
-  'images'?: string; //{}
+  images?: string; //{}
 
-  'inventory'?: string; //{}
+  inventory?: string; //{}
 
-  'production_partners'?: string; //[]
+  production_partners?: string; //[]
 
-  'translations'?: string; //[]
+  translations?: string; //[]
 
-  'skus'?: string; //[]
+  skus?: string; //[]
 
-  'views'?: number;
+  views?: number;
 }

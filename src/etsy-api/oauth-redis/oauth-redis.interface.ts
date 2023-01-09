@@ -1,10 +1,12 @@
 export interface IRedisAccount {
-  account_id: number | string;
-  updated_at_token: number | string;
+  account_id: number;
+  updated_at_token: number;
   access_token: string;
   token_type: string;
-  expires_in: number | string;
+  expires_in: number;
   refresh_token: string;
   scope: string;
   vendor: string;
+  shop_id: number;
+  shop_name?: string;
 }
