@@ -3,9 +3,9 @@ import { PlusCircle } from 'react-feather';
 import { Tooltip } from 'views/pages/components/Tooltip';
 import Action from './Action';
 import CheckboxTable from './CheckboxTable';
-import { IAaccount } from 'api/shops/type/account.interface';
+import { IAccount } from 'api/shops/type/account.interface';
 
-export interface IRow extends IAaccount {}
+export interface IRow extends IAccount {}
 interface ITable extends IRow {
   checkbox?: any;
   expanded?: any;
@@ -133,7 +133,7 @@ export const COLUMNS = (
       cell: (info) => (
         <Tooltip
           id={'status' + info.row.id}
-          message={info.row.original?.status ?? ''}
+          message={info.row.original?.active == true ? <span className='text-success'>active</span> : <span className='text-danger'>inActive</span> }
         />
       ),
       size: 10,

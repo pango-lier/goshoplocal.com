@@ -1,8 +1,4 @@
-import { CrawlerLinkEnum } from '../enum/crawler-link.enum';
-
-export interface IAaccount {
-  id?: number;
-
+export interface ICreateAccount {
   message?: string;
 
   vendor?: string;
@@ -34,4 +30,8 @@ export interface IAaccount {
   expiredAt?: Date;
 
   userId?: number;
+}
+export interface IUpdateAccount extends ICreateAccount {}
+export interface IAccount extends IUpdateAccount {
+  id: number;
 }

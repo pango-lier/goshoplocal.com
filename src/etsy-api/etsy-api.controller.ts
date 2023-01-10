@@ -32,8 +32,12 @@ export class EtsyApiController {
 
   @Post('sync')
   syncAccount(@Body() body: { id: number }) {
-    console.log(body);
     return this.etsyApiService.syncAccount(body.id);
+  }
+
+  @Post('sync/listing')
+  syncListing(@Body() body: { id: number }) {
+    return this.etsyApiService.syncListing(body.id);
   }
 
   @Patch(':id')

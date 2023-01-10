@@ -155,7 +155,7 @@ export class ListingsService {
       create.who_made = createAccountDto.who_made;
       create.when_made = createAccountDto.when_made;
 
-      return await this.listing.save(createAccountDto);
+      return await this.listing.save(create);
     }
   }
 }

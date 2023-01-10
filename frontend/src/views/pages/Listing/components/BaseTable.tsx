@@ -71,6 +71,7 @@ const BaseTable = () => {
     const response = await getListings({
       limit,
       offset,
+      sorted: [{ id: 'listing.id', desc: true }],
     });
     setData(response.data.result);
     setTotal(response.data.total);

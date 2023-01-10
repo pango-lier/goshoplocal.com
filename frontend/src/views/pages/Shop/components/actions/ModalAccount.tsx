@@ -13,6 +13,8 @@ import {
 import { ACTION_ENUM } from 'utility/enum/actions';
 
 import { IRow } from '../columns';
+import { updateAccount } from 'api/shops/update';
+import { deleteAccount } from 'api/shops/delete';
 
 interface IModalIAccountProps<T> {
   row: T | undefined;
@@ -41,9 +43,15 @@ const ModalAccount = ({
   const onChangeName = (e: React.ChangeEvent<HTMLInputElement>, name) => {
     if (e && e?.target) {
       const _d: any = { ...data };
-      setData({ ..._d, [name]: e.target.value });
+      if (name === 'active') {
+        setData({ ..._d, active: !data?.active });
+      } else setData({ ..._d, [name]: e.target.value });
     }
   };
+
+  useEffect(() => {
+    setData(row);
+  }, [row]);
 
   const onAccept: React.FormEventHandler<HTMLButtonElement> = async (
     e: React.FormEvent<HTMLButtonElement>,
@@ -55,16 +63,19 @@ const ModalAccount = ({
         //  onHandleModal(account.data);
         break;
       case ACTION_ENUM.Edit:
-        if (!data?.name) return;
-        if (row?.id) {
-          //  setIsOpenModalGroup(!isOpenModalGroup);
-          //  onHandleModal(update.data);
+        if (data) {
+          const { id, ...rest } = data;
+          const update = await updateAccount(data.id, rest);
+          onHandleModal(update.data);
         }
+        //  setIsOpenModalGroup(!isOpenModalGroup);
+
         break;
       case ACTION_ENUM.Delete:
-        // if (row?.id) {
-        //   onHandleModal({ id: row.id });
-        // }
+        if (data) {
+          await deleteAccount(data.id);
+          onHandleModal(data);
+        }
         break;
       default:
         break;
@@ -77,21 +88,36 @@ const ModalAccount = ({
         toggle={() => setIsOpenModalGroup(!isOpenModalGroup)}
       >
         <ModalHeader toggle={() => setIsOpenModalGroup(!isOpenModalGroup)}>
-          Modal Shop
+          {action===ACTION_ENUM.Delete?"Are you sure delete this shop ?":"Update shop"}
         </ModalHeader>
         <ModalBody>
           <Form className="auth-register-form mt-2" style={styleAction}>
-            <div className="mb-1">
-              <Label className="form-label" for="register-name">
-                Name
+            <div className="mb-2">
+              <Label className="form-label" for="register-vendor">
+                Vendor
               </Label>
               <Input
-                value={data?.name || ''}
+                value={data?.vendor || ''}
                 type="text"
-                id="register-name"
-                placeholder="name"
+                id="register-vendor"
+                placeholder="vendor"
                 autoFocus
-                onChange={(e) => onChangeName(e, 'name')}
+                onChange={(e) => onChangeName(e, 'vendor')}
+              />
+            </div>
+            <div className="mb-1">
+              <Label className="form-label mr-5" for="register-vendor">
+                Active Shop :
+              </Label>
+              {'      '}
+              <Input
+                className="ml-5"
+                checked={data?.active}
+                type="switch"
+                id="register-vendor"
+                placeholder="vendor"
+                autoFocus
+                onChange={(e) => onChangeName(e, 'active')}
               />
             </div>
           </Form>

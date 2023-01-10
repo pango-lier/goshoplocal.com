@@ -1,28 +1,10 @@
-import { hookApi } from "api/hookApi";
-import axios from "axios";
-import { CrawlerLinkEnum } from "./enum/crawler-link.enum";
-export interface ICreateCrawlerLink {
-  name: string;
+import { hookApi } from 'api/hookApi';
+import { IAccount, ICreateAccount } from './type/account.interface';
 
-  description?: string;
-
-  status?: string;
-
-  type?: CrawlerLinkEnum;
-
-  target?: string;
-
-  socialId?: number | string;
-
-  accountId?: number | string;
-
-  crawlerConfigs?: Array<any>;
-}
-
-export const createCrawlerLink = async (params: ICreateCrawlerLink) => {
-  return await hookApi("post", `accounts`, {
+export const createAccount = async (params: ICreateAccount) => {
+  return await hookApi('post', `accounts`, {
     params,
     _success: true,
-    title: "Create Shops",
+    title: 'Create Shops',
   });
 };

@@ -48,27 +48,29 @@ export class AccountsService {
   }
 
   async sync(createAccountDto: CreateAccountDto) {
-    const account = await this.account.findOneBy({
-      primary_email: createAccountDto.primary_email,
+    const account = await this.account.findOne({
+      where: { etsy_user_id: createAccountDto.etsy_user_id },
+      withDeleted: true,
     });
     if (!account) {
       return await this.create(createAccountDto);
     } else {
       account.accessToken = createAccountDto.accessToken;
       account.refreshToken = createAccountDto.refreshToken;
-      account.active = createAccountDto.active;
+      account.active = true;
       account.primary_email = createAccountDto.primary_email;
       account.last_name = createAccountDto?.last_name || null;
       account.first_name = createAccountDto?.first_name || null;
-      account.etsy_user_id = createAccountDto?.etsy_user_id || null;
+      account.etsy_user_id = createAccountDto.etsy_user_id;
       account.scope = createAccountDto?.scope || null;
       account.vendor = createAccountDto?.vendor || null;
       account.shop_id = createAccountDto.shop_id || null;
+      account.deletedAt = null;
       return await this.account.save(account);
     }
   }
 
   remove(id: number) {
-    return `This action removes a #${id} account`;
+    return this.account.softDelete({ id });
   }
 }

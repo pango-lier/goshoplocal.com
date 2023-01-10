@@ -78,6 +78,12 @@ export const COLUMNS = (
       minSize: 20,
       maxSize: 70,
     }),
+    columnHelper.accessor('etsy_listing_id', {
+      cell: (info) => info.getValue(),
+      size: 10,
+      minSize: 20,
+      maxSize: 70,
+    }),
     columnHelper.accessor('etsy_user_id', {
       header: () => 'Account Id',
       cell: (info) => info.getValue(),
@@ -112,13 +118,15 @@ export const COLUMNS = (
     columnHelper.accessor('price', {
       header: () => 'Price',
       cell: (info) => {
-        if(!info.row.original.price) return ''
+        if (!info.row.original.price) return '';
         const price = JSON.parse(info.row.original.price);
-        if(!price.amount)return ''
+        if (!price.amount) return '';
         return (
           <Tooltip
             id={'price' + info.row.id}
-            message={`${price.amount/price.divisor}${price.currency_code}`|| ''}
+            message={
+              `${price.amount / price.divisor}${price.currency_code}` || ''
+            }
           />
         );
       },

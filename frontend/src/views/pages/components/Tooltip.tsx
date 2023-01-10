@@ -3,7 +3,7 @@ import { UncontrolledTooltip } from "reactstrap";
 import copyText from "utility/helper/copyText";
 
 export interface ITooltip {
-  message: string;
+  message: string| JSX.Element;
   id: string;
   fullMessage?: string;
 }

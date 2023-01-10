@@ -39,8 +39,8 @@ export class EtsyApiService {
   private async createApi(accountId) {
     let account = await this.oauthRedis.getAccountTokens(accountId);
     if (
-      +account.updated_at_token + +account.expires_in * 1000 <
-      new Date().getTime() - 1000 * 60 * 10
+      +account.updated_at_token + +account.expires_in * 1000 - 1000 * 60 * 10 <
+      new Date().getTime()
     ) {
       const data = await this.refreshToken(account.refresh_token);
       console.log('refresh-token', data, account);
@@ -80,8 +80,6 @@ export class EtsyApiService {
 
   async syncAccount(accountId) {
     const { api, account } = await this.createApi(accountId);
-    const listing = await this.getListing(accountId);
-    return listing;
     const user = await api.User.getUser(accountId);
     return await this.accountService.sync({
       etsy_user_id: user.data.user_id,
@@ -98,17 +96,19 @@ export class EtsyApiService {
     });
   }
 
-  async getListing(accountId) {
+  async syncListing(accountId) {
     const { api, account } = await this.createApi(accountId);
     const listing = await api.ShopListing.getListingsByShop({
       shopId: account.shop_id,
-      state: 'expired',
+      state: 'active',
+      includes: ['Images', 'Inventory', 'Videos'],
     });
     const accountEntity = await this.accountService.findEtsyUserId(
       account.account_id,
     );
     for (let index = 0; index < listing.data.results.length; index++) {
       const element = listing.data.results[index];
+
       await this.listingService.sync(element, accountEntity.id);
     }
     return listing.data;
