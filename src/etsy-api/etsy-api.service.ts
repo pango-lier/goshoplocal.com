@@ -8,6 +8,7 @@ import { OauthRedisService } from './oauth-redis/oauth-redis.service';
 import { ConfigService } from '@nestjs/config';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { ListingsService } from 'src/listings/listings.service';
+import { IRedisAccount } from './oauth-redis/oauth-redis.interface';
 
 @Injectable()
 export class EtsyApiService {
@@ -42,7 +43,7 @@ export class EtsyApiService {
       +account.updated_at_token + +account.expires_in * 1000 - 1000 * 60 * 10 <
       new Date().getTime()
     ) {
-      const data = await this.refreshToken(account.refresh_token);
+      const data = await this.refreshToken(account.refresh_token, account);
       console.log('refresh-token', data, account);
       account = data;
     }
@@ -56,7 +57,7 @@ export class EtsyApiService {
     };
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(refreshToken: string, accountData: IRedisAccount) {
     const response = await axios.request({
       method: 'POST',
       url: 'https://api.etsy.com/v3/public/oauth/token',
@@ -66,7 +67,10 @@ export class EtsyApiService {
         refresh_token: refreshToken,
       },
     });
-    return await this.oauthRedis.setRedisToken({ ...response.data });
+    return await this.oauthRedis.setRedisToken({
+      ...accountData,
+      ...response.data,
+    });
   }
 
   async getMe(access_token: string) {
@@ -100,7 +104,7 @@ export class EtsyApiService {
     const { api, account } = await this.createApi(accountId);
     const listing = await api.ShopListing.getListingsByShop({
       shopId: account.shop_id,
-      state: 'active',
+      state: 'expired',
       includes: ['Images', 'Inventory', 'Videos'],
     });
     const accountEntity = await this.accountService.findEtsyUserId(

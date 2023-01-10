@@ -1,10 +1,12 @@
 import { Account } from 'src/accounts/entities/account.entity';
+import { Taxonomy } from 'src/taxonomy/entities/taxonomy.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -44,6 +46,10 @@ export class Listing {
 
   @ManyToOne(() => User, (u) => u.listings, { nullable: true })
   userb?: User;
+
+  @ManyToOne(() => Taxonomy, (u) => u.listings, { nullable: true })
+  @JoinColumn({ name: 'taxonomy_id' })
+  taxonomyb?: Taxonomy;
 
   @Column({ type: 'bigint', nullable: true })
   'etsy_listing_id'?: number;
@@ -208,7 +214,7 @@ export class Listing {
   'price': string; //{};
 
   @Column({ type: 'bigint', nullable: true })
-  'taxonomy_id': number;
+  taxonomy_id: number;
 
   @Column({ type: 'json', nullable: true })
   'taxonomy'?: string; //{}

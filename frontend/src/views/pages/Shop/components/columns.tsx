@@ -80,7 +80,22 @@ export const COLUMNS = (
     }),
     columnHelper.accessor('etsy_user_id', {
       header: () => 'Account Id',
-      cell: (info) => info.getValue(),
+      // cell: (info) => info.getValue(),
+      cell: (info) => (
+        <Tooltip
+          id={'etsy_user_id' + info.row.id}
+          message={
+            <span style={{ width: '100%', height: '100%' }}>
+              <img
+                style={{ width: 30 }}
+                src={info.row.original.image_url_75x75}
+              />
+              {info.row.original?.etsy_user_id + ''}
+            </span>
+          }
+          fullMessage={'' + info.row.original?.etsy_user_id}
+        />
+      ),
       size: 10,
       minSize: 20,
       maxSize: 70,
@@ -133,7 +148,13 @@ export const COLUMNS = (
       cell: (info) => (
         <Tooltip
           id={'status' + info.row.id}
-          message={info.row.original?.active == true ? <span className='text-success'>active</span> : <span className='text-danger'>inActive</span> }
+          message={
+            info.row.original?.active == true ? (
+              <span className="text-success">active</span>
+            ) : (
+              <span className="text-danger">inActive</span>
+            )
+          }
         />
       ),
       size: 10,

@@ -1,7 +1,11 @@
 export interface IListing {
   id?: number;
 
+  account_image_url_75x75?: string;
+
   accountId?: number;
+
+  taxonomyb_name?: string;
 
   userId?: number;
 

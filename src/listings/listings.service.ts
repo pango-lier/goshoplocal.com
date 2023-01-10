@@ -23,6 +23,7 @@ export class ListingsService {
     const query = this.listing.createQueryBuilder('listing');
     query.select('listing.*');
     query.leftJoinAndSelect('listing.userb', 'userb');
+    query.leftJoinAndSelect('listing.taxonomyb', 'taxonomyb');
     query.leftJoinAndSelect('listing.account', 'account');
     return this.paginateService.queryFilter(query, paginate, [
       'listing.title',
@@ -39,7 +40,7 @@ export class ListingsService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} listing`;
+    return this.listing.softDelete({ id });
   }
 
   async sync(data: IShopListingWithAssociations, accountId) {
@@ -155,6 +156,7 @@ export class ListingsService {
       create.who_made = createAccountDto.who_made;
       create.when_made = createAccountDto.when_made;
 
+      create.deletedAt = null;
       return await this.listing.save(create);
     }
   }

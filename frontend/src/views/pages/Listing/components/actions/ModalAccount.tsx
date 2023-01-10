@@ -13,6 +13,7 @@ import {
 import { ACTION_ENUM } from 'utility/enum/actions';
 
 import { IRow } from '../columns';
+import { deleteListing } from 'api/listings/delete';
 
 interface IModalIAccountProps<T> {
   row: T | undefined;
@@ -38,12 +39,9 @@ const ModalAccount = ({
       setStyleAction({ pointerEvents: 'none', opacity: '0.7' });
   }, [action]);
 
-  const onChangeName = (e: React.ChangeEvent<HTMLInputElement>, name) => {
-    if (e && e?.target) {
-      const _d: any = { ...data };
-      setData({ ..._d, [name]: e.target.value });
-    }
-  };
+  useEffect(() => {
+    setData(row);
+  }, [row]);
 
   const onAccept: React.FormEventHandler<HTMLButtonElement> = async (
     e: React.FormEvent<HTMLButtonElement>,
@@ -54,15 +52,14 @@ const ModalAccount = ({
         //  onHandleModal(account.data);
         break;
       case ACTION_ENUM.Edit:
-        if (row?.id) {
-          //  setIsOpenModalGroup(!isOpenModalGroup);
-          //  onHandleModal(update.data);
-        }
+        setIsOpenModalGroup(!isOpenModalGroup);
+
         break;
       case ACTION_ENUM.Delete:
-        // if (row?.id) {
-        //   onHandleModal({ id: row.id });
-        // }
+        if (data && data.id) {
+          await deleteListing(+data.id);
+          onHandleModal(data);
+        }
         break;
       default:
         break;
@@ -75,24 +72,12 @@ const ModalAccount = ({
         toggle={() => setIsOpenModalGroup(!isOpenModalGroup)}
       >
         <ModalHeader toggle={() => setIsOpenModalGroup(!isOpenModalGroup)}>
-          Modal Shop
+          {action === ACTION_ENUM.Delete
+            ? 'Are you sure delete this shop ?'
+            : 'Update shop'}
         </ModalHeader>
         <ModalBody>
-          <Form className="auth-register-form mt-2" style={styleAction}>
-            <div className="mb-1">
-              <Label className="form-label" for="register-name">
-                Name
-              </Label>
-              <Input
-                value={data?.title || ''}
-                type="text"
-                id="register-name"
-                placeholder="name"
-                autoFocus
-                onChange={(e) => onChangeName(e, 'name')}
-              />
-            </div>
-          </Form>
+          <Form className="auth-register-form mt-2" style={styleAction}></Form>
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={(e) => onAccept(e)}>

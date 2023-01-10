@@ -21,6 +21,7 @@ import { PaginateModule } from './paginate/paginate.module';
 import { EtsyApiModule } from './etsy-api/etsy-api.module';
 import { Oauth2Module } from './oauth2/oauth2.module';
 import { ListingsModule } from './listings/listings.module';
+import { TaxonomyModule } from './taxonomy/taxonomy.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { ListingsModule } from './listings/listings.module';
     EtsyApiModule,
     Oauth2Module,
     ListingsModule,
+    TaxonomyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

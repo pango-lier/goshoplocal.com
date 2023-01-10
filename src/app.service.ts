@@ -1,7 +1,4 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { UpdateAuthDto } from './auth/dto/update-auth.dto';
-import { CreateUserDto } from './users/dto/create-user.dto';
-import { UpdateUserDto } from './users/dto/update-user.dto';
 import { User } from './users/entities/user.entity';
 import { UsersService } from './users/users.service';
 import { encodePwd } from './utils/bcrypt';
@@ -11,7 +8,6 @@ export class AppService implements OnApplicationBootstrap {
   constructor(private userService: UsersService) {}
   async onApplicationBootstrap(): Promise<any> {
     // add a functionality to check if the data already exists, if not add it manually
-    this.createUserAdmin();
   }
 
   async createUserAdmin(): Promise<User> {
