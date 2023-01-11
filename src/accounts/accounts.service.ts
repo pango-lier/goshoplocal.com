@@ -3,7 +3,7 @@ import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Account } from './entities/account.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { PaginateService } from 'src/paginate/paginate.service';
 import { IPaginate } from 'src/paginate/paginate.interface';
 
@@ -32,8 +32,10 @@ export class AccountsService {
     return `This action returns a #${id} account`;
   }
 
-  findEtsyUserId(etsyUserId: number) {
-    return this.account.findOneBy({ etsy_user_id: etsyUserId });
+  findEtsyUserId(
+    options: FindOptionsWhere<Account> | FindOptionsWhere<Account>[],
+  ) {
+    return this.account.findOneBy(options);
   }
 
   async update(id: number, updateAccountDto: UpdateAccountDto) {

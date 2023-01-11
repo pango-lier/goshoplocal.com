@@ -1,14 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { CreateEtsyApiDto } from './dto/create-etsy-api.dto';
 import { UpdateEtsyApiDto } from './dto/update-etsy-api.dto';
-import { Etsy } from 'etsy-ts/v3';
+import {
+  Etsy,
+  IListingInventoryProductOffering,
+  IShopListingWithAssociations,
+} from 'etsy-ts/v3';
 import axios from 'axios';
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
 import { OauthRedisService } from './oauth-redis/oauth-redis.service';
 import { ConfigService } from '@nestjs/config';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { ListingsService } from 'src/listings/listings.service';
 import { IRedisAccount } from './oauth-redis/oauth-redis.interface';
+import {
+  EXPORT_GOSHOPLOCAL_CSV_FIELDS,
+  ExportListingCsv,
+} from './dto/export-listing-csv.dto';
+import { TaxonomyService } from 'src/taxonomy/taxonomy.service';
+import json2csv = require('json2csv');
+import {
+  createReadStream,
+  createWriteStream,
+  writeFile,
+  writeFileSync,
+} from 'fs';
 
 @Injectable()
 export class EtsyApiService {
@@ -17,6 +32,7 @@ export class EtsyApiService {
     private readonly configService: ConfigService,
     private readonly accountService: AccountsService,
     private readonly listingService: ListingsService,
+    private readonly taxonomyService: TaxonomyService,
   ) {}
 
   create(createEtsyApiDto: CreateEtsyApiDto) {
@@ -100,21 +116,83 @@ export class EtsyApiService {
     });
   }
 
-  async syncListing(accountId) {
+  async createCsv(element: IShopListingWithAssociations, vendor: string) {
+    const fullCsv: ExportListingCsv[] = [];
+    const taxonomy = await this.taxonomyService.findOneOption({
+      id: element.taxonomy_id,
+    });
+    for (const product of element?.inventory?.products) {
+      if (product.is_deleted === false) {
+        let offering: IListingInventoryProductOffering = undefined;
+        for (const _offering of product.offerings) {
+          if (
+            _offering.is_deleted === false &&
+            _offering.is_enabled === true &&
+            _offering.price.currency_code.toLowerCase() === 'usd'
+          ) {
+            offering = _offering;
+          }
+        }
+        if (offering) {
+          const exportCsv: ExportListingCsv = {
+            sku: product.sku,
+            productName: element.title,
+            description: element.description,
+            upc: vendor,
+            images: element.images.map((i) => i.url_fullxfull),
+            price: (offering.price.amount / offering.price.divisor).toFixed(2),
+            msrp: '',
+            quantity: offering.quantity + '',
+            mpn: '',
+            noOfPieces: '',
+            category: taxonomy.name,
+          };
+          fullCsv.push(exportCsv);
+        }
+      }
+    }
+    return fullCsv;
+  }
+  
+  async createCsvFile(fullCsv: ExportListingCsv[]) {
+    const json2csvParser = new json2csv.Parser({
+      fields: EXPORT_GOSHOPLOCAL_CSV_FIELDS,
+      delimiter: '\t',
+    });
+    const csv = json2csvParser.parse(fullCsv);
+    const file = writeFileSync(
+      `${__dirname}/listing${new Date().getTime()}.csv`,
+      csv,
+      {
+        encoding: 'utf-8',
+      },
+    );
+
+    return file;
+  }
+
+  async syncListing(accountId, options: any = {}) {
     const { api, account } = await this.createApi(accountId);
     const listing = await api.ShopListing.getListingsByShop({
       shopId: account.shop_id,
-      state: 'expired',
+      state: options?.state || 'active',
       includes: ['Images', 'Inventory', 'Videos'],
     });
-    const accountEntity = await this.accountService.findEtsyUserId(
-      account.account_id,
-    );
+    const accountEntity = await this.accountService.findEtsyUserId({
+      etsy_user_id: account.account_id,
+      active: true,
+    });
+    const csvs = [];
     for (let index = 0; index < listing.data.results.length; index++) {
       const element = listing.data.results[index];
-
+      const fullCsvs: ExportListingCsv[] = await this.createCsv(
+        element,
+        accountEntity.vendor,
+      );
+      const csv = await this.createCsvFile(fullCsvs);
       await this.listingService.sync(element, accountEntity.id);
+      csvs.push(csv);
     }
-    return listing.data;
+    return csvs;
   }
 }

@@ -17,6 +17,9 @@ export class Listing {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
+  @Column({ type: 'varchar', length: 1000, nullable: true })
+  csvFile?: string;
+
   @Column({ type: 'bigint', nullable: true })
   accountId?: number;
 

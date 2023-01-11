@@ -7,6 +7,8 @@ export class CreateListingDto {
 
   etsy_user_id?: number;
 
+  csvFile?: string;
+
   status?: string;
 
   message?: string;

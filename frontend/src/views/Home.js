@@ -15,7 +15,7 @@ const Home = () => {
               href='/connects/any/oauth2'
               target='_blank'
             >
-              Template Documentation
+              Connect OAuth2 with Etsy
             </CardLink>{' '}
             to understand where to go from here and how to use our template.
           </CardText>
