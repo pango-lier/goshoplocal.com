@@ -43,7 +43,11 @@ export class ListingsService {
     return this.listing.softDelete({ id });
   }
 
-  async sync(data: IShopListingWithAssociations, accountId) {
+  async sync(
+    data: IShopListingWithAssociations,
+    accountId,
+    options: CreateListingDto = {},
+  ) {
     const {
       listing_id,
       user_id,
@@ -81,6 +85,7 @@ export class ListingsService {
       //  translations: JSON.stringify(translations),
       skus: JSON.stringify(skus),
       ...rest,
+      ...options,
     };
     const create = await this.listing.findOneBy({
       etsy_listing_id: listing_id,
@@ -114,7 +119,6 @@ export class ListingsService {
       create.last_modified_timestamp = createAccountDto.last_modified_timestamp;
       create.listing_type = createAccountDto.listing_type;
       create.materials = createAccountDto.materials;
-      create.message = createAccountDto?.message || null;
       create.non_taxable = createAccountDto.non_taxable;
       create.num_favorers = createAccountDto.num_favorers;
       create.original_creation_timestamp =
@@ -155,6 +159,10 @@ export class ListingsService {
       create.views = createAccountDto?.views || 0;
       create.who_made = createAccountDto.who_made;
       create.when_made = createAccountDto.when_made;
+
+      create.csvFile = options?.csvFile || null;
+      create.message = options?.message || null;
+      create.status = options?.status || null;
 
       create.deletedAt = null;
       return await this.listing.save(create);

@@ -18,12 +18,9 @@ import {
 } from './dto/export-listing-csv.dto';
 import { TaxonomyService } from 'src/taxonomy/taxonomy.service';
 import json2csv = require('json2csv');
-import {
-  createReadStream,
-  createWriteStream,
-  writeFile,
-  writeFileSync,
-} from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { FptFileService } from './fpt-file/fpt-file.service';
+import { CreateListingDto } from 'src/listings/dto/create-listing.dto';
 
 @Injectable()
 export class EtsyApiService {
@@ -33,6 +30,7 @@ export class EtsyApiService {
     private readonly accountService: AccountsService,
     private readonly listingService: ListingsService,
     private readonly taxonomyService: TaxonomyService,
+    private readonly fptFileService: FptFileService,
   ) {}
 
   create(createEtsyApiDto: CreateEtsyApiDto) {
@@ -134,12 +132,15 @@ export class EtsyApiService {
           }
         }
         if (offering) {
+          const images = element.images.map((i) => i.url_fullxfull);
           const exportCsv: ExportListingCsv = {
-            sku: product.sku,
+            sku: `iet${product.sku}`, //import from etsy
             productName: element.title,
             description: element.description,
             upc: vendor,
-            images: element.images.map((i) => i.url_fullxfull),
+            image1: images[0],
+            image2: images[1] || '',
+            image3: images[2] || '',
             price: (offering.price.amount / offering.price.divisor).toFixed(2),
             msrp: '',
             quantity: offering.quantity + '',
@@ -153,22 +154,33 @@ export class EtsyApiService {
     }
     return fullCsv;
   }
-  
-  async createCsvFile(fullCsv: ExportListingCsv[]) {
+
+  async createCsvFile(
+    fullCsv: ExportListingCsv[],
+    path,
+    dirLocal = '/tmp/goshoplocal',
+  ) {
     const json2csvParser = new json2csv.Parser({
       fields: EXPORT_GOSHOPLOCAL_CSV_FIELDS,
       delimiter: '\t',
     });
     const csv = json2csvParser.parse(fullCsv);
-    const file = writeFileSync(
-      `${__dirname}/listing${new Date().getTime()}.csv`,
-      csv,
-      {
-        encoding: 'utf-8',
-      },
-    );
+    let fileName = path;
+    const folderArray = path.split('/');
+    if (folderArray.length > 1) {
+      fileName = folderArray[folderArray.length - 1];
+      delete folderArray[folderArray.length - 1];
+      dirLocal = dirLocal + '/' + folderArray.join('/');
+      dirLocal = dirLocal.slice(0, -1);
+    }
+    if (!existsSync(`${dirLocal}`)) {
+      mkdirSync(`${dirLocal}`);
+    }
 
-    return file;
+    const fileLocal = `${dirLocal}/${fileName}`;
+    writeFileSync(fileLocal, csv);
+    await this.fptFileService.uploadFile(fileLocal, path);
+    return csv;
   }
 
   async syncListing(accountId, options: any = {}) {
@@ -185,13 +197,26 @@ export class EtsyApiService {
     const csvs = [];
     for (let index = 0; index < listing.data.results.length; index++) {
       const element = listing.data.results[index];
-      const fullCsvs: ExportListingCsv[] = await this.createCsv(
-        element,
-        accountEntity.vendor,
-      );
-      const csv = await this.createCsvFile(fullCsvs);
-      await this.listingService.sync(element, accountEntity.id);
-      csvs.push(csv);
+      const options: CreateListingDto = {};
+      try {
+        const fullCsvs: ExportListingCsv[] = await this.createCsv(
+          element,
+          accountEntity.vendor,
+        );
+        const dateCreate = new Date();
+        const csvFile = `date_${dateCreate.getUTCFullYear()}_${dateCreate.getUTCMonth()}_${dateCreate.getUTCDate()}/listing_${
+          element.listing_id
+        }.csv`;
+        const csv = await this.createCsvFile(fullCsvs, csvFile);
+        csvs.push(csv);
+        options.csvFile = csvFile;
+        options.message = 'Create listing inventory is success !';
+        options.status = 'success';
+      } catch (error) {
+        options.status = 'error';
+        options.message = error.message || 'Some thing error .';
+      }
+      await this.listingService.sync(element, accountEntity.id, options);
     }
     return csvs;
   }

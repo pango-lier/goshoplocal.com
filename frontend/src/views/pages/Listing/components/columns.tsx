@@ -196,7 +196,16 @@ export const COLUMNS = (
       cell: (info) => (
         <Tooltip
           id={'status' + info.row.id}
-          message={info.row.original?.status ?? ''}
+          message={
+            info.row.original?.status == 'success' ? (
+              <span className="text-success">{info.row.original?.status}</span>
+            ) : info.row.original?.status == 'error' ? (
+              <span className="text-danger">{info.row.original?.status}</span>
+            ) : (
+              <span>{info.row.original?.status}</span>
+            )
+          }
+          fullMessage={info.row.original?.message}
         />
       ),
       size: 10,

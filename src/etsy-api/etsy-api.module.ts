@@ -6,10 +6,16 @@ import { OauthRedisService } from './oauth-redis/oauth-redis.service';
 import { AccountsModule } from 'src/accounts/accounts.module';
 import { ListingsModule } from 'src/listings/listings.module';
 import { TaxonomyModule } from 'src/taxonomy/taxonomy.module';
+import { FptFileService } from './fpt-file/fpt-file.service';
 
 @Module({
   controllers: [EtsyApiController],
-  providers: [EtsyApiService, RefreshTokenService, OauthRedisService],
+  providers: [
+    EtsyApiService,
+    RefreshTokenService,
+    OauthRedisService,
+    FptFileService,
+  ],
   imports: [AccountsModule, ListingsModule, TaxonomyModule],
   exports: [AccountsModule, EtsyApiService, OauthRedisService],
 })

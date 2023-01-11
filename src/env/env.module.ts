@@ -6,13 +6,22 @@ import ioredis from './ioredis';
 import queueConfig from './queue.config';
 import etsyConfig from './etsy.config';
 
+import fptGoshopLocalConfig from './fpt.goshoplocal.config';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       expandVariables: true,
       cache: false,
-      load: [databaseConfig, authConfig, queueConfig, ioredis, etsyConfig],
+      load: [
+        databaseConfig,
+        authConfig,
+        queueConfig,
+        ioredis,
+        etsyConfig,
+        fptGoshopLocalConfig,
+      ],
     }),
   ],
 })

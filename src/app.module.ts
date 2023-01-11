@@ -74,10 +74,6 @@ export class AppModule {
       queues: [new BullMQAdapter(demoQueue), new BullMQAdapter(writeLogQueue)],
       serverAdapter: this.serverAdapter,
     });
-    for (let index = 0; index < 1; index++) {
-      this.demoQueue.add('Start', { ok: index + 'Test queue' });
-      this.writeLogQueue.add('Start', { ok: index + 'Test queue' });
-    }
   }
 
   configure(consumer: MiddlewareConsumer) {

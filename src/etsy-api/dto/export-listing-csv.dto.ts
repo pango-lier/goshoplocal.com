@@ -3,7 +3,9 @@ export class ExportListingCsv {
   productName: string;
   description: string;
   upc: string;
-  images: string[];
+  image1: string;
+  image2: string;
+  image3: string;
   price: string;
   msrp: string;
   quantity: string;
