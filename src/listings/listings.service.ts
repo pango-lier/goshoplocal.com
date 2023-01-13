@@ -163,6 +163,7 @@ export class ListingsService {
       create.csvFile = options?.csvFile || null;
       create.message = options?.message || null;
       create.status = options?.status || null;
+      create.variationImages = options?.variationImages || null;
 
       create.deletedAt = null;
       return await this.listing.save(create);

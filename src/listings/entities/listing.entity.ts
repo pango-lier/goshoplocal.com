@@ -20,6 +20,9 @@ export class Listing {
   @Column({ type: 'varchar', length: 1000, nullable: true })
   csvFile?: string;
 
+  @Column({ type: 'json', nullable: true })
+  variationImages?: string;
+
   @Column({ type: 'bigint', nullable: true })
   accountId?: number;
 

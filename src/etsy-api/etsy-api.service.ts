@@ -4,6 +4,7 @@ import { UpdateEtsyApiDto } from './dto/update-etsy-api.dto';
 import {
   Etsy,
   IListingInventoryProductOffering,
+  IListingVariationImages,
   IShopListingWithAssociations,
 } from 'etsy-ts/v3';
 import axios from 'axios';
@@ -114,7 +115,11 @@ export class EtsyApiService {
     });
   }
 
-  async createCsv(element: IShopListingWithAssociations, vendor: string) {
+  async createCsv(
+    element: IShopListingWithAssociations,
+    variationImages: IListingVariationImages,
+    vendor: string,
+  ) {
     const fullCsv: ExportListingCsv[] = [];
     const taxonomy = await this.taxonomyService.findOneOption({
       id: element.taxonomy_id,
@@ -183,6 +188,41 @@ export class EtsyApiService {
     return csv;
   }
 
+  async createOnceExportCsv(listing, accountEntity, account, api) {
+    let variationImages = null;
+    const options: CreateListingDto = {};
+    let csv;
+    try {
+      const listingVariationImages =
+        await api.ShopListingVariationImage.getListingVariationImages(
+          account.shop_id,
+          listing.listing_id,
+        );
+      console.log(listingVariationImages.data.results);
+
+      const fullCsvs: ExportListingCsv[] = await this.createCsv(
+        listing,
+        variationImages,
+        accountEntity.vendor,
+      );
+      const dateCreate = new Date();
+      const csvFile = `date_${dateCreate.getUTCFullYear()}_${dateCreate.getUTCMonth()}_${dateCreate.getUTCDate()}/listing_${
+        listing.listing_id
+      }.csv`;
+      csv = await this.createCsvFile(fullCsvs, csvFile);
+      options.csvFile = csvFile;
+      options.message = 'Create listing inventory is success !';
+      options.status = 'success';
+      variationImages = JSON.stringify(listingVariationImages.data.results);
+    } catch (error) {
+      options.status = 'error';
+      options.message = error.message || 'Some thing error .';
+    }
+    options.variationImages = variationImages;
+    await this.listingService.sync(listing, accountEntity.id, options);
+    return csv;
+  }
+
   async syncListing(accountId, options: any = {}) {
     const { api, account } = await this.createApi(accountId);
     const listing = await api.ShopListing.getListingsByShop({
@@ -197,26 +237,13 @@ export class EtsyApiService {
     const csvs = [];
     for (let index = 0; index < listing.data.results.length; index++) {
       const element = listing.data.results[index];
-      const options: CreateListingDto = {};
-      try {
-        const fullCsvs: ExportListingCsv[] = await this.createCsv(
-          element,
-          accountEntity.vendor,
-        );
-        const dateCreate = new Date();
-        const csvFile = `date_${dateCreate.getUTCFullYear()}_${dateCreate.getUTCMonth()}_${dateCreate.getUTCDate()}/listing_${
-          element.listing_id
-        }.csv`;
-        const csv = await this.createCsvFile(fullCsvs, csvFile);
-        csvs.push(csv);
-        options.csvFile = csvFile;
-        options.message = 'Create listing inventory is success !';
-        options.status = 'success';
-      } catch (error) {
-        options.status = 'error';
-        options.message = error.message || 'Some thing error .';
-      }
-      await this.listingService.sync(element, accountEntity.id, options);
+      const csv = await this.createOnceExportCsv(
+        element,
+        accountEntity,
+        account,
+        api,
+      );
+      csvs.push(csv);
     }
     return csvs;
   }

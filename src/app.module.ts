@@ -33,21 +33,6 @@ import { TaxonomyModule } from './taxonomy/taxonomy.module';
         ...configService.get('ioredis'),
       }),
     }),
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        ...configService.get('queue'),
-      }),
-    }),
-    BullModule.registerQueue({
-      name: 'demo',
-      // processors: [join(__dirname, 'queue-bull-mq/demo.processor.js')],
-    }),
-    BullModule.registerQueue({
-      name: 'write-log',
-      // processors: [join(__dirname, 'queue-bull-mq/demo.processor.js')],
-    }),
     EnvModule,
     BullmqModule,
     UsersModule,
@@ -63,21 +48,4 @@ import { TaxonomyModule } from './taxonomy/taxonomy.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {
-  serverAdapter = new ExpressAdapter();
-  constructor(
-    @InjectQueue('demo') private demoQueue: Queue,
-    @InjectQueue('write-log') private writeLogQueue: Queue,
-  ) {
-    this.serverAdapter.setBasePath('/api/admin/queues');
-    createBullBoard({
-      queues: [new BullMQAdapter(demoQueue), new BullMQAdapter(writeLogQueue)],
-      serverAdapter: this.serverAdapter,
-    });
-  }
-
-  configure(consumer: MiddlewareConsumer) {
-    const bullBoardRouter = this.serverAdapter.getRouter();
-    consumer.apply(bullBoardRouter).forRoutes('/admin/queues');
-  }
-}
+export class AppModule {}

@@ -5,6 +5,8 @@ export class CreateListingDto {
 
   etsy_listing_id?: number;
 
+  variationImages?: string;
+
   etsy_user_id?: number;
 
   csvFile?: string;
