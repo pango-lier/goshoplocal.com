@@ -3,7 +3,7 @@ import { Button, Form, Input, Row, Col, Label } from 'reactstrap'
 
 // ** Custom Hooks
 import { useSkin } from '@hooks/useSkin'
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation } from 'react-router-dom'
 
 // ** Styles
 import '@styles/base/pages/page-misc.scss'
@@ -122,12 +122,14 @@ const scopeOptions = [
 ]
 
 const RegisterEtsyOauth2 = () => {
+  const params = useParams();
+  const location = useLocation();
   // ** Hooks
   const { skin } = useSkin()
-  const [vendor, setVendor] = React.useState();
+  const [vendor, setVendor] = React.useState(new URLSearchParams(location.search).get("vendor") || '');
   const [scopes, setScopes] = React.useState(scopeOptions);
 
-  const params = useParams();
+
 
   const illustration = skin === 'dark' ? 'coming-soon-dark.svg' : 'coming-soon.svg',
     source = require(`@src/assets/images/pages/${illustration}`).default
@@ -239,6 +241,7 @@ const RegisterEtsyOauth2 = () => {
       </a>
       <div className='misc-inner p-2 p-sm-3'>
         <div className='w-100 text-center'>
+          <h2 className='mb-1'>{`Hi, ${vendor}`}</h2>
           <h2 className='mb-1'>Go to connect Etsy Api 🚀</h2>
           <p className='mb-3'>"The term 'Etsy' is a trademark of Etsy, Inc. This application uses the Etsy API but is not endorsed or certified by Etsy, Inc."</p>
           <Form
@@ -249,7 +252,7 @@ const RegisterEtsyOauth2 = () => {
               <Label className='form-label' for='name-vendor'>
                 Vendor name
               </Label>
-              <Input value={vendor} onChange={(e) => onChangeVendor(e)} type='text' id='name-vendor' placeholder='Enter your vendor name' autoFocus />
+              <Input disabled={true} value={vendor} onChange={(e) => onChangeVendor(e)} type='text' id='name-vendor' placeholder='Enter your vendor name' autoFocus={false} />
             </div>
             <Col sm='12' className='m-0 mb-1' style={{ width: '100%' }}>
               <ReactSelect
@@ -265,7 +268,7 @@ const RegisterEtsyOauth2 = () => {
             </Col>
             <Col sm='12' className='d-md-block d-grid ps-md-0 ps-auto'>
               <Button className='mb-1 btn-sm-block' color='primary' onClick={() => onConnectEtsy()}>
-                Connect
+                Connect Etsy Store
               </Button>
             </Col>
           </Form>
