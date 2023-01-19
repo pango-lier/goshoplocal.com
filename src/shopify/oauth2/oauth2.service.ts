@@ -5,7 +5,7 @@ const config: any = {
   apiKey: '07149808bdeba8d4a481f390de0d7976',
   sharedSecret: '1e319c53a730692d2d3cafb944cadaff',
   redirectUri:
-    'https://4d95-2402-800-621c-aecc-b7a7-dd32-fd3b-235b.ap.ngrok.io/api/shopify/oauth2/callback',
+    'https://2965-2402-800-621c-aecc-b7a7-dd32-fd3b-235b.ap.ngrok.io/api/shopify/oauth2/callback',
 };
 @Injectable()
 export class Oauth2Service {
@@ -19,7 +19,7 @@ export class Oauth2Service {
     // be different for each request.
     //
     const uri = shopifyToken.generateAuthUrl(
-      'listingmanager',
+      'test-listingmanager',
       undefined,
       nonce,
     );
@@ -33,6 +33,6 @@ export class Oauth2Service {
     const shopifyToken = new ShopifyToken(config);
     const data = await shopifyToken.getAccessToken(shop, code);
     console.log(data);
-    return 'This action adds a new oauth2';
+    return 'https://test-listingmanager.myshopify.com/admin/online_store/preferences?tutorial=unlock';
   }
 }
