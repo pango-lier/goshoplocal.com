@@ -22,6 +22,7 @@ import { EtsyApiModule } from './etsy-api/etsy-api.module';
 import { Oauth2Module } from './oauth2/oauth2.module';
 import { ListingsModule } from './listings/listings.module';
 import { TaxonomyModule } from './taxonomy/taxonomy.module';
+import { CurrencyRatesModule } from './currency-rates/currency-rates.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { TaxonomyModule } from './taxonomy/taxonomy.module';
     Oauth2Module,
     ListingsModule,
     TaxonomyModule,
+    CurrencyRatesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

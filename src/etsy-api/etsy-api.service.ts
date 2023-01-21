@@ -16,12 +16,15 @@ import { IRedisAccount } from './oauth-redis/oauth-redis.interface';
 import {
   EXPORT_GOSHOPLOCAL_CSV_FIELDS,
   ExportListingCsv,
+  PREFIX_UNIQUE_ETSY,
 } from './dto/export-listing-csv.dto';
 import { TaxonomyService } from 'src/taxonomy/taxonomy.service';
 import json2csv = require('json2csv');
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { FptFileService } from './fpt-file/fpt-file.service';
 import { CreateListingDto } from 'src/listings/dto/create-listing.dto';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class EtsyApiService {
@@ -32,6 +35,7 @@ export class EtsyApiService {
     private readonly listingService: ListingsService,
     private readonly taxonomyService: TaxonomyService,
     private readonly fptFileService: FptFileService,
+    @InjectQueue('write-log') private readonly log: Queue,
   ) {}
 
   create(createEtsyApiDto: CreateEtsyApiDto) {
@@ -136,24 +140,44 @@ export class EtsyApiService {
             offering = _offering;
           }
         }
+        const variation1 =
+          (product?.property_values[0]?.values?.join(',') || '') +
+          ' ' +
+          (product?.property_values[0]?.scale_name || '');
+        const variation2 =
+          (product?.property_values[1]?.values?.join(',') || '') +
+          ' ' +
+          (product?.property_values[1]?.scale_name || '');
         if (offering) {
           const images = element.images.map((i) => i.url_fullxfull);
           const exportCsv: ExportListingCsv = {
-            sku: `iet${product.sku}`, //import from etsy
-            productName: element.title,
-            description: element.description,
-            upc: vendor,
-            image1: images[0],
-            image2: images[1] || '',
-            image3: images[2] || '',
-            price: (offering.price.amount / offering.price.divisor).toFixed(2),
-            msrp: '',
-            quantity: offering.quantity + '',
-            mpn: '',
-            noOfPieces: '',
+            sku: `${PREFIX_UNIQUE_ETSY}${product.sku ?? product.product_id}`, //import from etsy
             category: taxonomy.name,
+            title: element.title,
+            description: element.description,
+            vendor: vendor,
+            tags: element.tags.join(','),
+            variation1: variation1?.trim() || '',
+            variation2: variation2?.trim() || '',
+            variation3: '',
+            prefixEtsyListingId: `${PREFIX_UNIQUE_ETSY}${element.listing_id}`,
+            quantity: offering.quantity,
+            offerPrice: '',
+            actualPrice: (
+              offering.price.amount / offering.price.divisor
+            ).toFixed(2),
+            variantShipping: '',
+            variantImage: '',
+            images: images.join('///'),
+            varianTaxable:
+              'GST,HST NB,QST,VAT,PST BC,PST NB,HST NL,HST NS,HST ONT,HST PEI,PST SK,PST MB',
           };
           fullCsv.push(exportCsv);
+        } else {
+          this.log.add('etsy-api', {
+            status: 'warning',
+            message: 'Offering not found ' + product.sku,
+          });
         }
       }
     }

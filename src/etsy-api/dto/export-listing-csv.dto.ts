@@ -1,70 +1,91 @@
+export const PREFIX_UNIQUE_ETSY = 'et_';
 export class ExportListingCsv {
   sku: string;
-  productName: string;
-  description: string;
-  upc: string;
-  image1: string;
-  image2: string;
-  image3: string;
-  price: string;
-  msrp: string;
-  quantity: string;
-  mpn: string;
-  noOfPieces: string;
   category: string;
+  title: string;
+  description: string;
+  vendor: string;
+  tags: string;
+  variation1?: string;
+  variation2?: string;
+  variation3?: string;
+  prefixEtsyListingId: string;
+  quantity: number;
+  offerPrice: string;
+  actualPrice: string;
+  variantShipping?: string;
+  variantImage?: string;
+  images?: string;
+  varianTaxable?: string;
 }
 
 export const EXPORT_GOSHOPLOCAL_CSV_FIELDS = [
   {
-    label: 'Sku',
+    label: 'Product Code',
     value: 'sku',
   },
   {
-    label: 'Product Name',
-    value: 'productName',
+    label: 'Etsy Category',
+    value: 'category',
   },
   {
-    label: 'Description',
+    label: 'Title (Product Name)',
+    value: 'title',
+  },
+  {
+    label: 'Body (HTML)',
     value: 'description',
   },
   {
-    label: 'UPC',
-    value: 'upc',
+    label: 'Vendor Name',
+    value: 'vendor',
   },
   {
-    label: 'image1',
-    value: 'image1',
+    label: 'Tags',
+    value: 'tags',
   },
   {
-    label: 'image2',
-    value: 'image2',
+    label: 'Variation Name',
+    value: 'variation1',
   },
   {
-    label: 'image3',
-    value: 'image3',
+    label: 'Variation Name',
+    value: 'variation2',
   },
   {
-    label: 'Price',
-    value: 'price',
+    label: 'Variation Name',
+    value: 'variation3',
   },
   {
-    label: 'MSRP',
-    value: 'msrp',
+    label: 'Variation Group Code',
+    value: 'prefixEtsyListingId', //prefix et
   },
   {
-    label: 'Quantity',
+    label: 'Variant Inventory Qty',
     value: 'quantity',
   },
   {
-    label: 'MPN',
-    value: 'mnp',
+    label: 'Variant Price (Offer Price) ',
+    value: 'offerPrice',
   },
   {
-    label: 'No of Pieces',
-    value: 'noOfPieces',
+    label: 'Variant Compare At Price (Actual Variant Price)',
+    value: 'actualPrice',
   },
   {
-    label: 'Category',
-    value: 'category',
+    label: 'Variant Requires Shipping',
+    value: 'variantShipping',
+  },
+  {
+    label: 'Variant Image',
+    value: 'variantImage',
+  },
+  {
+    label: 'Images',
+    value: 'images',
+  },
+  {
+    label: 'Variant Taxable',
+    value: 'varianTaxable',
   },
 ];
