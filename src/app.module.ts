@@ -23,6 +23,7 @@ import { Oauth2Module } from './oauth2/oauth2.module';
 import { ListingsModule } from './listings/listings.module';
 import { TaxonomyModule } from './taxonomy/taxonomy.module';
 import { CurrencyRatesModule } from './currency-rates/currency-rates.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { CurrencyRatesModule } from './currency-rates/currency-rates.module';
       }),
     }),
     EnvModule,
+    ScheduleModule.forRoot(),
     BullmqModule,
     UsersModule,
     AuthModule,

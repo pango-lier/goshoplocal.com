@@ -8,5 +8,6 @@ import { CurrencyRate } from './entities/currency-rate.entity';
   imports: [TypeOrmModule.forFeature([CurrencyRate])],
   controllers: [CurrencyRatesController],
   providers: [CurrencyRatesService],
+  exports: [CurrencyRatesService],
 })
 export class CurrencyRatesModule {}

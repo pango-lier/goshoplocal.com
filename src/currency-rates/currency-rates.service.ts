@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CurrencyRate } from './entities/currency-rate.entity';
 import { Repository } from 'typeorm';
 import axios from 'axios';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class CurrencyRatesService {
@@ -33,14 +34,22 @@ export class CurrencyRatesService {
     return `This action removes a #${id} currencyRate`;
   }
 
+  async convertCurrentUsd(price: number, currencyCode) {
+    const current = await this.currencyRate.findOneBy({ currencyCode });
+    return price / current.rate;
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_10AM, {
+    name: 'get-currentcy',
+    timeZone: 'America/New_York',
+  })
   async sync() {
     const currency = await axios.get(process.env.CURRENCY_RATE_URL, {
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
         apikey: process.env.CURRENCY_RATE_API_KEY,
       },
-    }); //createCurrencyRateDto: CreateCurrencyRateDto
-    console.log(currency.data);
+    });
     for (const [currencyCode, rate] of Object.entries(
       currency.data.rates,
     ) as any) {

@@ -7,6 +7,7 @@ import { AccountsModule } from 'src/accounts/accounts.module';
 import { ListingsModule } from 'src/listings/listings.module';
 import { TaxonomyModule } from 'src/taxonomy/taxonomy.module';
 import { FptFileService } from './fpt-file/fpt-file.service';
+import { CurrencyRatesModule } from 'src/currency-rates/currency-rates.module';
 
 @Module({
   controllers: [EtsyApiController],
@@ -16,7 +17,12 @@ import { FptFileService } from './fpt-file/fpt-file.service';
     OauthRedisService,
     FptFileService,
   ],
-  imports: [AccountsModule, ListingsModule, TaxonomyModule],
+  imports: [
+    AccountsModule,
+    ListingsModule,
+    TaxonomyModule,
+    CurrencyRatesModule,
+  ],
   exports: [AccountsModule, EtsyApiService, OauthRedisService],
 })
 export class EtsyApiModule {}
