@@ -34,7 +34,7 @@ export class CurrencyRatesService {
     return `This action removes a #${id} currencyRate`;
   }
 
-  async convertCurrentUsd(price: number, currencyCode) {
+  async convertCurrentDefault(price: number, currencyCode) {
     const current = await this.currencyRate.findOneBy({ currencyCode });
     return price / current.rate;
   }

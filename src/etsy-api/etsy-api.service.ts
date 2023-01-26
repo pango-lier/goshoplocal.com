@@ -124,6 +124,28 @@ export class EtsyApiService {
     });
   }
 
+  parseHeaderCsv(listing: IShopListingWithAssociations) {
+    const headerCsv = EXPORT_GOSHOPLOCAL_CSV_FIELDS;
+    if (listing?.inventory?.products[0]) {
+      const product = listing.inventory.products[0];
+      const property1 = product?.property_values[0]?.property_name;
+      const property2 = product?.property_values[1]?.property_name;
+      if (property1) {
+        headerCsv.map((i) => {
+          if (i.value === 'variation1') i.label = property1.toLocaleUpperCase();
+          return i;
+        });
+      }
+      if (property2) {
+        headerCsv.map((i) => {
+          if (i.value === 'variation2') i.label = property2.toLocaleUpperCase();
+          return i;
+        });
+      }
+    }
+    return headerCsv;
+  }
+
   async createCsv(
     element: IShopListingWithAssociations,
     variationImages: IListingVariationImage[],
@@ -133,26 +155,25 @@ export class EtsyApiService {
     const taxonomy = await this.taxonomyService.findOneOption({
       id: element.taxonomy_id,
     });
-    let property1 = '';
-    let property2 = '';
     for (const product of element?.inventory?.products) {
       if (product.is_deleted === false) {
         let offering: IListingInventoryProductOffering = undefined;
         for (const _offering of product.offerings) {
           if (_offering.is_deleted === false && _offering.is_enabled === true) {
-            if (_offering.price.currency_code.toLowerCase() === 'usd')
+            if (_offering.price.currency_code.toUpperCase() === 'CAD')
               offering = _offering;
             else {
-              const newAmount = await this.currencyService.convertCurrentUsd(
-                _offering.price.amount,
-                _offering.price.currency_code.toUpperCase,
-              );
+              const newAmount =
+                await this.currencyService.convertCurrentDefault(
+                  _offering.price.amount,
+                  _offering.price.currency_code.toUpperCase(),
+                );
               offering = {
                 ..._offering,
                 price: {
                   amount: newAmount,
                   divisor: _offering.price.divisor,
-                  currency_code: 'USD',
+                  currency_code: 'CAD',
                 },
               };
             }
@@ -161,8 +182,6 @@ export class EtsyApiService {
 
         if (offering) {
           //property
-          property1 = product?.property_values[0]?.property_name;
-          property2 = product?.property_values[1]?.property_name;
           const variation1 =
             (product?.property_values[0]?.values?.join(',') || '') +
             ' ' +
@@ -201,7 +220,7 @@ export class EtsyApiService {
             }
           }
           const exportCsv: ExportListingCsv = {
-            sku: `${PREFIX_UNIQUE_ETSY}${product.sku ?? product.product_id}`, //import from etsy
+            sku: `${PREFIX_UNIQUE_ETSY}${product.product_id}`, //import from etsy
             category: taxonomy.name,
             title: element.title,
             description: element.description,
@@ -226,7 +245,7 @@ export class EtsyApiService {
         } else {
           this.log.add('etsy-api', {
             status: 'warning',
-            message: 'Offering not found ' + product.sku,
+            message: 'Offering not found ' + product.product_id,
           });
         }
       }
@@ -236,11 +255,12 @@ export class EtsyApiService {
 
   async createCsvFile(
     fullCsv: ExportListingCsv[],
+    headerCsv,
     path,
     dirLocal = '/tmp/goshoplocal',
   ) {
     const json2csvParser = new json2csv.Parser({
-      fields: EXPORT_GOSHOPLOCAL_CSV_FIELDS,
+      fields: headerCsv,
       delimiter: '\t',
     });
     const csv = json2csvParser.parse(fullCsv);
@@ -287,7 +307,11 @@ export class EtsyApiService {
       const csvFile = `date_${dateCreate.getUTCFullYear()}_${dateCreate.getUTCMonth()}_${dateCreate.getUTCDate()}/listing_${
         listing.listing_id
       }.csv`;
-      csv = await this.createCsvFile(fullCsvs, csvFile);
+      csv = await this.createCsvFile(
+        fullCsvs,
+        this.parseHeaderCsv(listing),
+        csvFile,
+      );
       options.csvFile = csvFile;
       options.message = 'Create listing inventory is success !';
       options.status = 'success';
