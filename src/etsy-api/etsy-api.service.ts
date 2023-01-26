@@ -5,9 +5,7 @@ import {
   Etsy,
   IListingInventoryProductOffering,
   IListingVariationImage,
-  IListingVariationImages,
   IShopListingWithAssociations,
-  IShopListingsWithAssociations,
 } from 'etsy-ts/v3';
 import axios from 'axios';
 import { OauthRedisService } from './oauth-redis/oauth-redis.service';
@@ -191,7 +189,7 @@ export class EtsyApiService {
             ' ' +
             (product?.property_values[1]?.scale_name || '');
           //images
-          const images = element.images.map((i) => i.url_fullxfull);
+          let images = element.images.map((i) => i.url_fullxfull);
           for (const variationImage of variationImages) {
             for (const [indexImage, imageItem] of element?.images?.entries() ||
               []) {
@@ -212,6 +210,7 @@ export class EtsyApiService {
                       variationImage?.value_id === propertyValue?.value_ids[0]
                     ) {
                       delete images[indexImage];
+                      images = images.filter((i) => i !== undefined);
                       images.unshift(imageItem.url_fullxfull);
                     }
                   }
