@@ -9,6 +9,8 @@ import { TaxonomyModule } from 'src/taxonomy/taxonomy.module';
 import { FptFileService } from './fpt-file/fpt-file.service';
 import { CurrencyRatesModule } from 'src/currency-rates/currency-rates.module';
 import { CreateListingCsvService } from './create-listing-csv/create-listing-csv.service';
+import { ExportListingProcessor } from './queue/exportListingToGoshoplocal.processor';
+import { CoreApiService } from './core-api/core-api.service';
 
 @Module({
   controllers: [EtsyApiController],
@@ -18,6 +20,8 @@ import { CreateListingCsvService } from './create-listing-csv/create-listing-csv
     OauthRedisService,
     FptFileService,
     CreateListingCsvService,
+    ExportListingProcessor,
+    CoreApiService,
   ],
   imports: [
     AccountsModule,

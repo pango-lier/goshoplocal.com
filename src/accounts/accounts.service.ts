@@ -32,6 +32,10 @@ export class AccountsService {
     return `This action returns a #${id} account`;
   }
 
+  findMany(options: FindOptionsWhere<Account> | FindOptionsWhere<Account>[]) {
+    return this.account.findBy(options);
+  }
+
   findEtsyUserId(
     options: FindOptionsWhere<Account> | FindOptionsWhere<Account>[],
   ) {

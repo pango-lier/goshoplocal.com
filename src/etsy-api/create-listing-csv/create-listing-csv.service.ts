@@ -17,11 +17,11 @@ import { TaxonomyService } from 'src/taxonomy/taxonomy.service';
 import { FptFileService } from '../fpt-file/fpt-file.service';
 import { CurrencyRatesService } from 'src/currency-rates/currency-rates.service';
 import { Account } from 'src/accounts/entities/account.entity';
-import { IRedisAccount } from '../oauth-redis/oauth-redis.interface';
 import { CreateListingDto } from 'src/listings/dto/create-listing.dto';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
 import _ = require('lodash');
+import { CoreApiService } from '../core-api/core-api.service';
 
 @Injectable()
 export class CreateListingCsvService {
@@ -30,6 +30,7 @@ export class CreateListingCsvService {
     private readonly taxonomyService: TaxonomyService,
     private readonly fptFileService: FptFileService,
     private readonly currencyService: CurrencyRatesService,
+    private readonly coreApiService: CoreApiService,
     @InjectQueue('write-log') private readonly log: Queue,
   ) {}
   parseHeaderCsv(listing: IShopListingWithAssociations) {
@@ -196,13 +197,14 @@ export class CreateListingCsvService {
   async createOnceExportCsv(
     listing: IShopListingWithAssociations,
     accountEntity: Account,
-    account: IRedisAccount,
-    api: Etsy,
   ) {
     let variationImages = null;
     const options: CreateListingDto = {};
     let csv;
     try {
+      const { api, account } = await this.coreApiService.createApi(
+        accountEntity.etsy_user_id,
+      );
       const listingVariationImages =
         await api.ShopListingVariationImage.getListingVariationImages(
           account.shop_id,
@@ -230,6 +232,9 @@ export class CreateListingCsvService {
     } catch (error) {
       options.status = 'error';
       options.message = error.message || 'Some thing error .';
+      this.log.add('createOnceExportCsv is error', {
+        options: options,
+      });
     }
     options.variationImages = variationImages;
     await this.listingService.sync(listing, accountEntity.id, options);

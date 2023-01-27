@@ -2,23 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { CreateEtsyApiDto } from './dto/create-etsy-api.dto';
 import { UpdateEtsyApiDto } from './dto/update-etsy-api.dto';
 import { Etsy } from 'etsy-ts/v3';
-import axios from 'axios';
-import { OauthRedisService } from './oauth-redis/oauth-redis.service';
 import { ConfigService } from '@nestjs/config';
-import { AccountsService } from 'src/accounts/accounts.service';
-import { IRedisAccount } from './oauth-redis/oauth-redis.interface';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { CreateListingCsvService } from './create-listing-csv/create-listing-csv.service';
+import { CoreApiService } from './core-api/core-api.service';
+import { AccountsService } from 'src/accounts/accounts.service';
+import { delayMs } from 'src/utils/delay';
+import { IsNull, Not } from 'typeorm';
 
 @Injectable()
 export class EtsyApiService {
   constructor(
-    private readonly oauthRedis: OauthRedisService,
+    private readonly coreApiService: CoreApiService,
     private readonly configService: ConfigService,
     private readonly accountService: AccountsService,
     private readonly listingCsv: CreateListingCsvService,
     @InjectQueue('write-log') private readonly log: Queue,
+    @InjectQueue('goshoplocal-listing') private readonly goshoplocal: Queue,
   ) {}
 
   create(createEtsyApiDto: CreateEtsyApiDto) {
@@ -39,42 +40,6 @@ export class EtsyApiService {
     return `This action removes a #${id} etsyApi`;
   }
 
-  private async createApi(accountId) {
-    let account = await this.oauthRedis.getAccountTokens(accountId);
-    if (
-      +account.updated_at_token + +account.expires_in * 1000 - 1000 * 60 * 10 <
-      new Date().getTime()
-    ) {
-      const data = await this.refreshToken(account.refresh_token, account);
-      console.log('refresh-token', data, account);
-      account = data;
-    }
-    const api = new Etsy({
-      apiKey: this.configService.get('etsy.clientId'),
-      accessToken: account.access_token,
-    });
-    return {
-      api,
-      account,
-    };
-  }
-
-  async refreshToken(refreshToken: string, accountData: IRedisAccount) {
-    const response = await axios.request({
-      method: 'POST',
-      url: 'https://api.etsy.com/v3/public/oauth/token',
-      data: {
-        grant_type: 'refresh_token',
-        client_id: this.configService.get('etsy.clientId'),
-        refresh_token: refreshToken,
-      },
-    });
-    return await this.oauthRedis.setRedisToken({
-      ...accountData,
-      ...response.data,
-    });
-  }
-
   async getMe(access_token: string) {
     const api = new Etsy({
       apiKey: this.configService.get('etsy.clientId'),
@@ -85,7 +50,7 @@ export class EtsyApiService {
   }
 
   async syncAccount(accountId) {
-    const { api, account } = await this.createApi(accountId);
+    const { api, account } = await this.coreApiService.createApi(accountId);
     const user = await api.User.getUser(accountId);
     return await this.accountService.sync({
       etsy_user_id: user.data.user_id,
@@ -103,27 +68,82 @@ export class EtsyApiService {
   }
 
   async syncListing(accountId, options: any = {}) {
-    const { api, account } = await this.createApi(accountId);
-    const listing = await api.ShopListing.getListingsByShop({
-      shopId: account.shop_id,
-      state: options?.state || 'active',
-      includes: ['Images', 'Inventory', 'Videos'],
+    // const { api, account } = await this.createApi(accountId);
+    // const listing = await api.ShopListing.getListingsByShop({
+    //   shopId: account.shop_id,
+    //   state: options?.state || 'active',
+    //   includes: ['Images', 'Inventory', 'Videos'],
+    // });
+    // const accountEntity = await this.accountService.findEtsyUserId({
+    //   etsy_user_id: account.account_id,
+    //   active: true,
+    // });
+    // const csvs = [];
+    // for (let index = 0; index < listing.data.results.length; index++) {
+    //   const element = listing.data.results[index];
+    //   const csv = await this.listingCsv.createOnceExportCsv(
+    //     element,
+    //     accountEntity,
+    //     account,
+    //     api,
+    //   );
+    //   csvs.push(csv);
+    // }
+    // return csvs;
+    return await this.importOneShopGoShopLocalJob(accountId);
+  }
+
+  async CronImportManyShopGoShopLocalJob() {
+    const accounts = await this.accountService.findMany({
+      active: true,
+      etsy_user_id: Not(IsNull()),
     });
+    for (let index = 0; index < accounts.length; index++) {
+      const account = accounts[index];
+      try {
+        await this.importOneShopGoShopLocalJob(account.etsy_user_id);
+      } catch (error) {
+        this.log.add('CronImportManyShopGoShopLocalJob is error .', {
+          account,
+        });
+      }
+    }
+  }
+
+  async importOneShopGoShopLocalJob(accountId, options: any = {}) {
+    const { api, account } = await this.coreApiService.createApi(accountId);
     const accountEntity = await this.accountService.findEtsyUserId({
       etsy_user_id: account.account_id,
       active: true,
     });
-    const csvs = [];
-    for (let index = 0; index < listing.data.results.length; index++) {
-      const element = listing.data.results[index];
-      const csv = await this.listingCsv.createOnceExportCsv(
-        element,
-        accountEntity,
-        account,
-        api,
-      );
-      csvs.push(csv);
-    }
-    return csvs;
+    let pageCount = 0;
+    let count = 0;
+    do {
+      const listing = await api.ShopListing.getListingsByShop({
+        shopId: account.shop_id,
+        state: options?.state || 'active',
+        includes: ['Images', 'Inventory', 'Videos'],
+        limit: 100,
+        offset: pageCount * 100,
+      });
+
+      for (let index = 0; index < listing.data.results.length; index++) {
+        const element = listing.data.results[index];
+        this.goshoplocal.add(
+          'import-csv-listing',
+          {
+            listing: element,
+            accountEntity,
+          },
+          {
+            delay: 1000 * index,
+          },
+        );
+      }
+      await delayMs(300);
+      pageCount++;
+      count = listing?.data?.results.length || 0;
+    } while (count >= 100);
+    return true;
   }
 }
