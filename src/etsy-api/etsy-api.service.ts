@@ -10,6 +10,7 @@ import { CoreApiService } from './core-api/core-api.service';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { delayMs } from 'src/utils/delay';
 import { IsNull, Not } from 'typeorm';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class EtsyApiService {
@@ -93,10 +94,17 @@ export class EtsyApiService {
     return await this.importOneShopGoShopLocalJob(accountId);
   }
 
+  @Cron(CronExpression.EVERY_DAY_AT_1AM, {
+    name: 'import-listing-goshoplocal',
+    timeZone: 'America/New_York',
+  })
   async CronImportManyShopGoShopLocalJob() {
     const accounts = await this.accountService.findMany({
       active: true,
       etsy_user_id: Not(IsNull()),
+    });
+    this.log.add('Start Cron: CronImportManyShopGoShopLocalJob', {
+      accounts: accounts,
     });
     for (let index = 0; index < accounts.length; index++) {
       const account = accounts[index];

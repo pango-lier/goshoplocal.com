@@ -39,7 +39,7 @@ export class CurrencyRatesService {
     return price / current.rate;
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_10AM, {
+  @Cron(CronExpression.EVERY_DAY_AT_NOON, {
     name: 'get-currentcy',
     timeZone: 'America/New_York',
   })
