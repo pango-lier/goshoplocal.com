@@ -8,6 +8,7 @@ import { ListingsModule } from 'src/listings/listings.module';
 import { TaxonomyModule } from 'src/taxonomy/taxonomy.module';
 import { FptFileService } from './fpt-file/fpt-file.service';
 import { CurrencyRatesModule } from 'src/currency-rates/currency-rates.module';
+import { CreateListingCsvService } from './create-listing-csv/create-listing-csv.service';
 
 @Module({
   controllers: [EtsyApiController],
@@ -16,6 +17,7 @@ import { CurrencyRatesModule } from 'src/currency-rates/currency-rates.module';
     RefreshTokenService,
     OauthRedisService,
     FptFileService,
+    CreateListingCsvService,
   ],
   imports: [
     AccountsModule,

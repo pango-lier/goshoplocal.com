@@ -58,7 +58,7 @@ export default class JwtService {
               // ** Check: https://pixinvent.ticksy.com/ticket/2413870
               // ** Change Authorization header
               originalRequest.headers.Authorization = `${this.jwtConfig.tokenType} ${accessToken}`
-              resolve(this.axios(originalRequest))
+              resolve(axios(originalRequest))
             })
           })
           return retryOriginalRequest
@@ -101,8 +101,15 @@ export default class JwtService {
   }
 
   refreshToken() {
-    return axios.post(this.jwtConfig.refreshEndpoint, {
-      refreshToken: this.getRefreshToken()
+    const refreshToken = this.getRefreshToken();
+    return axios.create().post(this.jwtConfig.refreshEndpoint, {
+      refreshToken,
+    }, {
+      headers:
+      {
+        Authorization: `${this.jwtConfig.tokenType} ${refreshToken}`
+      }
+
     })
   }
 }
