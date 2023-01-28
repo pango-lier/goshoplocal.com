@@ -11,6 +11,7 @@ import { AccountsService } from 'src/accounts/accounts.service';
 import { delayMs } from 'src/utils/delay';
 import { IsNull, Not } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { ListingsService } from 'src/listings/listings.service';
 
 @Injectable()
 export class EtsyApiService {
@@ -19,6 +20,7 @@ export class EtsyApiService {
     private readonly configService: ConfigService,
     private readonly accountService: AccountsService,
     private readonly listingCsv: CreateListingCsvService,
+    private readonly listing: ListingsService,
     @InjectQueue('write-log') private readonly log: Queue,
     @InjectQueue('goshoplocal-listing') private readonly goshoplocal: Queue,
   ) {}
@@ -153,5 +155,25 @@ export class EtsyApiService {
       count = listing?.data?.results.length || 0;
     } while (count >= 100);
     return true;
+  }
+
+  async createListingCsv(id) {
+    const listingData = await this.listing.findOne(id);
+    const { api, account } = await this.coreApiService.createApi(
+      listingData.account.etsy_user_id,
+    );
+    const accountEntity = await this.accountService.findEtsyUserId({
+      etsy_user_id: account.account_id,
+      active: true,
+    });
+
+    const listing = await api.ShopListing.getListing({
+      listingId: listingData.etsy_listing_id,
+      includes: ['Images', 'Inventory', 'Videos'],
+    });
+    const { csv, headerCsv, fullCsv } =
+      await this.listingCsv.listingJsonParserCsv(listing.data, accountEntity);
+
+    return { csv, headerCsv, fullCsv };
   }
 }

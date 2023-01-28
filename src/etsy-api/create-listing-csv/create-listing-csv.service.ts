@@ -165,17 +165,40 @@ export class CreateListingCsvService {
     return fullCsv;
   }
 
-  async createCsvFile(
-    fullCsv: ExportListingCsv[],
-    headerCsv,
-    path,
-    dirLocal = '/tmp/goshoplocal',
+  async listingJsonParserCsv(
+    listing: IShopListingWithAssociations,
+    accountEntity: Account,
   ) {
+    const headerCsv = this.parseHeaderCsv(listing);
+    const { api, account } = await this.coreApiService.createApi(
+      accountEntity.etsy_user_id,
+    );
+    const listingVariationImages =
+      await api.ShopListingVariationImage.getListingVariationImages(
+        account.shop_id,
+        listing.listing_id,
+      );
+
+    const fullCsv: ExportListingCsv[] = await this.createCsv(
+      listing,
+      listingVariationImages?.data?.results || [],
+      accountEntity.vendor,
+    );
     const json2csvParser = new json2csv.Parser({
       fields: headerCsv,
       delimiter: '\t',
     });
     const csv = json2csvParser.parse(fullCsv);
+    return {
+      csv,
+      listingVariationImages:
+        listingVariationImages?.data?.results || undefined,
+      headerCsv,
+      fullCsv,
+    };
+  }
+
+  async createCsvFptFile(csv, path, dirLocal = '/tmp/goshoplocal') {
     let fileName = path;
     const folderArray = path.split('/');
     if (folderArray.length > 1) {
@@ -202,33 +225,20 @@ export class CreateListingCsvService {
     const options: CreateListingDto = {};
     let csv;
     try {
-      const { api, account } = await this.coreApiService.createApi(
-        accountEntity.etsy_user_id,
-      );
-      const listingVariationImages =
-        await api.ShopListingVariationImage.getListingVariationImages(
-          account.shop_id,
-          listing.listing_id,
-        );
-
-      const fullCsvs: ExportListingCsv[] = await this.createCsv(
+      const jsonParseCsv = await this.listingJsonParserCsv(
         listing,
-        listingVariationImages?.data?.results || [],
-        accountEntity.vendor,
+        accountEntity,
       );
+      csv = jsonParseCsv.csv;
       const dateCreate = new Date();
       const csvFile = `date_${dateCreate.getUTCFullYear()}_${dateCreate.getUTCMonth()}_${dateCreate.getUTCDate()}/listing_${
         listing.listing_id
       }.csv`;
-      csv = await this.createCsvFile(
-        fullCsvs,
-        this.parseHeaderCsv(listing),
-        csvFile,
-      );
+      await this.createCsvFptFile(csv, csvFile);
       options.csvFile = csvFile;
       options.message = 'Create listing inventory is success !';
       options.status = 'success';
-      variationImages = JSON.stringify(listingVariationImages.data.results);
+      variationImages = JSON.stringify(jsonParseCsv.listingVariationImages);
     } catch (error) {
       options.status = 'error';
       options.message = error.message || 'Some thing error .';

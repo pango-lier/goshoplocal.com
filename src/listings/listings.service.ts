@@ -7,7 +7,6 @@ import { Listing } from './entities/listing.entity';
 import { Repository } from 'typeorm';
 import { PaginateService } from 'src/paginate/paginate.service';
 import { IShopListingWithAssociations } from 'etsy-ts/v3';
-
 @Injectable()
 export class ListingsService {
   constructor(
@@ -31,8 +30,15 @@ export class ListingsService {
     ]);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} listing`;
+  async findOne(id: number) {
+    return await this.listing.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        account: true,
+      },
+    });
   }
 
   update(id: number, updateListingDto: UpdateListingDto) {

@@ -40,6 +40,11 @@ export class EtsyApiController {
     return this.etsyApiService.syncListing(body.id);
   }
 
+  @Get('listing/csv/:id')
+  getListingCsv(@Param('id') id: string) {
+    return this.etsyApiService.createListingCsv(id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateEtsyApiDto: UpdateEtsyApiDto) {
     return this.etsyApiService.update(+id, updateEtsyApiDto);
