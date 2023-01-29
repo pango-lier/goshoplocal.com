@@ -19,6 +19,7 @@ export class ExportListingProcessor extends WorkerHost {
         return await this.listingCsv.createOnceExportCsv(
           job.data.listing,
           job.data.accountEntity,
+          job.data.options,
         );
       default:
         break;

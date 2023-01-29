@@ -22,6 +22,7 @@ import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
 import _ = require('lodash');
 import { CoreApiService } from '../core-api/core-api.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CreateListingCsvService {
@@ -31,6 +32,7 @@ export class CreateListingCsvService {
     private readonly fptFileService: FptFileService,
     private readonly currencyService: CurrencyRatesService,
     private readonly coreApiService: CoreApiService,
+    private readonly configService: ConfigService,
     @InjectQueue('write-log') private readonly log: Queue,
   ) {}
   parseHeaderCsv(listing: IShopListingWithAssociations) {
@@ -148,7 +150,9 @@ export class CreateListingCsvService {
               offering.price.amount / offering.price.divisor
             ).toFixed(2),
             variantShipping: '',
-            variantImage: '',
+            variantImage: `Image for ${variation1?.trim() || ''} ${
+              variation2?.trim() || ''
+            }`,
             images: images.join('///'),
             varianTaxable:
               'GST,HST NB,QST,VAT,PST BC,PST NB,HST NL,HST NS,HST ONT,HST PEI,PST SK,PST MB',
@@ -220,34 +224,58 @@ export class CreateListingCsvService {
   async createOnceExportCsv(
     listing: IShopListingWithAssociations,
     accountEntity: Account,
+    options: {
+      mode: 'only_new' | 'update_and_new';
+    },
   ) {
     let variationImages = null;
-    const options: CreateListingDto = {};
+    const optionals: CreateListingDto = {};
     let csv;
-    try {
-      const jsonParseCsv = await this.listingJsonParserCsv(
+    const create = await this.listingService.findOneBy({
+      etsy_listing_id: listing.listing_id,
+    });
+    if (
+      !create ||
+      options.mode !== 'only_new' ||
+      create?.status !== 'success'
+    ) {
+      try {
+        const jsonParseCsv = await this.listingJsonParserCsv(
+          listing,
+          accountEntity,
+        );
+        csv = jsonParseCsv.csv;
+        // const dateCreate = new Date();
+        // const csvFile = `date_${dateCreate.getUTCFullYear()}_${dateCreate.getUTCMonth()}_${dateCreate.getUTCDate()}/listing_${
+        //   listing.listing_id
+        // }.csv`;
+        const csvFile = `${this.configService.get(
+          'fpt-goshoplocal.folder',
+        )}/etsy/listing/listing_${listing.listing_id}.csv`;
+        await this.createCsvFptFile(csv, csvFile);
+        optionals.csvFile = csvFile;
+        optionals.message = 'Create listing inventory is success !';
+        optionals.status = 'success';
+        variationImages = JSON.stringify(jsonParseCsv.listingVariationImages);
+      } catch (error) {
+        optionals.status = 'error';
+        optionals.message = error.message || 'Some thing error .';
+        this.log.add('createOnceExportCsv is error', {
+          optionals: optionals,
+        });
+      }
+      optionals.variationImages = variationImages;
+      await this.listingService.sync(
         listing,
-        accountEntity,
+        accountEntity.id,
+        optionals,
+        create,
       );
-      csv = jsonParseCsv.csv;
-      const dateCreate = new Date();
-      const csvFile = `date_${dateCreate.getUTCFullYear()}_${dateCreate.getUTCMonth()}_${dateCreate.getUTCDate()}/listing_${
-        listing.listing_id
-      }.csv`;
-      await this.createCsvFptFile(csv, csvFile);
-      options.csvFile = csvFile;
-      options.message = 'Create listing inventory is success !';
-      options.status = 'success';
-      variationImages = JSON.stringify(jsonParseCsv.listingVariationImages);
-    } catch (error) {
-      options.status = 'error';
-      options.message = error.message || 'Some thing error .';
-      this.log.add('createOnceExportCsv is error', {
-        options: options,
-      });
+    } else {
+      // this.log.add('createOnceExportCsv', {
+      //   message: `Listing ${listing.listing_id} is created Csv`,
+      // });
     }
-    options.variationImages = variationImages;
-    await this.listingService.sync(listing, accountEntity.id, options);
     return csv;
   }
 }

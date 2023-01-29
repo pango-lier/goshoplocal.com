@@ -4,7 +4,7 @@ import { UpdateListingDto } from './dto/update-listing.dto';
 import { IPaginate } from 'src/paginate/paginate.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Listing } from './entities/listing.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { PaginateService } from 'src/paginate/paginate.service';
 import { IShopListingWithAssociations } from 'etsy-ts/v3';
 @Injectable()
@@ -41,6 +41,12 @@ export class ListingsService {
     });
   }
 
+  async findOneBy(
+    option: FindOptionsWhere<Listing> | FindOptionsWhere<Listing>[],
+  ) {
+    return await this.listing.findOneBy(option);
+  }
+
   update(id: number, updateListingDto: UpdateListingDto) {
     return `This action updates a #${id} listing`;
   }
@@ -53,6 +59,7 @@ export class ListingsService {
     data: IShopListingWithAssociations,
     accountId,
     options: CreateListingDto = {},
+    create,
   ) {
     const {
       listing_id,
@@ -80,7 +87,7 @@ export class ListingsService {
       materials: JSON.stringify(materials),
       style: JSON.stringify(style),
       //  shipping_profile: JSON.stringify(shipping_profile),
-      // when_made,
+      when_made,
       tags: JSON.stringify(tags),
       price: JSON.stringify(price),
       //  user: JSON.stringify(user),
@@ -93,9 +100,9 @@ export class ListingsService {
       ...rest,
       ...options,
     };
-    const create = await this.listing.findOneBy({
-      etsy_listing_id: listing_id,
-    });
+    // const create = await this.listing.findOneBy({
+    //   etsy_listing_id: listing_id,
+    // });
     if (!create) {
       return await this.create(createAccountDto);
     } else {

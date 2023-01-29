@@ -3044,10 +3044,10 @@ etag@~1.8.1:
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==
 
-etsy-ts@^3.9.0:
-  version "3.9.0"
-  resolved "https://registry.yarnpkg.com/etsy-ts/-/etsy-ts-3.9.0.tgz#6556b6fed4fd220c86011a2663bacf08b98e1cd3"
-  integrity sha512-YyervYJq+j5ibTOXek5rgPdn3BxrM/diWTlEn5M7snhlSDbmoIHF7AMn2MrlVEgVGmFZS01w5PVGhck4jL1p6g==
+etsy-ts@^3.10.1:
+  version "3.10.1"
+  resolved "https://registry.yarnpkg.com/etsy-ts/-/etsy-ts-3.10.1.tgz#98ea5442dde418b51601b48357485825306edfd4"
+  integrity sha512-LPMGwwlAvdH5cy1FB8qCP8L8NLuZSJAnhsHFW7m+98Fsh50FaoFbTHBHwbVK2WhU7wiSD83YnmO1B+2gg9VDyA==
   dependencies:
     axios "~0.21.4"
     bottleneck "^2.19.5"

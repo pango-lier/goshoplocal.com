@@ -93,7 +93,9 @@ export class EtsyApiService {
     //   csvs.push(csv);
     // }
     // return csvs;
-    return await this.importOneShopGoShopLocalJob(accountId);
+    return await this.importOneShopGoShopLocalJob(accountId, {
+      mode: 'update_and_new',
+    });
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM, {
@@ -120,7 +122,12 @@ export class EtsyApiService {
     }
   }
 
-  async importOneShopGoShopLocalJob(accountId, options: any = {}) {
+  async importOneShopGoShopLocalJob(
+    accountId,
+    options: {
+      mode: 'only_new' | 'update_and_new';
+    } = { mode: 'only_new' },
+  ) {
     const { api, account } = await this.coreApiService.createApi(accountId);
     const accountEntity = await this.accountService.findEtsyUserId({
       etsy_user_id: account.account_id,
@@ -131,7 +138,7 @@ export class EtsyApiService {
     do {
       const listing = await api.ShopListing.getListingsByShop({
         shopId: account.shop_id,
-        state: options?.state || 'active',
+        state: 'active',
         includes: ['Images', 'Inventory', 'Videos'],
         limit: 100,
         offset: pageCount * 100,
@@ -144,6 +151,7 @@ export class EtsyApiService {
           {
             listing: element,
             accountEntity,
+            options,
           },
           {
             delay: 1000 * index,

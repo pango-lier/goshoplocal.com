@@ -7,4 +7,5 @@ export default registerAs('fpt-goshoplocal', () => ({
   port: env.get('FPT_FILE_GOSHOPLOCAL_PORT').asString(),
   user: env.get('FPT_FILE_GOSHOPLOCAL_USERNAME').asString(),
   secure: env.get('FPT_FILE_GOSHOPLOCAL_SECURE').asString(),
+  folder: env.get('FPT_FILE_GOSHOPLOCAL_FOLDER').asString(),
 }));
