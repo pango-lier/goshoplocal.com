@@ -12,7 +12,7 @@ const Home = () => {
           <CardText>
             Please make sure to read our{' '}
             <CardLink
-              href='/connects/any/oauth2'
+              href='/connects/etsy/oauth2?vendor=name'
               target='_blank'
             >
               Connect OAuth2 with Etsy
@@ -33,7 +33,7 @@ const Home = () => {
           <CardText>
             Please read our{' '}
             <CardLink
-              href='/connects/any/oauth2'
+              href='/connects/etsy/oauth2?vendor=name'
               target='_blank'
             >
               JWT Documentation
