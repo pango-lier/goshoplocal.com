@@ -289,41 +289,6 @@ export class CreateListingCsvService {
     return csv;
   }
 
-  async syncListingCsv(accountEntity: Account) {
-    // let variationImages = null;
-    // const optionals: CreateListingDto = {};
-    // let csv;
-    // try {
-    //   const jsonParseCsv = await this.listingJsonParserCsv(
-    //     listing,
-    //     accountEntity,
-    //   );
-    //   csv = jsonParseCsv.csv;
-    //   const csvFile = `${this.configService.get(
-    //     'fpt-goshoplocal.folder',
-    //   )}/etsy/listing/listing_${listing.listing_id}.csv`;
-    //   await this.createCsvFptFile(csv, csvFile);
-    //   optionals.csvFile = csvFile;
-    //   optionals.message = 'Create listing inventory is success !';
-    //   optionals.status = 'success';
-    //   variationImages = JSON.stringify(jsonParseCsv.listingVariationImages);
-    // } catch (error) {
-    //   optionals.status = 'error';
-    //   optionals.message = error.message || 'Some thing error .';
-    //   this.log.add('createOnceExportCsv is error', {
-    //     optionals: optionals,
-    //   });
-    // }
-    // optionals.variationImages = variationImages;
-    // // await this.listingService.sync(
-    // //   listing,
-    // //   accountEntity.id,
-    // //   optionals,
-    // //   create,
-    // // );
-    // return csv;
-  }
-
   async getAllListingActive(accountId) {
     let listings: IShopListingWithAssociations[] = [];
     const { api, account } = await this.coreApiService.createApi(accountId);
@@ -377,5 +342,6 @@ export class CreateListingCsvService {
       json2csvParser.parse(fullCsv),
       `${slugify(accountEntity.vendor, '_')}.csv`,
     );
+    return 'success';
   }
 }
