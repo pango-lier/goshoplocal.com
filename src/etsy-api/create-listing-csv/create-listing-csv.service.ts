@@ -23,6 +23,9 @@ import { InjectQueue } from '@nestjs/bullmq';
 import _ = require('lodash');
 import { CoreApiService } from '../core-api/core-api.service';
 import { ConfigService } from '@nestjs/config';
+import { AccountsService } from 'src/accounts/accounts.service';
+import { delayMs } from 'src/utils/delay';
+import slugify from 'slugify';
 
 @Injectable()
 export class CreateListingCsvService {
@@ -33,6 +36,7 @@ export class CreateListingCsvService {
     private readonly currencyService: CurrencyRatesService,
     private readonly coreApiService: CoreApiService,
     private readonly configService: ConfigService,
+    private readonly accountService: AccountsService,
     @InjectQueue('write-log') private readonly log: Queue,
   ) {}
   parseHeaderCsv(listing: IShopListingWithAssociations) {
@@ -169,23 +173,30 @@ export class CreateListingCsvService {
     return fullCsv;
   }
 
+  async getVariationImages(listing_id, etsy_user_id) {
+    const { api, account } = await this.coreApiService.createApi(etsy_user_id);
+    const listingVariationImages =
+      await api.ShopListingVariationImage.getListingVariationImages(
+        account.shop_id,
+        listing_id,
+      );
+    return listingVariationImages?.data?.results || [];
+  }
+
   async listingJsonParserCsv(
     listing: IShopListingWithAssociations,
     accountEntity: Account,
   ) {
     const headerCsv = this.parseHeaderCsv(listing);
-    const { api, account } = await this.coreApiService.createApi(
+
+    const listingVariationImages = await this.getVariationImages(
+      listing.listing_id,
       accountEntity.etsy_user_id,
     );
-    const listingVariationImages =
-      await api.ShopListingVariationImage.getListingVariationImages(
-        account.shop_id,
-        listing.listing_id,
-      );
 
     const fullCsv: ExportListingCsv[] = await this.createCsv(
       listing,
-      listingVariationImages?.data?.results || [],
+      listingVariationImages,
       accountEntity.vendor,
     );
     const json2csvParser = new json2csv.Parser({
@@ -195,8 +206,7 @@ export class CreateListingCsvService {
     const csv = json2csvParser.parse(fullCsv);
     return {
       csv,
-      listingVariationImages:
-        listingVariationImages?.data?.results || undefined,
+      listingVariationImages,
       headerCsv,
       fullCsv,
     };
@@ -277,5 +287,95 @@ export class CreateListingCsvService {
       // });
     }
     return csv;
+  }
+
+  async syncListingCsv(accountEntity: Account) {
+    // let variationImages = null;
+    // const optionals: CreateListingDto = {};
+    // let csv;
+    // try {
+    //   const jsonParseCsv = await this.listingJsonParserCsv(
+    //     listing,
+    //     accountEntity,
+    //   );
+    //   csv = jsonParseCsv.csv;
+    //   const csvFile = `${this.configService.get(
+    //     'fpt-goshoplocal.folder',
+    //   )}/etsy/listing/listing_${listing.listing_id}.csv`;
+    //   await this.createCsvFptFile(csv, csvFile);
+    //   optionals.csvFile = csvFile;
+    //   optionals.message = 'Create listing inventory is success !';
+    //   optionals.status = 'success';
+    //   variationImages = JSON.stringify(jsonParseCsv.listingVariationImages);
+    // } catch (error) {
+    //   optionals.status = 'error';
+    //   optionals.message = error.message || 'Some thing error .';
+    //   this.log.add('createOnceExportCsv is error', {
+    //     optionals: optionals,
+    //   });
+    // }
+    // optionals.variationImages = variationImages;
+    // // await this.listingService.sync(
+    // //   listing,
+    // //   accountEntity.id,
+    // //   optionals,
+    // //   create,
+    // // );
+    // return csv;
+  }
+
+  async getAllListingActive(accountId) {
+    let listings: IShopListingWithAssociations[] = [];
+    const { api, account } = await this.coreApiService.createApi(accountId);
+    let pageCount = 0;
+    let count = 0;
+    do {
+      const listing = await api.ShopListing.getListingsByShop({
+        shopId: account.shop_id,
+        state: 'active',
+        includes: ['Images', 'Inventory', 'Videos'],
+        limit: 100,
+        offset: pageCount * 100,
+      });
+
+      listings = listings.concat(listing.data.results);
+      await delayMs(300);
+      pageCount++;
+      count = listing?.data?.results.length || 0;
+    } while (count >= 100);
+    return listings;
+  }
+
+  async createListingVendorCsv(accountId) {
+    const listings = await this.getAllListingActive(accountId);
+    const { api, account } = await this.coreApiService.createApi(accountId);
+    const accountEntity = await this.accountService.findEtsyUserId({
+      etsy_user_id: account.account_id,
+      active: true,
+    });
+    let fullCsv: ExportListingCsv[] = [];
+    for (const listing of listings) {
+      const variationImages =
+        await api.ShopListingVariationImage.getListingVariationImages(
+          account.shop_id,
+          listing.listing_id,
+        );
+
+      const csv: ExportListingCsv[] = await this.createCsv(
+        listing,
+        variationImages?.data?.results || [],
+        accountEntity.vendor,
+      );
+      await delayMs(300);
+      fullCsv = fullCsv.concat(csv);
+    }
+    const json2csvParser = new json2csv.Parser({
+      fields: EXPORT_GOSHOPLOCAL_CSV_FIELDS, //this.parseHeaderCsv(listing);
+      delimiter: '\t',
+    });
+    await this.createCsvFptFile(
+      json2csvParser.parse(fullCsv),
+      `${slugify(accountEntity.vendor, '_')}.csv`,
+    );
   }
 }

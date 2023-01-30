@@ -41,6 +41,13 @@ export class ListingsService {
     });
   }
 
+  async findStatus(accountId, status = 'success') {
+    return await this.listing.findBy({
+      status,
+      accountId,
+    });
+  }
+
   async findOneBy(
     option: FindOptionsWhere<Listing> | FindOptionsWhere<Listing>[],
   ) {
