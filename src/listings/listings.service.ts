@@ -12,7 +12,7 @@ export class ListingsService {
   constructor(
     @InjectRepository(Listing) private readonly listing: Repository<Listing>,
     private readonly paginateService: PaginateService,
-  ) {}
+  ) { }
   create(createListingDto: CreateListingDto) {
     const listing = this.listing.create(createListingDto);
     return this.listing.save(listing);
@@ -41,10 +41,12 @@ export class ListingsService {
     });
   }
 
-  async findStatus(accountId, status = 'success') {
-    return await this.listing.findBy({
-      status,
-      accountId,
+  async getListingIdsByStatus(accountId, status = 'success') {
+    return await this.listing.find({
+      where: {
+        status,
+        accountId,
+      }, select: { id: true, etsy_listing_id: true }
     });
   }
 

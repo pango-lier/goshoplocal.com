@@ -23,13 +23,13 @@ export class EtsyApiService {
     private readonly listing: ListingsService,
     @InjectQueue('write-log') private readonly log: Queue,
     @InjectQueue('goshoplocal-listing') private readonly goshoplocal: Queue,
-  ) {}
+  ) { }
 
   create(createEtsyApiDto: CreateEtsyApiDto) {
     return 'This action adds a new etsyApi';
   }
 
-  async findAll() {}
+  async findAll() { }
 
   findOne(id: number) {
     return `This action returns a #${id} etsyApi`;
@@ -93,15 +93,39 @@ export class EtsyApiService {
     //   csvs.push(csv);
     // }
     // return csvs;
-    return await this.importOneShopGoShopLocalJob(accountId, {
-      mode: 'update_and_new',
-    });
+    this.goshoplocal.add(
+      'import-csv-listing-vendor',
+      {
+        accountId,
+      }
+    );
+    return true;
+    //return await this.CronImportCsvListingVendorJob(accountId);
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM, {
     name: 'import-listing-goshoplocal',
     timeZone: 'America/New_York',
   })
+  async CronImportCsvListingVendorJob(accountId = null) {
+    const accounts = await this.accountService.findMany({
+      active: true,
+      etsy_user_id: Not(IsNull()),
+    });
+    this.log.add('Start Cron: CronImportManyShopGoShopLocalJob', {
+      accounts: accounts,
+    });
+    accounts.forEach((account) => {
+      this.goshoplocal.add(
+        'import-csv-listing-vendor',
+        {
+          account_id: account.etsy_user_id,
+        }
+      );
+    });
+    return true;
+  }
+
   async CronImportManyShopGoShopLocalJob() {
     const accounts = await this.accountService.findMany({
       active: true,

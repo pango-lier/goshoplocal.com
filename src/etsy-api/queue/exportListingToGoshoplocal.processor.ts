@@ -17,7 +17,7 @@ export class ExportListingProcessor extends WorkerHost {
     switch (job.name) {
       case 'import-csv-listing-vendor':
         return await this.listingCsv.createListingVendorCsv(
-          job.data.account_id,
+          job.data.accountId,
         );
       case 'import-csv-listing':
         return await this.listingCsv.createOnceExportCsv(

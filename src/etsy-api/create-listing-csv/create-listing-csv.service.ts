@@ -26,6 +26,7 @@ import { ConfigService } from '@nestjs/config';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { delayMs } from 'src/utils/delay';
 import slugify from 'slugify';
+import { Listing } from 'src/listings/entities/listing.entity';
 
 @Injectable()
 export class CreateListingCsvService {
@@ -38,7 +39,7 @@ export class CreateListingCsvService {
     private readonly configService: ConfigService,
     private readonly accountService: AccountsService,
     @InjectQueue('write-log') private readonly log: Queue,
-  ) {}
+  ) { }
   parseHeaderCsv(listing: IShopListingWithAssociations) {
     const headerCsv = EXPORT_GOSHOPLOCAL_CSV_FIELDS;
     if (listing?.inventory?.products[0]) {
@@ -67,108 +68,108 @@ export class CreateListingCsvService {
     element: IShopListingWithAssociations,
     variationImages: IListingVariationImage[],
     vendor: string,
+    isListingDeleted = false
   ) {
     const fullCsv: ExportListingCsv[] = [];
     const taxonomy = await this.taxonomyService.findOneOption({
       id: element.taxonomy_id,
     });
     for (const product of element?.inventory?.products) {
-      if (product.is_deleted === false) {
-        let offering: IListingInventoryProductOffering = undefined;
-        for (const _offering of product.offerings) {
-          if (_offering.is_deleted === false && _offering.is_enabled === true) {
-            if (_offering.price.currency_code.toUpperCase() === 'CAD')
-              offering = _offering;
-            else {
-              const newAmount =
-                await this.currencyService.convertCurrentDefault(
-                  _offering.price.amount,
-                  _offering.price.currency_code.toUpperCase(),
-                );
-              offering = {
-                ..._offering,
-                price: {
-                  amount: newAmount,
-                  divisor: _offering.price.divisor,
-                  currency_code: 'CAD',
-                },
-              };
-            }
+      // if (product.is_deleted === false) {
+      let offering: IListingInventoryProductOffering = undefined;
+      for (const _offering of product.offerings) {
+        if (_offering.is_deleted === false && _offering.is_enabled === true) {
+          if (_offering.price.currency_code.toUpperCase() === 'CAD')
+            offering = _offering;
+          else {
+            const newAmount =
+              await this.currencyService.convertCurrentDefault(
+                _offering.price.amount,
+                _offering.price.currency_code.toUpperCase(),
+              );
+            offering = {
+              ..._offering,
+              price: {
+                amount: newAmount,
+                divisor: _offering.price.divisor,
+                currency_code: 'CAD',
+              },
+            };
           }
         }
+      }
 
-        if (offering) {
-          //property
-          const variation1 =
-            (product?.property_values[0]?.values?.join(',') || '') +
-            ' ' +
-            (product?.property_values[0]?.scale_name || '');
-          const variation2 =
-            (product?.property_values[1]?.values?.join(',') || '') +
-            ' ' +
-            (product?.property_values[1]?.scale_name || '');
-          //images
-          let images = element.images.map((i) => i.url_fullxfull);
-          for (const variationImage of variationImages) {
-            for (const [indexImage, imageItem] of element?.images?.entries() ||
-              []) {
-              if (
-                imageItem.listing_image_id &&
-                variationImage.image_id &&
-                imageItem.listing_image_id === variationImage.image_id
-              ) {
-                for (const propertyValue of product?.property_values || []) {
+      if (offering) {
+        //property
+        const variation1 =
+          (product?.property_values[0]?.values?.join(',') || '') +
+          ' ' +
+          (product?.property_values[0]?.scale_name || '');
+        const variation2 =
+          (product?.property_values[1]?.values?.join(',') || '') +
+          ' ' +
+          (product?.property_values[1]?.scale_name || '');
+        //images
+        let images = element.images.map((i) => i.url_fullxfull);
+        for (const variationImage of variationImages) {
+          for (const [indexImage, imageItem] of element?.images?.entries() ||
+            []) {
+            if (
+              imageItem.listing_image_id &&
+              variationImage.image_id &&
+              imageItem.listing_image_id === variationImage.image_id
+            ) {
+              for (const propertyValue of product?.property_values || []) {
+                if (
+                  propertyValue.property_id &&
+                  variationImage.property_id &&
+                  propertyValue.property_id === variationImage.property_id
+                ) {
                   if (
-                    propertyValue.property_id &&
-                    variationImage.property_id &&
-                    propertyValue.property_id === variationImage.property_id
+                    variationImage?.value_id &&
+                    propertyValue?.value_ids[0] &&
+                    variationImage?.value_id === propertyValue?.value_ids[0]
                   ) {
-                    if (
-                      variationImage?.value_id &&
-                      propertyValue?.value_ids[0] &&
-                      variationImage?.value_id === propertyValue?.value_ids[0]
-                    ) {
-                      delete images[indexImage];
-                      images = images.filter((i) => i !== undefined);
-                      images.unshift(imageItem.url_fullxfull);
-                    }
+                    delete images[indexImage];
+                    images = images.filter((i) => i !== undefined);
+                    images.unshift(imageItem.url_fullxfull);
                   }
                 }
               }
             }
           }
-          const exportCsv: ExportListingCsv = {
-            sku: `${PREFIX_UNIQUE_ETSY}${product.product_id}`, //import from etsy
-            category: taxonomy.name,
-            title: element.title,
-            description: element.description,
-            vendor: vendor,
-            tags: element.tags.join(','),
-            variation1: variation1?.trim() || '',
-            variation2: variation2?.trim() || '',
-            variation3: '',
-            prefixEtsyListingId: `${PREFIX_UNIQUE_ETSY}${element.listing_id}`,
-            quantity: offering.quantity,
-            offerPrice: '',
-            actualPrice: (
-              offering.price.amount / offering.price.divisor
-            ).toFixed(2),
-            variantShipping: '',
-            variantImage: `Image for ${variation1?.trim() || ''} ${
-              variation2?.trim() || ''
-            }`,
-            images: images.join('///'),
-            varianTaxable:
-              'GST,HST NB,QST,VAT,PST BC,PST NB,HST NL,HST NS,HST ONT,HST PEI,PST SK,PST MB',
-          };
-          fullCsv.push(exportCsv);
-        } else {
-          this.log.add('etsy-api', {
-            status: 'warning',
-            message: 'Offering not found ' + product.product_id,
-          });
         }
+        const exportCsv: ExportListingCsv = {
+          sku: `${PREFIX_UNIQUE_ETSY}${product.product_id}`, //import from etsy
+          category: taxonomy.name,
+          title: element.title,
+          description: element.description,
+          vendor: vendor,
+          tags: element.tags.join(','),
+          variation1: variation1?.trim() || '',
+          variation2: variation2?.trim() || '',
+          variation3: '',
+          prefixEtsyListingId: `${PREFIX_UNIQUE_ETSY}${element.listing_id}`,
+          quantity: (isListingDeleted === true || product.is_deleted === true) ? 0 : offering.quantity,
+          offerPrice: '',
+          actualPrice: (
+            offering.price.amount / offering.price.divisor
+          ).toFixed(2),
+          variantShipping: '',
+          variantImage: `Image for ${variation1?.trim() || ''} ${variation2?.trim() || ''
+            }`,
+          images: images.join('///'),
+          varianTaxable:
+            'GST,HST NB,QST,VAT,PST BC,PST NB,HST NL,HST NS,HST ONT,HST PEI,PST SK,PST MB',
+        };
+        fullCsv.push(exportCsv);
+      } else {
+        this.log.add('etsy-api', {
+          status: 'warning',
+          message: 'Offering not found ' + product.product_id,
+        });
       }
+      // }
     }
     return fullCsv;
   }
@@ -311,6 +312,34 @@ export class CreateListingCsvService {
     return listings;
   }
 
+  async getFullCsvDeleteds(listings, accountEntity) {
+    let fullCsv: ExportListingCsv[] = [];
+    const listingLocals = await this.listingService.getListingIdsByStatus(accountEntity.etsy_user_id);
+    let listingDeleteds: Listing[] = [];
+    for (const item of listingLocals) {
+      const listingLocal = listings.find((i) => i.listing_id === item.etsy_user_id);
+      if (!listingLocal) {
+        const listing: IShopListingWithAssociations = {
+          tags: JSON.parse(item.tags),
+          images: JSON.parse(item.images),
+          inventory: JSON.parse(item.inventory),
+          taxonomy_id: item.taxonomy_id,
+          listing_id: item.etsy_listing_id,
+          title: item.title,
+          description: item.description,
+        }
+        const csv: ExportListingCsv[] = await this.createCsv(
+          listing,
+          JSON.parse(item.variationImages),
+          accountEntity.vendor,
+          true
+        );
+        listingDeleteds.push(item);
+      }
+    }
+    return fullCsv;
+  }
+
   async createListingVendorCsv(accountId) {
     const listings = await this.getAllListingActive(accountId);
     const { api, account } = await this.coreApiService.createApi(accountId);
@@ -318,7 +347,9 @@ export class CreateListingCsvService {
       etsy_user_id: account.account_id,
       active: true,
     });
-    let fullCsv: ExportListingCsv[] = [];
+
+    let fullCsv: ExportListingCsv[] = await this.getFullCsvDeleteds(listings, accountEntity);
+
     for (const listing of listings) {
       const variationImages =
         await api.ShopListingVariationImage.getListingVariationImages(
@@ -331,8 +362,19 @@ export class CreateListingCsvService {
         variationImages?.data?.results || [],
         accountEntity.vendor,
       );
-      await delayMs(300);
+      await delayMs(200);
       fullCsv = fullCsv.concat(csv);
+      const create = await this.listingService.findOneBy({
+        etsy_listing_id: listing.listing_id,
+      });
+      const optionals: CreateListingDto = {};
+      optionals.variationImages = JSON.stringify(variationImages?.data?.results || []);
+      await this.listingService.sync(
+        listing,
+        accountEntity.id,
+        optionals,
+        create,
+      );
     }
     const json2csvParser = new json2csv.Parser({
       fields: EXPORT_GOSHOPLOCAL_CSV_FIELDS, //this.parseHeaderCsv(listing);
