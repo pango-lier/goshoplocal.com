@@ -20,7 +20,7 @@ const BullMQQueueRegisterModule = [
     name: 'write-log',
   }),
   BullModule.registerQueue({
-    name: 'goshoplocal-listing',
+    name: 'goshoplocal-listing-csv',
   }),
   BullModule.registerQueue({
     name: 'crawler',
@@ -52,7 +52,7 @@ export class BullmqModule {
   constructor(
     @InjectQueue('demo') private demoQueue: Queue,
     @InjectQueue('write-log') private writeLogQueue: Queue,
-    @InjectQueue('goshoplocal-listing') private importListingQueue: Queue,
+    @InjectQueue('goshoplocal-listing-csv') private importListingQueue: Queue,
     @InjectQueue('crawler') private crawlerQueue: Queue,
   ) {
     this.serverAdapter.setBasePath('/api/admin/queues'); //http://localhost:3023/api/admin/queues/

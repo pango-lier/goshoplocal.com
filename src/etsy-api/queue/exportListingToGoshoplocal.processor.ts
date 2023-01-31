@@ -2,7 +2,7 @@ import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { CreateListingCsvService } from '../create-listing-csv/create-listing-csv.service';
 
-@Processor('goshoplocal-listing', {
+@Processor('goshoplocal-listing-csv', {
   concurrency: 8,
 })
 export class ExportListingProcessor extends WorkerHost {

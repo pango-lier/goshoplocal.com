@@ -98,9 +98,15 @@ export class CreateListingCsvService {
         const product = listing.inventory.products[0];
         const property1 = product?.property_values[0]?.property_name;
         const property2 = product?.property_values[1]?.property_name;
-        if (property1) {
+        if (
+          property1 &&
+          property1 !== undefined &&
+          property1 !== null &&
+          property1.trim() !== ''
+        ) {
           const key1 = _.capitalize(property1.trim());
-          if (!properties.includes(key1)) {
+          // console.log(property1, key1);
+          if (key1 && !properties.includes(key1)) {
             properties.push(key1);
             let label = key1;
             if (['color', 'colors'].includes(key1.toLowerCase())) {
@@ -112,9 +118,15 @@ export class CreateListingCsvService {
             });
           }
         }
-        if (property2) {
+        if (
+          property2 &&
+          property2 !== undefined &&
+          property2 !== null &&
+          property2.trim() !== ''
+        ) {
           const key2 = _.capitalize(property2.trim());
-          if (!properties.includes(key2)) {
+          // console.log(property1, key2);
+          if (key2 && !properties.includes(key2)) {
             properties.push(key2);
             let label = key2;
             if (['color', 'colors'].includes(key2.toLowerCase())) {
@@ -435,7 +447,7 @@ export class CreateListingCsvService {
     do {
       const listing = await api.ShopListing.getListingsByShop({
         shopId: account.shop_id,
-        state: 'active',
+        state: 'expired',
         includes: ['Images', 'Inventory', 'Videos'],
         limit: 100,
         offset: pageCount * 100,

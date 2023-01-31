@@ -22,7 +22,7 @@ export class EtsyApiService {
     private readonly listingCsv: CreateListingCsvService,
     private readonly listing: ListingsService,
     @InjectQueue('write-log') private readonly log: Queue,
-    @InjectQueue('goshoplocal-listing') private readonly goshoplocal: Queue,
+    @InjectQueue('goshoplocal-listing-csv') private readonly goshoplocal: Queue,
   ) {}
 
   create(createEtsyApiDto: CreateEtsyApiDto) {
