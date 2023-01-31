@@ -75,14 +75,14 @@ export class EtsyApiService {
       accountId,
     });
     return true;
-    //return await this.CronImportCsvListingVendorJob(accountId);
+    // return await this.CronImportCsvListingVendorJob();
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM, {
     name: 'import-listing-goshoplocal',
     timeZone: 'America/New_York',
   })
-  async CronImportCsvListingVendorJob(accountId = null) {
+  async CronImportCsvListingVendorJob() {
     const accounts = await this.accountService.findMany({
       active: true,
       etsy_user_id: Not(IsNull()),
@@ -92,7 +92,7 @@ export class EtsyApiService {
     });
     accounts.forEach((account) => {
       this.goshoplocal.add('import-csv-listing-vendor', {
-        account_id: account.etsy_user_id,
+        accountId: account.etsy_user_id,
       });
     });
     return true;
