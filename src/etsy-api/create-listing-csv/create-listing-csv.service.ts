@@ -27,6 +27,7 @@ import { AccountsService } from 'src/accounts/accounts.service';
 import { delayMs } from 'src/utils/delay';
 import slugify from 'slugify';
 import { Listing } from 'src/listings/entities/listing.entity';
+import { CurrencyRate } from 'src/currency-rates/entities/currency-rate.entity';
 
 @Injectable()
 export class CreateListingCsvService {
@@ -39,7 +40,7 @@ export class CreateListingCsvService {
     private readonly configService: ConfigService,
     private readonly accountService: AccountsService,
     @InjectQueue('write-log') private readonly log: Queue,
-  ) { }
+  ) {}
   parseHeaderCsv(listing: IShopListingWithAssociations) {
     const headerCsv = EXPORT_GOSHOPLOCAL_CSV_FIELDS;
     if (listing?.inventory?.products[0]) {
@@ -64,42 +65,165 @@ export class CreateListingCsvService {
     return headerCsv;
   }
 
+  parseFullHeaderCsv(listings: IShopListingWithAssociations[]) {
+    const properties = [];
+    let headerCsvs = [
+      {
+        label: 'Product Code',
+        value: 'sku',
+      },
+      {
+        label: 'Etsy Category',
+        value: 'category',
+      },
+      {
+        label: 'Title (Product Name)',
+        value: 'title',
+      },
+      {
+        label: 'Body (HTML)',
+        value: 'description',
+      },
+      {
+        label: 'Vendor Name',
+        value: 'vendor',
+      },
+      {
+        label: 'Tags',
+        value: 'tags',
+      },
+    ];
+    listings.forEach((listing) => {
+      if (listing?.inventory?.products[0]) {
+        const product = listing.inventory.products[0];
+        const property1 = product?.property_values[0]?.property_name;
+        const property2 = product?.property_values[1]?.property_name;
+        if (property1) {
+          const key1 = _.capitalize(property1.trim());
+          if (!properties.includes(key1)) {
+            properties.push(key1);
+            let label = key1;
+            if (['color', 'colors'].includes(key1.toLowerCase())) {
+              label = 'Colour';
+            }
+            headerCsvs.push({
+              label,
+              value: property1.trim(),
+            });
+          }
+        }
+        if (property2) {
+          const key2 = _.capitalize(property2.trim());
+          if (!properties.includes(key2)) {
+            properties.push(key2);
+            let label = key2;
+            if (['color', 'colors'].includes(key2.toLowerCase())) {
+              label = 'Colour';
+            }
+            headerCsvs.push({
+              label,
+              value: property2.trim(),
+            });
+          }
+        }
+      }
+    });
+    headerCsvs = headerCsvs.concat([
+      {
+        label: 'Variation Group Code',
+        value: 'prefixEtsyListingId', //prefix et
+      },
+      {
+        label: 'Variant Inventory Qty',
+        value: 'quantity',
+      },
+      {
+        label: 'Variant Price (Offer Price) ',
+        value: 'offerPrice',
+      },
+      {
+        label: 'Variant Compare At Price (Actual Variant Price)',
+        value: 'actualPrice',
+      },
+      {
+        label: 'Variant Requires Shipping',
+        value: 'variantShipping',
+      },
+      {
+        label: 'Variant Image',
+        value: 'variantImage',
+      },
+      {
+        label: 'Images',
+        value: 'images',
+      },
+      {
+        label: 'Variant Taxable',
+        value: 'varianTaxable',
+      },
+    ]);
+    return { properties, headerCsvs };
+  }
+
+  async getOffering(
+    offerings: IListingInventoryProductOffering[],
+    currencyRates: CurrencyRate[],
+  ) {
+    let offering: IListingInventoryProductOffering = undefined;
+    for (const _offering of offerings) {
+      if (_offering.price.currency_code.toUpperCase() === 'CAD')
+        offering = _offering;
+      else {
+        const currencyRate = currencyRates.find(
+          (i) =>
+            i.currencyCode.toUpperCase() ===
+            _offering.price.currency_code.toUpperCase(),
+        );
+        if (!currencyRate) {
+          this.log.add('getOffering is error', {
+            message: 'getOffering find not found .',
+          });
+          return undefined;
+        }
+        offering = {
+          ..._offering,
+          price: {
+            amount: _offering.price.amount / currencyRate.rate,
+            divisor: _offering.price.divisor,
+            currency_code: 'CAD',
+          },
+        };
+      }
+      if (
+        offering &&
+        _offering.is_deleted === false &&
+        _offering.is_enabled === true
+      ) {
+        return offering;
+      }
+    }
+    return offering;
+  }
+
   async createCsv(
     element: IShopListingWithAssociations,
     variationImages: IListingVariationImage[],
     vendor: string,
-    isListingDeleted = false
+    currencyRates: CurrencyRate[],
+    isListingDeleted = false,
   ) {
     const fullCsv: ExportListingCsv[] = [];
     const taxonomy = await this.taxonomyService.findOneOption({
       id: element.taxonomy_id,
     });
+
     for (const product of element?.inventory?.products) {
       // if (product.is_deleted === false) {
-      let offering: IListingInventoryProductOffering = undefined;
-      for (const _offering of product.offerings) {
-        if (_offering.is_deleted === false && _offering.is_enabled === true) {
-          if (_offering.price.currency_code.toUpperCase() === 'CAD')
-            offering = _offering;
-          else {
-            const newAmount =
-              await this.currencyService.convertCurrentDefault(
-                _offering.price.amount,
-                _offering.price.currency_code.toUpperCase(),
-              );
-            offering = {
-              ..._offering,
-              price: {
-                amount: newAmount,
-                divisor: _offering.price.divisor,
-                currency_code: 'CAD',
-              },
-            };
-          }
-        }
-      }
+      const offering = await this.getOffering(product.offerings, currencyRates);
 
       if (offering) {
+        const property1 = product?.property_values[0]?.property_name;
+        const property2 = product?.property_values[1]?.property_name;
         //property
         const variation1 =
           (product?.property_values[0]?.values?.join(',') || '') +
@@ -146,22 +270,34 @@ export class CreateListingCsvService {
           description: element.description,
           vendor: vendor,
           tags: element.tags.join(','),
-          variation1: variation1?.trim() || '',
-          variation2: variation2?.trim() || '',
-          variation3: '',
+          [variation1]: variation1?.trim() || '',
+          [variation2]: variation2?.trim() || '',
           prefixEtsyListingId: `${PREFIX_UNIQUE_ETSY}${element.listing_id}`,
-          quantity: (isListingDeleted === true || product.is_deleted === true) ? 0 : offering.quantity,
+          quantity:
+            isListingDeleted === true ||
+            product.is_deleted === true ||
+            offering.is_deleted === true ||
+            offering.is_enabled === false
+              ? 0
+              : offering.quantity,
           offerPrice: '',
-          actualPrice: (
-            offering.price.amount / offering.price.divisor
-          ).toFixed(2),
+          actualPrice: (offering.price.amount / offering.price.divisor).toFixed(
+            2,
+          ),
           variantShipping: '',
-          variantImage: `Image for ${variation1?.trim() || ''} ${variation2?.trim() || ''
-            }`,
+          variantImage: `Image for ${variation1?.trim() || ''} ${
+            variation2?.trim() || ''
+          }`,
           images: images.join('///'),
           varianTaxable:
             'GST,HST NB,QST,VAT,PST BC,PST NB,HST NL,HST NS,HST ONT,HST PEI,PST SK,PST MB',
         };
+        if (variation1?.trim()) {
+          exportCsv[property1.trim()] = variation1?.trim();
+        }
+        if (variation2?.trim()) {
+          exportCsv[property2.trim()] = variation2?.trim();
+        }
         fullCsv.push(exportCsv);
       } else {
         this.log.add('etsy-api', {
@@ -194,11 +330,12 @@ export class CreateListingCsvService {
       listing.listing_id,
       accountEntity.etsy_user_id,
     );
-
+    const currencyRates = await this.currencyService.findAll();
     const fullCsv: ExportListingCsv[] = await this.createCsv(
       listing,
       listingVariationImages,
       accountEntity.vendor,
+      currencyRates,
     );
     const json2csvParser = new json2csv.Parser({
       fields: headerCsv,
@@ -312,32 +449,77 @@ export class CreateListingCsvService {
     return listings;
   }
 
-  async getFullCsvDeleteds(listings, accountEntity) {
+  async getFullCsvDeleteds(
+    listings: IShopListingWithAssociations[],
+    accountEntity: Account,
+    currencyRates: CurrencyRate[],
+  ) {
     let fullCsv: ExportListingCsv[] = [];
-    const listingLocals = await this.listingService.getListingIdsByStatus(accountEntity.etsy_user_id);
-    let listingDeleteds: Listing[] = [];
+    const listingLocals = await this.listingService.getListingIdsByStatus(
+      accountEntity.id,
+    );
+
+    const listingDeleteds: Listing[] = [];
     for (const item of listingLocals) {
-      const listingLocal = listings.find((i) => i.listing_id === item.etsy_user_id);
-      if (!listingLocal) {
+      const check = listings.find((i) => i.listing_id == item.etsy_listing_id);
+      if (check === undefined) {
         const listing: IShopListingWithAssociations = {
-          tags: JSON.parse(item.tags),
-          images: JSON.parse(item.images),
-          inventory: JSON.parse(item.inventory),
+          tags: item.tags as any,
+          images: item.images as any,
+          inventory: item.inventory as any,
           taxonomy_id: item.taxonomy_id,
           listing_id: item.etsy_listing_id,
           title: item.title,
           description: item.description,
-        }
+        };
         const csv: ExportListingCsv[] = await this.createCsv(
           listing,
-          JSON.parse(item.variationImages),
+          item.variationImages as any,
           accountEntity.vendor,
-          true
+          currencyRates,
+          true,
         );
+        fullCsv = fullCsv.concat(csv);
         listingDeleteds.push(item);
       }
     }
-    return fullCsv;
+
+    return { fullCsv, listingDeleteds };
+  }
+
+  async updateListingDb(
+    listingUpdates: {
+      listing: IShopListingWithAssociations;
+      variationImages: IListingVariationImage[];
+    }[],
+    listingDeleted: Listing[],
+    accountEntity: Account,
+  ) {
+    for (const listingUpdate of listingUpdates) {
+      const create = await this.listingService.findOneBy({
+        etsy_listing_id: listingUpdate.listing.listing_id,
+      });
+      const optionals: CreateListingDto = {};
+      optionals.message = 'Create listing inventory is success !';
+      optionals.status = 'success';
+      optionals.variationImages = JSON.stringify(listingUpdate.variationImages);
+      await this.listingService.sync(
+        listingUpdate.listing,
+        accountEntity.id,
+        optionals,
+        create,
+      );
+    }
+
+    if (listingDeleted.length > 0) {
+      await this.listingService.updateStatusListingId(
+        listingDeleted.map((i) => i.id),
+        {
+          status: 'deleted',
+          message: 'Listing is not found !',
+        },
+      );
+    }
   }
 
   async createListingVendorCsv(accountId) {
@@ -347,9 +529,18 @@ export class CreateListingCsvService {
       etsy_user_id: account.account_id,
       active: true,
     });
+    const currencyRates = await this.currencyService.findAll();
+    const listingDeleted = await this.getFullCsvDeleteds(
+      listings,
+      accountEntity,
+      currencyRates,
+    );
 
-    let fullCsv: ExportListingCsv[] = await this.getFullCsvDeleteds(listings, accountEntity);
-
+    let fullCsv: ExportListingCsv[] = listingDeleted.fullCsv;
+    const listingUpdate: {
+      listing: IShopListingWithAssociations;
+      variationImages: IListingVariationImage[];
+    }[] = [];
     for (const listing of listings) {
       const variationImages =
         await api.ShopListingVariationImage.getListingVariationImages(
@@ -361,29 +552,32 @@ export class CreateListingCsvService {
         listing,
         variationImages?.data?.results || [],
         accountEntity.vendor,
+        currencyRates,
       );
       await delayMs(200);
       fullCsv = fullCsv.concat(csv);
-      const create = await this.listingService.findOneBy({
-        etsy_listing_id: listing.listing_id,
-      });
-      const optionals: CreateListingDto = {};
-      optionals.variationImages = JSON.stringify(variationImages?.data?.results || []);
-      await this.listingService.sync(
+      listingUpdate.push({
         listing,
-        accountEntity.id,
-        optionals,
-        create,
-      );
+        variationImages: variationImages?.data?.results || [],
+      });
     }
+
     const json2csvParser = new json2csv.Parser({
-      fields: EXPORT_GOSHOPLOCAL_CSV_FIELDS, //this.parseHeaderCsv(listing);
+      fields: this.parseFullHeaderCsv(listings).headerCsvs,
       delimiter: '\t',
     });
-    await this.createCsvFptFile(
-      json2csvParser.parse(fullCsv),
-      `${slugify(accountEntity.vendor, '_')}.csv`,
+    const csvFile = `${this.configService.get(
+      'fpt-goshoplocal.folder',
+    )}/etsy/listing/${slugify(accountEntity.vendor.toLowerCase(), '_')}.csv`;
+    await this.createCsvFptFile(json2csvParser.parse(fullCsv), csvFile);
+    await this.updateListingDb(
+      listingUpdate,
+      listingDeleted.listingDeleteds,
+      accountEntity,
     );
-    return 'success';
+    return {
+      vendor: accountEntity.vendor,
+      status: 'success',
+    };
   }
 }

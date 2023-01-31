@@ -23,13 +23,13 @@ export class EtsyApiService {
     private readonly listing: ListingsService,
     @InjectQueue('write-log') private readonly log: Queue,
     @InjectQueue('goshoplocal-listing') private readonly goshoplocal: Queue,
-  ) { }
+  ) {}
 
   create(createEtsyApiDto: CreateEtsyApiDto) {
     return 'This action adds a new etsyApi';
   }
 
-  async findAll() { }
+  async findAll() {}
 
   findOne(id: number) {
     return `This action returns a #${id} etsyApi`;
@@ -71,34 +71,9 @@ export class EtsyApiService {
   }
 
   async syncListing(accountId, options: any = {}) {
-    // const { api, account } = await this.createApi(accountId);
-    // const listing = await api.ShopListing.getListingsByShop({
-    //   shopId: account.shop_id,
-    //   state: options?.state || 'active',
-    //   includes: ['Images', 'Inventory', 'Videos'],
-    // });
-    // const accountEntity = await this.accountService.findEtsyUserId({
-    //   etsy_user_id: account.account_id,
-    //   active: true,
-    // });
-    // const csvs = [];
-    // for (let index = 0; index < listing.data.results.length; index++) {
-    //   const element = listing.data.results[index];
-    //   const csv = await this.listingCsv.createOnceExportCsv(
-    //     element,
-    //     accountEntity,
-    //     account,
-    //     api,
-    //   );
-    //   csvs.push(csv);
-    // }
-    // return csvs;
-    this.goshoplocal.add(
-      'import-csv-listing-vendor',
-      {
-        accountId,
-      }
-    );
+    this.goshoplocal.add('import-csv-listing-vendor', {
+      accountId,
+    });
     return true;
     //return await this.CronImportCsvListingVendorJob(accountId);
   }
@@ -116,12 +91,9 @@ export class EtsyApiService {
       accounts: accounts,
     });
     accounts.forEach((account) => {
-      this.goshoplocal.add(
-        'import-csv-listing-vendor',
-        {
-          account_id: account.etsy_user_id,
-        }
-      );
+      this.goshoplocal.add('import-csv-listing-vendor', {
+        account_id: account.etsy_user_id,
+      });
     });
     return true;
   }

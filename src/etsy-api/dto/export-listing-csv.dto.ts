@@ -6,9 +6,6 @@ export class ExportListingCsv {
   description: string;
   vendor: string;
   tags: string;
-  variation1?: string;
-  variation2?: string;
-  variation3?: string;
   prefixEtsyListingId: string;
   quantity: number;
   offerPrice: string;
@@ -17,6 +14,7 @@ export class ExportListingCsv {
   variantImage?: string;
   images?: string;
   varianTaxable?: string;
+  [key: string]: any;
 }
 
 export const EXPORT_GOSHOPLOCAL_CSV_FIELDS = [
@@ -44,18 +42,18 @@ export const EXPORT_GOSHOPLOCAL_CSV_FIELDS = [
     label: 'Tags',
     value: 'tags',
   },
-  {
-    label: 'Variation Name',
-    value: 'variation1',
-  },
-  {
-    label: 'Variation Name',
-    value: 'variation2',
-  },
-  {
-    label: 'Variation Name',
-    value: 'variation3',
-  },
+  // {
+  //   label: 'Variation Name',
+  //   value: 'variation1',
+  // },
+  // {
+  //   label: 'Variation Name',
+  //   value: 'variation2',
+  // },
+  // {
+  //   label: 'Variation Name',
+  //   value: 'variation3',
+  // },
   {
     label: 'Variation Group Code',
     value: 'prefixEtsyListingId', //prefix et

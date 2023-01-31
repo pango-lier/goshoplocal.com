@@ -18,8 +18,8 @@ export class CurrencyRatesService {
     return 'This action adds a new currencyRate';
   }
 
-  findAll() {
-    return `This action returns all currencyRates`;
+  async findAll() {
+    return await this.currencyRate.find();
   }
 
   findOne(id: number) {

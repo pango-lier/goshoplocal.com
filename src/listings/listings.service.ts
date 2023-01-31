@@ -4,7 +4,7 @@ import { UpdateListingDto } from './dto/update-listing.dto';
 import { IPaginate } from 'src/paginate/paginate.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Listing } from './entities/listing.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository, UpdateQueryBuilder } from 'typeorm';
 import { PaginateService } from 'src/paginate/paginate.service';
 import { IShopListingWithAssociations } from 'etsy-ts/v3';
 @Injectable()
@@ -12,7 +12,7 @@ export class ListingsService {
   constructor(
     @InjectRepository(Listing) private readonly listing: Repository<Listing>,
     private readonly paginateService: PaginateService,
-  ) { }
+  ) {}
   create(createListingDto: CreateListingDto) {
     const listing = this.listing.create(createListingDto);
     return this.listing.save(listing);
@@ -46,7 +46,7 @@ export class ListingsService {
       where: {
         status,
         accountId,
-      }, select: { id: true, etsy_listing_id: true }
+      },
     });
   }
 
@@ -54,6 +54,15 @@ export class ListingsService {
     option: FindOptionsWhere<Listing> | FindOptionsWhere<Listing>[],
   ) {
     return await this.listing.findOneBy(option);
+  }
+
+  async updateStatusListingId(ids: number[], options) {
+    return await this.listing
+      .createQueryBuilder('listing')
+      .update(Listing)
+      .set(options)
+      .whereInIds(ids)
+      .execute();
   }
 
   update(id: number, updateListingDto: UpdateListingDto) {
