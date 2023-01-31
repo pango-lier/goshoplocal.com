@@ -14,6 +14,7 @@ export class ExportListingCsv {
   variantImage?: string;
   images?: string;
   varianTaxable?: string;
+  status?: 'A' | 'D' | 'H' | 'R' | '';
   [key: string]: any;
 }
 

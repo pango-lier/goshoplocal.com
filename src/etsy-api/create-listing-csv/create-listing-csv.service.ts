@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   Etsy,
+  IListingInventory,
   IListingInventoryProductOffering,
   IListingVariationImage,
   IShopListingWithAssociations,
@@ -40,7 +41,7 @@ export class CreateListingCsvService {
     private readonly configService: ConfigService,
     private readonly accountService: AccountsService,
     @InjectQueue('write-log') private readonly log: Queue,
-  ) {}
+  ) { }
   parseHeaderCsv(listing: IShopListingWithAssociations) {
     const headerCsv = EXPORT_GOSHOPLOCAL_CSV_FIELDS;
     if (listing?.inventory?.products[0]) {
@@ -173,6 +174,10 @@ export class CreateListingCsvService {
         label: 'Variant Taxable',
         value: 'varianTaxable',
       },
+      {
+        label: 'Status',
+        value: 'status',
+      },
     ]);
     return { properties, headerCsvs };
   }
@@ -221,6 +226,7 @@ export class CreateListingCsvService {
     element: IShopListingWithAssociations,
     variationImages: IListingVariationImage[],
     vendor: string,
+    listingLocal: Listing,
     currencyRates: CurrencyRate[],
     isListingDeleted = false,
   ) {
@@ -230,6 +236,14 @@ export class CreateListingCsvService {
     });
 
     for (const product of element?.inventory?.products) {
+      if (listingLocal) {
+        const inventory = listingLocal?.inventory as IListingInventory;
+        let status: 'A' | 'R' | 'D' | 'H' = 'A';
+        if (inventory?.products) {
+          const checkStatus = inventory.products.find((i) => i.product_id == product.product_id);
+          if (checkStatus) status = 'R';
+        }
+      }
       // if (product.is_deleted === false) {
       const offering = await this.getOffering(product.offerings, currencyRates);
 
@@ -247,6 +261,7 @@ export class CreateListingCsvService {
           (product?.property_values[1]?.scale_name || '');
         //images
         let images = element.images.map((i) => i.url_fullxfull);
+        let variantImage = '';
         for (const variationImage of variationImages) {
           for (const [indexImage, imageItem] of element?.images?.entries() ||
             []) {
@@ -269,6 +284,7 @@ export class CreateListingCsvService {
                     delete images[indexImage];
                     images = images.filter((i) => i !== undefined);
                     images.unshift(imageItem.url_fullxfull);
+                    variantImage = imageItem.url_fullxfull;
                   }
                 }
               }
@@ -287,19 +303,19 @@ export class CreateListingCsvService {
           prefixEtsyListingId: `${PREFIX_UNIQUE_ETSY}${element.listing_id}`,
           quantity:
             isListingDeleted === true ||
-            product.is_deleted === true ||
-            offering.is_deleted === true ||
-            offering.is_enabled === false
+              product.is_deleted === true ||
+              offering.is_deleted === true
               ? 0
               : offering.quantity,
           offerPrice: '',
+          status: isListingDeleted === true ||
+            product.is_deleted === true ||
+            offering.is_deleted === true || offering.is_enabled === false ? 'D' : status,
           actualPrice: (offering.price.amount / offering.price.divisor).toFixed(
             2,
           ),
           variantShipping: '',
-          variantImage: `Image for ${variation1?.trim() || ''} ${
-            variation2?.trim() || ''
-          }`,
+          variantImage,
           images: images.join('///'),
           varianTaxable:
             'GST,HST NB,QST,VAT,PST BC,PST NB,HST NL,HST NS,HST ONT,HST PEI,PST SK,PST MB',
@@ -347,6 +363,7 @@ export class CreateListingCsvService {
       listing,
       listingVariationImages,
       accountEntity.vendor,
+      undefined,
       currencyRates,
     );
     const json2csvParser = new json2csv.Parser({
@@ -488,6 +505,7 @@ export class CreateListingCsvService {
           listing,
           item.variationImages as any,
           accountEntity.vendor,
+          undefined,
           currencyRates,
           true,
         );
@@ -496,7 +514,7 @@ export class CreateListingCsvService {
       }
     }
 
-    return { fullCsv, listingDeleteds };
+    return { fullCsv, listingDeleteds, listingLocals };
   }
 
   async updateListingDb(
@@ -559,11 +577,12 @@ export class CreateListingCsvService {
           account.shop_id,
           listing.listing_id,
         );
-
+      const listingLocal = listingDeleted.listingLocals.find((i) => i.etsy_listing_id == listing.listing_id);
       const csv: ExportListingCsv[] = await this.createCsv(
         listing,
         variationImages?.data?.results || [],
         accountEntity.vendor,
+        listingLocal,
         currencyRates,
       );
       await delayMs(200);
