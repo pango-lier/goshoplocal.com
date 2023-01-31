@@ -27,11 +27,11 @@ export class FptFileService {
         delete folderArray[folderArray.length - 1];
         await this._ftpClient.ensureDir(folderArray.join('/').slice(0, -1));
         // output = folderArray.join('/') + fileName;
-        console.log(
-          folderArray.join('/').slice(0, -1),
-          output,
-          await this._ftpClient.list(),
-        );
+        // console.log(
+        //   folderArray.join('/').slice(0, -1),
+        //   output,
+        //   await this._ftpClient.list(),
+        // );
       }
 
       const res = await this._ftpClient.uploadFrom(fileStream, output, options);
