@@ -507,6 +507,13 @@ export class CreateListingCsvService {
       await delayMs(300);
       pageCount++;
       count = listing?.data?.results.length || 0;
+      if (pageCount > 95) {
+        this.log.add('getAllListingActive-Too-Many-Listing', {
+          accountId,
+          message: 'Listing is more than 9500 listing',
+        });
+        break;
+      }
     } while (count >= 100);
     return listings;
   }

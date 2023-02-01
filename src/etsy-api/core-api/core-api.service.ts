@@ -37,12 +37,12 @@ export class CoreApiService {
       if (rateLimit) {
         if (
           rateLimit.xRemainingThisSecond &&
-          rateLimit.xRemainingThisSecond < 1
+          rateLimit.xRemainingThisSecond === 0
         ) {
           this.log.add('Warning-Etsy-Api-Rate-xRemainingThisSecond', rateLimit);
           await delay(5);
         }
-        if (rateLimit.xRemainingToday && rateLimit.xRemainingToday < 100) {
+        if (rateLimit.xRemainingToday && rateLimit.xRemainingToday === 100) {
           this.log.add('Warning-Etsy-Api-Rate-xRemainingToday', rateLimit);
         }
       }
