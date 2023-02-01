@@ -76,6 +76,7 @@ export class ListingsService {
   async sync(
     data: IShopListingWithAssociations,
     accountId,
+    vendor: string,
     options: CreateListingDto = {},
     create,
   ) {
@@ -115,6 +116,7 @@ export class ListingsService {
       production_partners: JSON.stringify(production_partners),
       //  translations: JSON.stringify(translations),
       skus: JSON.stringify(skus),
+      vendor,
       ...rest,
       ...options,
     };
@@ -190,6 +192,7 @@ export class ListingsService {
       create.views = createAccountDto?.views || 0;
       create.who_made = createAccountDto.who_made;
       create.when_made = createAccountDto.when_made;
+      create.vendor = createAccountDto.vendor;
 
       create.csvFile = options?.csvFile || null;
       create.message = options?.message || null;

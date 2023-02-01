@@ -15,6 +15,8 @@ export class CreateListingDto {
 
   message?: string;
 
+  vendor?: string;
+
   shop_id?: number;
 
   title?: string;

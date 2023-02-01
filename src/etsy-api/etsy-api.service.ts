@@ -12,6 +12,7 @@ import { delayMs } from 'src/utils/delay';
 import { IsNull, Not } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ListingsService } from 'src/listings/listings.service';
+import { ExportVendorOptions } from './dto/export-listing-csv.dto';
 
 @Injectable()
 export class EtsyApiService {
@@ -70,9 +71,13 @@ export class EtsyApiService {
     });
   }
 
-  async syncListing(accountId, options: any = {}) {
+  async syncListing(accountId) {
+    const options: ExportVendorOptions = {
+      isFullProduct: true,
+    };
     this.goshoplocal.add('import-csv-listing-vendor', {
       accountId,
+      options,
     });
     return true;
     // return await this.CronImportCsvListingVendorJob();

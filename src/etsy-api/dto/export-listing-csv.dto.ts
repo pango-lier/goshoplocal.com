@@ -18,6 +18,10 @@ export class ExportListingCsv {
   [key: string]: any;
 }
 
+export class ExportVendorOptions {
+  isFullProduct: boolean;
+}
+
 export const EXPORT_GOSHOPLOCAL_CSV_FIELDS = [
   {
     label: 'Product Code',

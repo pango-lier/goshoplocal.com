@@ -35,6 +35,9 @@ export class Listing {
   @Column({ type: 'varchar', nullable: true })
   'status'?: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  vendor?: string;
+
   @Column({ type: 'varchar', length: 500, nullable: true })
   'message'?: string;
 

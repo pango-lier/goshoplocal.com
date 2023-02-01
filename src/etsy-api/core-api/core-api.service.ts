@@ -14,7 +14,6 @@ export class CoreApiService {
 
   async createApi(accountId) {
     let account = await this.oauthRedis.getAccountTokens(accountId);
-    console.log(account);
     if (
       +account.updated_at_token + +account.expires_in * 1000 - 1000 * 60 * 10 <
       new Date().getTime()
@@ -32,7 +31,6 @@ export class CoreApiService {
     });
     api.httpClient.instance.interceptors.request.use(async (request) => {
       const rateLimit = await this.oauthRedis.getAccountApiEtsyLimit(accountId);
-      console.log(rateLimit);
       return request;
     });
     return {

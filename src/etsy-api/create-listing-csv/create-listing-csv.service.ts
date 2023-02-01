@@ -9,6 +9,7 @@ import {
 import {
   EXPORT_GOSHOPLOCAL_CSV_FIELDS,
   ExportListingCsv,
+  ExportVendorOptions,
   PREFIX_UNIQUE_ETSY,
 } from '../dto/export-listing-csv.dto';
 import json2csv = require('json2csv');
@@ -222,6 +223,30 @@ export class CreateListingCsvService {
     return offering;
   }
 
+  checkNewListingChange(
+    listing: IShopListingWithAssociations,
+    listingLocal: Listing,
+    vendor: string,
+  ) {
+    if (!listingLocal) return true;
+    if (listing.title.trim() != listingLocal.title.trim()) return true;
+    if (listing.description.trim() != listingLocal.description.trim())
+      return true;
+    if (listing.taxonomy_id != listingLocal.taxonomy_id) return true;
+    if (JSON.stringify(listing.images) != JSON.stringify(listingLocal.images))
+      return true;
+    if (JSON.stringify(listing.tags) != JSON.stringify(listingLocal.tags))
+      return true;
+    if (
+      JSON.stringify(listing.inventory) !=
+      JSON.stringify(listingLocal.inventory)
+    )
+      return true;
+    if (vendor != listingLocal?.vendor) return true;
+
+    return false;
+  }
+
   async createCsv(
     element: IShopListingWithAssociations,
     variationImages: IListingVariationImage[],
@@ -295,7 +320,10 @@ export class CreateListingCsvService {
           }
         }
         const exportCsv: ExportListingCsv = {
-          sku: `${PREFIX_UNIQUE_ETSY}${product.product_id}`, //import from etsy
+          sku: `${PREFIX_UNIQUE_ETSY}${PREFIX_UNIQUE_ETSY}${slugify(
+            vendor,
+            '_',
+          )}${product.product_id}`, //import from etsy
           category: taxonomy.name,
           title: element.title,
           description: element.description,
@@ -303,7 +331,9 @@ export class CreateListingCsvService {
           tags: element.tags.join(','),
           [variation1]: variation1?.trim() || '',
           [variation2]: variation2?.trim() || '',
-          prefixEtsyListingId: `${PREFIX_UNIQUE_ETSY}${element.listing_id}`,
+          prefixEtsyListingId: `${PREFIX_UNIQUE_ETSY}${slugify(vendor, '_')}${
+            element.listing_id
+          }`,
           quantity: offering.quantity,
           offerPrice: '',
           status:
@@ -447,6 +477,7 @@ export class CreateListingCsvService {
       await this.listingService.sync(
         listing,
         accountEntity.id,
+        accountEntity.vendor,
         optionals,
         create,
       );
@@ -523,14 +554,12 @@ export class CreateListingCsvService {
     listingUpdates: {
       listing: IShopListingWithAssociations;
       variationImages: IListingVariationImage[];
+      listingLocal: Listing;
     }[],
     listingDeleted: Listing[],
     accountEntity: Account,
   ) {
     for (const listingUpdate of listingUpdates) {
-      const create = await this.listingService.findOneBy({
-        etsy_listing_id: listingUpdate.listing.listing_id,
-      });
       const optionals: CreateListingDto = {};
       optionals.message = 'Create listing inventory is success !';
       optionals.status = 'success';
@@ -538,8 +567,9 @@ export class CreateListingCsvService {
       await this.listingService.sync(
         listingUpdate.listing,
         accountEntity.id,
+        accountEntity.vendor,
         optionals,
-        create,
+        listingUpdate.listingLocal,
       );
     }
 
@@ -554,7 +584,10 @@ export class CreateListingCsvService {
     }
   }
 
-  async createListingVendorCsv(accountId) {
+  async createListingVendorCsv(
+    accountId,
+    options: ExportVendorOptions = { isFullProduct: false },
+  ) {
     const listings = await this.getAllListingActive(accountId);
     const { api, account } = await this.coreApiService.createApi(accountId);
     const accountEntity = await this.accountService.findEtsyUserId({
@@ -572,6 +605,7 @@ export class CreateListingCsvService {
     const listingUpdate: {
       listing: IShopListingWithAssociations;
       variationImages: IListingVariationImage[];
+      listingLocal: Listing;
     }[] = [];
     for (const listing of listings) {
       const variationImages =
@@ -582,19 +616,25 @@ export class CreateListingCsvService {
       const listingLocal = listingDeleted.listingLocals.find(
         (i) => i.etsy_listing_id == listing.listing_id,
       );
-      const csv: ExportListingCsv[] = await this.createCsv(
-        listing,
-        variationImages?.data?.results || [],
-        accountEntity.vendor,
-        listingLocal,
-        currencyRates,
-      );
-      await delayMs(200);
-      fullCsv = fullCsv.concat(csv);
-      listingUpdate.push({
-        listing,
-        variationImages: variationImages?.data?.results || [],
-      });
+      if (
+        options.isFullProduct ||
+        this.checkNewListingChange(listing, listingLocal, accountEntity.vendor)
+      ) {
+        const csv: ExportListingCsv[] = await this.createCsv(
+          listing,
+          variationImages?.data?.results || [],
+          accountEntity.vendor,
+          listingLocal,
+          currencyRates,
+        );
+        await delayMs(200);
+        fullCsv = fullCsv.concat(csv);
+        listingUpdate.push({
+          listing,
+          variationImages: variationImages?.data?.results || [],
+          listingLocal,
+        });
+      }
     }
 
     const json2csvParser = new json2csv.Parser({
