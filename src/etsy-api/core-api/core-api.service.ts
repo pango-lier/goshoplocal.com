@@ -4,12 +4,16 @@ import { ConfigService } from '@nestjs/config';
 import { Etsy } from 'etsy-ts/v3';
 import { IRedisAccount } from '../oauth-redis/oauth-redis.interface';
 import axios from 'axios';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { delay } from 'src/utils/delay';
 
 @Injectable()
 export class CoreApiService {
   constructor(
     private readonly oauthRedis: OauthRedisService,
     private readonly configService: ConfigService,
+    @InjectQueue('write-log') private readonly log: Queue,
   ) {}
 
   async createApi(accountId) {
@@ -26,11 +30,26 @@ export class CoreApiService {
       accessToken: account.access_token,
     });
     api.httpClient.instance.interceptors.response.use(async (res) => {
-      await this.oauthRedis.setAccountApiEtsyLimit(res.headers, accountId);
+      const rateLimit = await this.oauthRedis.setAccountApiEtsyLimit(
+        res.headers,
+        accountId,
+      );
+      if (rateLimit) {
+        if (
+          rateLimit.xRemainingThisSecond &&
+          rateLimit.xRemainingThisSecond < 1
+        ) {
+          this.log.add('Warning-Etsy-Api-Rate-xRemainingThisSecond', rateLimit);
+          await delay(5);
+        }
+        if (rateLimit.xRemainingToday && rateLimit.xRemainingToday < 100) {
+          this.log.add('Warning-Etsy-Api-Rate-xRemainingToday', rateLimit);
+        }
+      }
       return res;
     });
     api.httpClient.instance.interceptors.request.use(async (request) => {
-      const rateLimit = await this.oauthRedis.getAccountApiEtsyLimit(accountId);
+      await this.oauthRedis.getAccountApiEtsyLimit(accountId);
       return request;
     });
     return {
