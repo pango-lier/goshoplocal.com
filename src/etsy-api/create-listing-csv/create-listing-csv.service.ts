@@ -466,7 +466,7 @@ export class CreateListingCsvService {
     do {
       const listing = await api.ShopListing.getListingsByShop({
         shopId: account.shop_id,
-        state: 'expired',
+        state: 'active',
         includes: ['Images', 'Inventory', 'Videos'],
         limit: 100,
         offset: pageCount * 100,
