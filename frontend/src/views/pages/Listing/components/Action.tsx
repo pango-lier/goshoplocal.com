@@ -42,10 +42,10 @@ const Action = ({ row, onEditHandle, onDeleteHandle }: any) => {
             <MoreVertical size={15} />
           </DropdownToggle>
           <DropdownMenu container={'body'}>
-            <DropdownItem href="#" onClick={() => onGetListingCsv(row)}>
+            {/* <DropdownItem href="#" onClick={() => onGetListingCsv(row)}>
               <Edit className="me-50" size={15} />{' '}
               <span className="align-middle">Csv File</span>
-            </DropdownItem>
+            </DropdownItem> */}
             <DropdownItem href="#" onClick={() => onDeleteHandle(row)}>
               <Trash className="me-50" size={15} />{' '}
               <span className="align-middle">Delete</span>

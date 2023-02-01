@@ -9,4 +9,13 @@ export interface IRedisAccount {
   vendor: string;
   shop_id: number;
   shop_name?: string;
+  [key: string]: any;
+}
+
+export interface IRedisLimit {
+  account_id: number;
+  xLimitPerSecond: number;
+  xRemainingThisSecond: number;
+  xLimitPerDay: number;
+  xRemainingToday: number;
 }

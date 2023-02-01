@@ -6,12 +6,14 @@ import { Account } from './entities/account.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { PaginateService } from 'src/paginate/paginate.service';
 import { IPaginate } from 'src/paginate/paginate.interface';
+import { OauthRedisService } from 'src/etsy-api/oauth-redis/oauth-redis.service';
 
 @Injectable()
 export class AccountsService {
   constructor(
     @InjectRepository(Account) private account: Repository<Account>,
     private paginateService: PaginateService,
+    private readonly oauthRedis: OauthRedisService,
   ) {}
   async create(createAccountDto: CreateAccountDto) {
     const account = this.account.create(createAccountDto);
@@ -49,7 +51,15 @@ export class AccountsService {
     account.primary_email = updateAccountDto.primary_email;
     account.last_name = updateAccountDto?.last_name || null;
     account.first_name = updateAccountDto?.first_name || null;
-    account.vendor = updateAccountDto.vendor;
+    if (updateAccountDto.vendor) {
+      account.vendor = updateAccountDto.vendor;
+      const redisAccount = await this.oauthRedis.getAccountTokens(
+        account.etsy_user_id,
+      );
+      redisAccount.vendor = account.vendor;
+      await this.oauthRedis.setRedisToken(redisAccount);
+    }
+
     return await this.account.save(account);
   }
 
@@ -69,7 +79,10 @@ export class AccountsService {
       account.first_name = createAccountDto?.first_name || null;
       account.etsy_user_id = createAccountDto.etsy_user_id;
       account.scope = createAccountDto?.scope || null;
-      account.vendor = createAccountDto?.vendor || null;
+      if (createAccountDto?.vendor) {
+        account.vendor = createAccountDto?.vendor || null;
+      }
+
       account.shop_id = createAccountDto.shop_id || null;
       account.deletedAt = null;
       return await this.account.save(account);

@@ -14,6 +14,7 @@ export class CoreApiService {
 
   async createApi(accountId) {
     let account = await this.oauthRedis.getAccountTokens(accountId);
+    console.log(account);
     if (
       +account.updated_at_token + +account.expires_in * 1000 - 1000 * 60 * 10 <
       new Date().getTime()
@@ -24,6 +25,15 @@ export class CoreApiService {
     const api = new Etsy({
       apiKey: this.configService.get('etsy.clientId'),
       accessToken: account.access_token,
+    });
+    api.httpClient.instance.interceptors.response.use(async (res) => {
+      await this.oauthRedis.setAccountApiEtsyLimit(res.headers, accountId);
+      return res;
+    });
+    api.httpClient.instance.interceptors.request.use(async (request) => {
+      const rateLimit = await this.oauthRedis.getAccountApiEtsyLimit(accountId);
+      console.log(rateLimit);
+      return request;
     });
     return {
       api,
