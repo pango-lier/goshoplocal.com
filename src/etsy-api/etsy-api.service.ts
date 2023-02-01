@@ -88,7 +88,14 @@ export class EtsyApiService {
       etsy_user_id: Not(IsNull()),
     });
     this.log.add('Start Cron: CronImportManyShopGoShopLocalJob', {
-      accounts: accounts,
+      accounts: accounts.map((i) => {
+        return {
+          id: i.id,
+          accountId: i.etsy_user_id,
+          name: i.name,
+          active: i.active,
+        };
+      }),
     });
     accounts.forEach((account) => {
       this.goshoplocal.add('import-csv-listing-vendor', {
