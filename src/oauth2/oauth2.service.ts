@@ -6,6 +6,8 @@ import { createHash, randomBytes } from 'crypto';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { EtsyApiService } from '../etsy-api/etsy-api.service';
 import { OauthRedisService } from 'src/etsy-api/oauth-redis/oauth-redis.service';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class Oauth2Service {
@@ -14,6 +16,7 @@ export class Oauth2Service {
     private readonly configService: ConfigService,
     private readonly oauthRedis: OauthRedisService,
     private readonly etsyApi: EtsyApiService,
+    @InjectQueue('write-log') private readonly log: Queue,
   ) {}
   // Step 1: Authorization Code
   async getUrlRedirect(scope, vendor) {
@@ -23,6 +26,7 @@ export class Oauth2Service {
     await this.redis.hset('code_verifier_oauth2', state, codeVerifier);
     await this.redis.hset('scope_oauth2', state, scope);
     await this.redis.hset('vendor_oauth2', state, vendor);
+    this.log.add('getUrlRedirect', { vendor, scope });
     return this.getCoreUrlRedirect(codeVerifier, state, scope);
   }
 

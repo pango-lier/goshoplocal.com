@@ -128,7 +128,7 @@ const RegisterEtsyOauth2 = () => {
   const { skin } = useSkin()
   const [vendor, setVendor] = React.useState(new URLSearchParams(location.search).get("vendor") || '');
   const [scopes, setScopes] = React.useState(scopeOptions);
-
+  const [loading, setLoading] = React.useState(false);
 
 
   const illustration = skin === 'dark' ? 'coming-soon-dark.svg' : 'coming-soon.svg',
@@ -137,12 +137,14 @@ const RegisterEtsyOauth2 = () => {
   const onConnectEtsy = async () => {
     try {
       if (!vendor) {
-        return notifyError("Vendor is require !.");
+        return notifyError("Vendor is require !.You must enter exactly the your vendor-name .");
       }
+      setLoading(true);
       const scopesAr = scopes.map((scope) => scope.value.trim());
       const url = await getUrlRedirectOauth2(scopesAr.join(' '), vendor, params?.uuid || null);
       window.location.href = url.data;
     } catch (error) {
+      setLoading(false);
       notifyError(error);
     }
   }
@@ -252,7 +254,8 @@ const RegisterEtsyOauth2 = () => {
               <Label className='form-label' for='name-vendor'>
                 Vendor name
               </Label>
-              <Input disabled={true} value={vendor} onChange={(e) => onChangeVendor(e)} type='text' id='name-vendor' placeholder='Enter your vendor name' autoFocus={false} />
+              <Input disabled={loading} value={vendor} onChange={(e) => onChangeVendor(e)} type='text' id='name-vendor' placeholder='Enter your vendor name' autoFocus={false} />
+              <div className='text-primary'>You must enter exactly the your vendor-name .</div>
             </div>
             <Col sm='12' className='m-0 mb-1' style={{ width: '100%' }}>
               <ReactSelect
@@ -267,7 +270,7 @@ const RegisterEtsyOauth2 = () => {
               />
             </Col>
             <Col sm='12' className='d-md-block d-grid ps-md-0 ps-auto'>
-              <Button className='mb-1 btn-sm-block' color='primary' onClick={() => onConnectEtsy()}>
+              <Button className='mb-1 btn-sm-block' disabled={loading} color='primary' onClick={() => onConnectEtsy()}>
                 Connect Etsy Store
               </Button>
             </Col>
