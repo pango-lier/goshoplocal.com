@@ -2,7 +2,7 @@ import { lazy } from 'react'
 import Auth from './Auth'
 import Connect from './Connect'
 // ** Document title
-const TemplateTitle = '%s - Vuexy React Admin Template'
+const TemplateTitle = '%s - Listing Manager'
 
 // ** Default Route
 const DefaultRoute = '/home'
