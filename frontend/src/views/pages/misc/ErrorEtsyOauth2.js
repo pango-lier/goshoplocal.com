@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom';
 
 // ** Styles
 import '@styles/base/pages/page-misc.scss'
+import React from 'react';
 const renderHTML = (rawHTML) => React.createElement("div", { dangerouslySetInnerHTML: { __html: rawHTML } });
 const ComingSoon = () => {
   // ** Hooks
@@ -16,6 +17,11 @@ const ComingSoon = () => {
 
   const illustration = skin === 'dark' ? 'coming-soon-dark.svg' : 'coming-soon.svg',
     source = require(`@src/assets/images/pages/${illustration}`).default
+
+  const onTryConnectAgain = () => {
+    window.location.href = process.env.REACT_APP_GOSHOPLOCAL_VENDOR_URL;
+  }
+
 
   return (
     <div className='misc-wrapper'>
@@ -74,6 +80,17 @@ const ComingSoon = () => {
         <div className='w-100 text-center'>
           <h2 className='mb-1'>Connect is failed 🚀</h2>
           <p className='mb-3 text-danger'>{`Error :${location?.search || " Some where errors ."}`}</p>
+          <Form
+            tag={Row}
+            onSubmit={e => e.preventDefault()}
+            className='row-cols-md-auto justify-content-center align-items-center m-0 mb-2 gx-3'
+          >
+            <Col sm='12' className='d-md-block d-grid ps-md-0 ps-auto'>
+              <Button className='mb-1 btn-sm-block' color='danger' onClick={() => onTryConnectAgain()}>
+                Try Connect Again
+              </Button>
+            </Col>
+          </Form>
           <img className='img-fluid' src={source} alt='Coming soon page' />
         </div>
       </div>

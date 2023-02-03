@@ -40,9 +40,21 @@ const scopeOptions = [
     isFixed: true
   },
   {
+    'label': 'recommend_r',
+    'value': 'recommend_r',
+    'description': "View a member's recommended listings.",
+    isFixed: true
+  },
+  {
+    'label': 'feedback_r',
+    'value': 'feedback_r',
+    'description': "View all details of a member's feedback (including purchase history.)",
+    isFixed: true
+  },
+  {
     'label': 'address_w',
     'value': 'address_w',
-    'description': "Update and delete a member's shipping address"
+    'description': "Update and delete a member's shipping address",
   },
   {
     'label': 'billing_r',
@@ -85,19 +97,9 @@ const scopeOptions = [
     'description': "Add to and remove from a member's favorite listings and users."
   },
   {
-    'label': 'feedback_r',
-    'value': 'feedback_r',
-    'description': "View all details of a member's feedback (including purchase history.)"
-  },
-  {
     'label': 'profile_w',
     'value': 'profile_w',
     'description': "Update a member's private profile information."
-  },
-  {
-    'label': 'recommend_r',
-    'value': 'recommend_r',
-    'description': "View a member's recommended listings."
   },
   {
     'label': 'recommend_w',
@@ -255,7 +257,7 @@ const RegisterEtsyOauth2 = () => {
                 Vendor name
               </Label>
               <Input disabled={loading} value={vendor} onChange={(e) => onChangeVendor(e)} type='text' id='name-vendor' placeholder='Enter your vendor name' autoFocus={false} />
-              <div className='text-primary'>You must enter exactly the your vendor-name .</div>
+              <div className='text-primary'>You must enter exactly your vendor-name .</div>
             </div>
             <Col sm='12' className='m-0 mb-1' style={{ width: '100%' }}>
               <ReactSelect
