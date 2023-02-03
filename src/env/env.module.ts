@@ -5,7 +5,7 @@ import databaseConfig from './database.config';
 import ioredis from './ioredis';
 import queueConfig from './queue.config';
 import etsyConfig from './etsy.config';
-
+import mail from './mail.config';
 import fptGoshopLocalConfig from './fpt.goshoplocal.config';
 
 @Module({
@@ -21,6 +21,7 @@ import fptGoshopLocalConfig from './fpt.goshoplocal.config';
         ioredis,
         etsyConfig,
         fptGoshopLocalConfig,
+        mail,
       ],
     }),
   ],

@@ -24,6 +24,8 @@ import { ListingsModule } from './listings/listings.module';
 import { TaxonomyModule } from './taxonomy/taxonomy.module';
 import { CurrencyRatesModule } from './currency-rates/currency-rates.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MailService } from './mail/mail.service';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -48,8 +50,9 @@ import { ScheduleModule } from '@nestjs/schedule';
     ListingsModule,
     TaxonomyModule,
     CurrencyRatesModule,
+    MailModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MailService],
 })
 export class AppModule {}

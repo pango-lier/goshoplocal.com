@@ -634,7 +634,7 @@ export class CreateListingCsvService {
           listingLocal,
           currencyRates,
         );
-        await delayMs(200);
+
         fullCsv = fullCsv.concat(csv);
         listingUpdate.push({
           listing,
@@ -642,6 +642,7 @@ export class CreateListingCsvService {
           listingLocal,
         });
       }
+      await delayMs(200);
     }
 
     const json2csvParser = new json2csv.Parser({
