@@ -30,6 +30,7 @@ import { delayMs } from 'src/utils/delay';
 import slugify from 'slugify';
 import { Listing } from 'src/listings/entities/listing.entity';
 import { CurrencyRate } from 'src/currency-rates/entities/currency-rate.entity';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class CreateListingCsvService {
@@ -41,6 +42,7 @@ export class CreateListingCsvService {
     private readonly coreApiService: CoreApiService,
     private readonly configService: ConfigService,
     private readonly accountService: AccountsService,
+    private readonly mail: MailService,
     @InjectQueue('write-log') private readonly log: Queue,
   ) {}
   parseHeaderCsv(listing: IShopListingWithAssociations) {
@@ -566,28 +568,34 @@ export class CreateListingCsvService {
     listingDeleted: Listing[],
     accountEntity: Account,
   ) {
-    for (const listingUpdate of listingUpdates) {
-      const optionals: CreateListingDto = {};
-      optionals.message = 'Create listing inventory is success !';
-      optionals.status = 'success';
-      optionals.variationImages = JSON.stringify(listingUpdate.variationImages);
-      await this.listingService.sync(
-        listingUpdate.listing,
-        accountEntity.id,
-        accountEntity.vendor,
-        optionals,
-        listingUpdate.listingLocal,
-      );
-    }
+    try {
+      for (const listingUpdate of listingUpdates) {
+        const optionals: CreateListingDto = {};
+        optionals.message = 'Create listing inventory is success !';
+        optionals.status = 'success';
+        optionals.variationImages = JSON.stringify(
+          listingUpdate.variationImages,
+        );
+        await this.listingService.sync(
+          listingUpdate.listing,
+          accountEntity.id,
+          accountEntity.vendor,
+          optionals,
+          listingUpdate.listingLocal,
+        );
+      }
 
-    if (listingDeleted.length > 0) {
-      await this.listingService.updateStatusListingId(
-        listingDeleted.map((i) => i.id),
-        {
-          status: 'deleted',
-          message: 'Listing is not found !',
-        },
-      );
+      if (listingDeleted.length > 0) {
+        await this.listingService.updateStatusListingId(
+          listingDeleted.map((i) => i.id),
+          {
+            status: 'deleted',
+            message: 'Listing is not found !',
+          },
+        );
+      }
+    } catch (error) {
+      this.log.add('updateListingDb', { message: error?.message || '' });
     }
   }
 
@@ -649,10 +657,15 @@ export class CreateListingCsvService {
       fields: this.parseFullHeaderCsv(listings).headerCsvs,
       delimiter: '\t',
     });
+    const csvFileName = `${slugify(
+      accountEntity.vendor.toLowerCase(),
+      '_',
+    )}.csv`;
     const csvFile = `${this.configService.get(
       'fpt-goshoplocal.folder',
-    )}/etsy/listing/${slugify(accountEntity.vendor.toLowerCase(), '_')}.csv`;
+    )}/etsy/listing/${csvFileName}`;
     await this.createCsvFptFile(json2csvParser.parse(fullCsv), csvFile);
+    this.mail.sendAdminCreatedListingCsv(accountEntity, csvFileName);
     await this.updateListingDb(
       listingUpdate,
       listingDeleted.listingDeleteds,
@@ -660,6 +673,7 @@ export class CreateListingCsvService {
     );
     return {
       vendor: accountEntity.vendor,
+      csvFile,
       status: 'success',
     };
   }

@@ -1,17 +1,30 @@
-import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
+import {
+  Processor,
+  WorkerHost,
+  OnWorkerEvent,
+  InjectQueue,
+} from '@nestjs/bullmq';
+import { Job, Queue } from 'bullmq';
 import { CreateListingCsvService } from '../create-listing-csv/create-listing-csv.service';
 
 @Processor('goshoplocal-listing-csv', {
   concurrency: 8,
 })
 export class ExportListingProcessor extends WorkerHost {
-  constructor(private readonly listingCsv: CreateListingCsvService) {
+  constructor(
+    private readonly listingCsv: CreateListingCsvService,
+    @InjectQueue('write-log') private readonly log: Queue,
+  ) {
     super();
   }
 
   @OnWorkerEvent('active')
   OnWorkerEvent(job: Job) {}
+
+  @OnWorkerEvent('failed')
+  failed(job: Job, err) {
+    this.log.add(job.name, { meesage: err?.message || '' });
+  }
 
   async process(job: Job<any, any, string>, token?: string) {
     switch (job.name) {

@@ -39,6 +39,10 @@ const BullMQQueueRegisterModule = [
           removeOnComplete: {
             age: 24 * 3600 * 14,
           },
+          backoff: {
+            type: 'exponential',
+            delay: 1000,
+          },
         },
       }),
     }),

@@ -5,6 +5,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { Account } from 'src/accounts/entities/account.entity';
 
 @Injectable()
 export class MailService {
@@ -33,14 +34,18 @@ export class MailService {
     return `This action removes a #${id} mail`;
   }
 
-  async sendAdminCreatedListingCsv(vendor, csvFile) {
+  async sendAdminCreatedListingCsv(account: Account, csvFile) {
     try {
       await this.mailerService.sendMail({
         to: this.configService.get('mail.toAdmin').split(','), // List of receivers email address
         from: this.configService.get('mail.address'), // Senders email address
-        subject: `Listing Manager has just created ${csvFile}`, // Subject line
+        subject: `Listing Manager has just created new file ${csvFile}`, // Subject line
         html: `<p>Hi team,</p>
-        <p>A new Etsy vendor ${vendor} has just completed OAuth and their CSV file is now saved in the production/etsy/listing on the goshoplocal.com server.</p>`, // HTML body content
+        
+        <p>A new Etsy vendor ${account.vendor} has just completed OAuth and their CSV file is now saved in the production/etsy/listing/${csvFile} on the goshoplocal.com server.</p>
+        <div>Vendor : ${account.vendor}<div>
+        <div>Etsy Shop : ${account.name}<div>
+        `, // HTML body content
       });
     } catch (error) {
       this.log.add('sendAdminCreatedListingCsv', {
