@@ -36,17 +36,20 @@ export class MailService {
 
   async sendAdminCreatedListingCsv(account: Account, csvFile) {
     try {
-      await this.mailerService.sendMail({
-        to: this.configService.get('mail.toAdmin').split(','), // List of receivers email address
-        from: this.configService.get('mail.address'), // Senders email address
-        subject: `Listing Manager has just created new file ${csvFile}`, // Subject line
-        html: `<p>Hi team,</p>
+      const list = this.configService.get('mail.toAdmin').split(',');
+      if (list.length > 0) {
+        await this.mailerService.sendMail({
+          to: list, // List of receivers email address
+          from: this.configService.get('mail.address'), // Senders email address
+          subject: `Listing Manager has just created new file ${csvFile}`, // Subject line
+          html: `<p>Hi team,</p>
         
         <p>A new Etsy vendor ${account.vendor} has just completed OAuth and their CSV file is now saved in the production/etsy/listing/${csvFile} on the goshoplocal.com server.</p>
         <div>Vendor : ${account.vendor}<div>
         <div>Etsy Shop : ${account.name}<div>
         `, // HTML body content
-      });
+        });
+      }
     } catch (error) {
       this.log.add('sendAdminCreatedListingCsv', {
         message: error.message,
