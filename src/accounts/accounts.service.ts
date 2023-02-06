@@ -22,11 +22,28 @@ export class AccountsService {
 
   async findAll(paginate: IPaginate) {
     const query = this.account.createQueryBuilder('account');
-    query.select('account.*');
+    query.select([
+      'account.id as id',
+      'account.active as active',
+      'account.createdAt as createdAt',
+      'account.etsy_user_id as etsy_user_id',
+      'account.name as name',
+      'account.image_url_75x75 as image_url_75x75',
+      'account.primary_email as primary_email',
+      'account.scope as scope',
+      'account.shop_id as shop_id',
+      'account.shop_name as shop_name',
+      'account.status as status',
+      'account.vendor as vendor',
+      'account.userId as userId',
+    ]);
 
     return await this.paginateService.queryFilter(query, paginate, [
       'account.vendor',
-      'account.email',
+      'account.primary_email',
+      'account.shop_id',
+      'account.shop_name',
+      'account.etsy_user_id',
     ]);
   }
 

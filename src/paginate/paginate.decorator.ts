@@ -21,7 +21,7 @@ export const Paginate = createParamDecorator(
       if (filter?.filtered) {
         paginate.filtered = JSON.parse(filter.filtered as string);
       }
-      if (filter?.filtered) {
+      if (filter?.q && filter?.q !== '') {
         paginate.q = filter.q as any;
       }
     }

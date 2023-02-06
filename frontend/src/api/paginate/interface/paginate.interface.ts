@@ -12,5 +12,5 @@ export interface IPaginate {
   offset?: number;
   sorted?: ISorted[] | undefined;
   filtered?: IFiltered[] | undefined;
-  q?: number | string | undefined;
+  q?: number | string | undefined | null;
 }

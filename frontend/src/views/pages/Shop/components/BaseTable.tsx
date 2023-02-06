@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { COLUMNS, IRow } from './columns';
 import {
   ExpandedState,
@@ -7,12 +7,12 @@ import {
   getExpandedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { Card, CardBody, CardHeader, Input, Table } from 'reactstrap';
+import { Card, CardBody, CardHeader, Input, Spinner, Table } from 'reactstrap';
 import IconTextPagination from './PaginationIconText';
 import { ACTION_ENUM } from 'utility/enum/actions';
 
 import ModalAccount from './actions/ModalAccount';
-import { Search } from 'react-feather';
+import { Loader, Search } from 'react-feather';
 import { getAccount } from 'api/shops/gets';
 
 const BaseTable = () => {
@@ -24,6 +24,28 @@ const BaseTable = () => {
   const [perPage, setPerPage] = useState<number>(100);
   const [total, setTotal] = useState<number>(0);
   const [action, setAction] = useState<ACTION_ENUM>(ACTION_ENUM.None);
+  let timeout;
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const [searchInput, setSearchInput] = useState<string | undefined>();
+  const debounce = (func, wait) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(func, wait);
+  };
+
+  const handleSearch = (e) => {
+    if (e?.target) {
+      debounce(() => {
+        fetchData(
+          {
+            limit: perPage,
+            offset: 0,
+          },
+          e.target.value,
+        );
+      }, 320);
+    }
+  };
 
   const onCreateHandle = () => {
     setAction(ACTION_ENUM.Create);
@@ -67,14 +89,21 @@ const BaseTable = () => {
     });
   };
 
-  const fetchData = async ({ limit, offset }) => {
-    const response = await getAccount({
-      limit,
-      offset,
-      sorted: [{ id: 'account.id', desc: true }],
-    });
-    setData(response.data.result);
-    setTotal(response.data.total);
+  const fetchData = async ({ limit, offset }, q = '') => {
+    try {
+      setLoading(true);
+      if (typeof q === 'string') q = q.trim();
+      const response = await getAccount({
+        limit,
+        offset,
+        sorted: [{ id: 'account.id', desc: true }],
+        q,
+      });
+
+      setData(response.data.result);
+      setTotal(response.data.total);
+    } catch (error) {}
+    setLoading(false);
   };
   useEffect(() => {
     // fetchData();
@@ -104,15 +133,22 @@ const BaseTable = () => {
               className="border-0 bg-transparent cursor-pointer me-0"
               htmlFor="searchInput"
             >
-              <Search color="primary" size={14} />
+              <Loader
+                className={`mr-2 ${
+                  loading ? 'cursor-not-allowed gly-spin' : 'cursor-pointer'
+                }`}
+                color="blue"
+                size={24}
+              />
             </label>
+
             <Input
               id="searchInput"
               type="search"
               className="border-0 shadow-none bg-transparent"
               placeholder="Search..."
-              // onChange={handleSearch}
-              // value={searchInput}
+              onChange={handleSearch}
+              value={searchInput}
             />
           </div>
           <>Action</>
