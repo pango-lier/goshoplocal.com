@@ -85,4 +85,7 @@ export class Account {
 
   @OneToMany(() => Listing, (u) => u.account, { nullable: true })
   listings?: Listing[];
+
+  @Column({ type: 'json', nullable: true })
+  shop?: string; //{}
 }

@@ -36,6 +36,7 @@ export class AccountsService {
       'account.status as status',
       'account.vendor as vendor',
       'account.userId as userId',
+      'account.shop as shop',
     ]);
 
     return await this.paginateService.queryFilter(query, paginate, [
@@ -96,6 +97,7 @@ export class AccountsService {
       account.first_name = createAccountDto?.first_name || null;
       account.etsy_user_id = createAccountDto.etsy_user_id;
       account.scope = createAccountDto?.scope || null;
+      account.shop = createAccountDto?.shop || null;
       if (createAccountDto?.vendor) {
         account.vendor = createAccountDto?.vendor || null;
       }

@@ -56,6 +56,8 @@ export class EtsyApiService {
   async syncAccount(accountId) {
     const { api, account } = await this.coreApiService.createApi(accountId);
     const user = await api.User.getUser(accountId);
+    const shop = await api.Shop.getShop(account.shop_id);
+
     return await this.accountService.sync({
       etsy_user_id: user.data.user_id,
       first_name: user.data.first_name,
@@ -68,6 +70,7 @@ export class EtsyApiService {
       scope: account.scope,
       vendor: account.vendor,
       shop_id: account.shop_id,
+      shop: JSON.stringify(shop?.data || ''),
     });
   }
 

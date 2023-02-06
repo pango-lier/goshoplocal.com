@@ -34,4 +34,6 @@ export class CreateAccountDto {
   expiredAt?: Date;
 
   userId?: number;
+
+  shop?: string;
 }
