@@ -26,6 +26,7 @@ import { CurrencyRatesModule } from './currency-rates/currency-rates.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailService } from './mail/mail.service';
 import { MailModule } from './mail/mail.module';
+import { ShopifyModule } from './shopify/shopify.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { MailModule } from './mail/mail.module';
     TaxonomyModule,
     CurrencyRatesModule,
     MailModule,
+    ShopifyModule,
   ],
   controllers: [AppController],
   providers: [AppService, MailService],

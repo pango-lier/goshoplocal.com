@@ -7716,6 +7716,11 @@ shimmer@^1.2.0:
   resolved "https://registry.yarnpkg.com/shimmer/-/shimmer-1.2.1.tgz#610859f7de327b587efebf501fb43117f9aff337"
   integrity sha512-sQTKC1Re/rM6XyFM6fIAGHRPVGvyXfgzIDvzoq608vM+jeyVD0Tu1E6Np0Kc2zAIFWIj963V2800iF/9LPieQw==
 
+shopify-token@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/shopify-token/-/shopify-token-4.0.4.tgz#6b31928816f31c58a02402b5f1c6596cbcda698c"
+  integrity sha512-wkAdXSr1T3kNf7BALXG9iybGhDimDts6aJSbMVNFqPu+seQaeHsgVN4hgUV9A0d/WkpByf4obNUMzVvht9rIkw==
+
 side-channel@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/side-channel/-/side-channel-1.0.4.tgz#efce5c8fdc104ee751b25c58d4290011fa5ea2cf"

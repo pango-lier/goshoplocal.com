@@ -22,6 +22,14 @@ const ConnectRoutes = [
     }
   },
   {
+    path: '/connects/:uuid/shopify/oauth2',
+    component: lazy(() => import('../../views/pages/misc/RegisterShopifyOauth2')),
+    layout: 'BlankLayout',
+    meta: {
+      publicRoute: true
+    }
+  },
+  {
     path: '/connects/oauth2/error',
     component: lazy(() => import('../../views/pages/misc/ErrorEtsyOauth2')),
     layout: 'BlankLayout',
