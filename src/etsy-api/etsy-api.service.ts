@@ -106,9 +106,13 @@ export class EtsyApiService {
       }),
     });
     accounts.forEach((account) => {
-      this.goshoplocal.add('import-csv-listing-vendor', {
-        accountId: account.etsy_user_id,
-      });
+      this.goshoplocal
+        .add('import-csv-listing-vendor', {
+          accountId: account.etsy_user_id,
+        })
+        .then(() => {
+          return 1;
+        });
     });
     return true;
   }
