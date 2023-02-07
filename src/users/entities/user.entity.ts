@@ -21,6 +21,9 @@ export class User {
   @Column('varchar', { length: 191, nullable: true })
   name?: string;
 
+  @Column('varchar', { length: 191, nullable: true })
+  vendor?: string;
+
   @Column('varchar', { length: 191, unique: true, nullable: true })
   username?: string;
 
