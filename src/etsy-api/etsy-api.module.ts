@@ -11,6 +11,7 @@ import { CurrencyRatesModule } from 'src/currency-rates/currency-rates.module';
 import { CreateListingCsvService } from './create-listing-csv/create-listing-csv.service';
 import { ExportListingProcessor } from './queue/exportListingToGoshoplocal.processor';
 import { CoreApiService } from './core-api/core-api.service';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   controllers: [EtsyApiController],
@@ -25,6 +26,7 @@ import { CoreApiService } from './core-api/core-api.service';
   ],
   imports: [
     AccountsModule,
+    ReviewsModule,
     ListingsModule,
     TaxonomyModule,
     CurrencyRatesModule,

@@ -1,6 +1,6 @@
 import { RedisModule } from '@nestjs-modules/ioredis';
-import { BullModule, InjectQueue } from '@nestjs/bullmq';
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -9,12 +9,7 @@ import { EnvModule } from './env/env.module';
 import { BullmqModule } from './bullmq/bullmq.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import {
-  BullMQAdapter,
-  createBullBoard,
-  ExpressAdapter,
-} from '@bull-board/express';
-import { Queue } from 'bullmq';
+
 import { AccountsModule } from './accounts/accounts.module';
 import { ConnectsModule } from './connects/connects.module';
 import { PaginateModule } from './paginate/paginate.module';

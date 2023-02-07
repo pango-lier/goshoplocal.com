@@ -1,4 +1,5 @@
 import { Account } from 'src/accounts/entities/account.entity';
+import { Review } from 'src/etsy-api/reviews/entities/review.entity';
 import { Taxonomy } from 'src/taxonomy/entities/taxonomy.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -8,6 +9,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -254,4 +256,7 @@ export class Listing {
 
   @Column({ type: 'bigint', nullable: true })
   'views'?: number;
+
+  @OneToMany(() => Review, (u) => u.listing, { nullable: true })
+  reviews?: Review[];
 }
