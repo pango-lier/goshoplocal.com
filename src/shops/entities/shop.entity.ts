@@ -53,6 +53,6 @@ export class Shop {
   @Column({ type: 'json', nullable: true })
   shop?: string; //{}
 
-  @ManyToOne(() => User, (u) => u.shopIds, { nullable: true })
+  @ManyToOne(() => User, (u) => u.shops, { nullable: true })
   user?: User;
 }

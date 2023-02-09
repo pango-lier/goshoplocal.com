@@ -64,5 +64,5 @@ export class User {
   listings?: Listing[];
 
   @OneToMany(() => Shop, (u) => u.user, { nullable: true })
-  shopIds?: Shop[];
+  shops?: Shop[];
 }
