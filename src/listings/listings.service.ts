@@ -20,7 +20,9 @@ export class ListingsService {
 
   findAll(paginate: IPaginate) {
     const query = this.listing.createQueryBuilder('listing');
-    query.select('listing.*');
+    query.select(
+      'listing.id as id,listing.createdAt as createdAt,listing.message as message,listing.status as status,listing.state as state,listing.description as description,listing.images as images, listing.etsy_user_id as etsy_user_id, listing.title as title, listing.etsy_listing_id as etsy_listing_id, listing.price as price,listing.quantity as quantity, listing.shop_id as shop_id, listing.taxonomy_id as taxonomy_id, listing.url as url',
+    );
     query.leftJoinAndSelect('listing.userb', 'userb');
     query.leftJoinAndSelect('listing.taxonomyb', 'taxonomyb');
     query.leftJoinAndSelect('listing.account', 'account');

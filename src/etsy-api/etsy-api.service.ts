@@ -78,7 +78,7 @@ export class EtsyApiService {
     const options: ExportVendorOptions = {
       isFullProduct: true,
     };
-    this.goshoplocal.add('import-csv-listing-vendor', {
+    await this.goshoplocal.add('import-csv-listing-vendor', {
       accountId,
       options,
     });
@@ -95,7 +95,7 @@ export class EtsyApiService {
       active: true,
       etsy_user_id: Not(IsNull()),
     });
-    this.log.add('Start Cron: CronImportManyShopGoShopLocalJob', {
+    await this.log.add('Start Cron: CronImportManyShopGoShopLocalJob', {
       accounts: accounts.map((i) => {
         return {
           id: i.id,
@@ -105,15 +105,16 @@ export class EtsyApiService {
         };
       }),
     });
-    accounts.forEach((account) => {
-      this.goshoplocal
+    for (const account of accounts) {
+      await this.goshoplocal
         .add('import-csv-listing-vendor', {
           accountId: account.etsy_user_id,
         })
         .then(() => {
           return 1;
         });
-    });
+    }
+
     return true;
   }
 
@@ -122,7 +123,7 @@ export class EtsyApiService {
       active: true,
       etsy_user_id: Not(IsNull()),
     });
-    this.log.add('Start Cron: CronImportManyShopGoShopLocalJob', {
+    await this.log.add('Start Cron: CronImportManyShopGoShopLocalJob', {
       accounts: accounts,
     });
     for (let index = 0; index < accounts.length; index++) {
@@ -161,7 +162,7 @@ export class EtsyApiService {
 
       for (let index = 0; index < listing.data.results.length; index++) {
         const element = listing.data.results[index];
-        this.goshoplocal.add(
+        await this.goshoplocal.add(
           'import-csv-listing',
           {
             listing: element,
