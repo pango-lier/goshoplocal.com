@@ -5,7 +5,7 @@ import Action from './Action';
 import CheckboxTable from './CheckboxTable';
 import { IAccount } from 'api/shops/type/account.interface';
 
-export interface IRow extends IAccount {}
+export interface IRow extends IAccount { }
 interface ITable extends IRow {
   checkbox?: any;
   expanded?: any;
@@ -69,14 +69,14 @@ export const COLUMNS = (
         </div>
       ),
       size: 5,
-      minSize: 40,
-      maxSize: 100,
+      minSize: 5,
+      maxSize: 15,
     }),
     columnHelper.accessor('id', {
       cell: (info) => info.getValue(),
       size: 5,
-      minSize: 20,
-      maxSize: 70,
+      minSize: 5,
+      maxSize: 15,
     }),
     columnHelper.accessor('etsy_user_id', {
       header: () => 'Account Id',
@@ -97,14 +97,14 @@ export const COLUMNS = (
         />
       ),
       size: 10,
-      minSize: 20,
-      maxSize: 70,
+      minSize: 8,
+      maxSize: 25,
     }),
     columnHelper.accessor('vendor', {
       header: () => 'Vendor',
       cell: (info) => info.getValue(),
-      size: 10,
-      minSize: 20,
+      size: 15,
+      minSize: 30,
       maxSize: 70,
     }),
     columnHelper.accessor('primary_email', {
@@ -115,9 +115,9 @@ export const COLUMNS = (
           message={info.row.original?.primary_email ?? ''}
         />
       ),
-      size: 0,
-      minSize: 50,
-      maxSize: 200,
+      size: 5,
+      minSize: 5,
+      maxSize: 20,
     }),
     columnHelper.accessor('name', {
       header: () => 'Name',
@@ -128,8 +128,8 @@ export const COLUMNS = (
         />
       ),
       size: 10,
-      minSize: 50,
-      maxSize: 200,
+      minSize: 10,
+      maxSize: 20,
     }),
     columnHelper.accessor('scope', {
       header: () => 'Scope',
@@ -139,9 +139,9 @@ export const COLUMNS = (
           message={info.row.original?.scope ?? ''}
         />
       ),
-      size: 8,
-      minSize: 50,
-      maxSize: 200,
+      size: 5,
+      minSize: 5,
+      maxSize: 15,
     }),
     columnHelper.accessor('status', {
       header: () => 'Status',
@@ -157,24 +157,23 @@ export const COLUMNS = (
           }
         />
       ),
-      size: 10,
-      minSize: 50,
-      maxSize: 200,
+      size: 5,
+      minSize: 5,
+      maxSize: 10,
     }),
     columnHelper.accessor('createdAt', {
       header: 'Date',
-      size: 7,
-      minSize: 40,
-      maxSize: 100,
+      size: 5,
+      minSize: 5,
+      maxSize: 15,
       cell: (info) => {
         const date = new Date(info.row.original.createdAt + '');
         return (
           <Tooltip
             id={'createdAt' + info.row.id}
             fullMessage={info.row.original.createdAt + ''}
-            message={`${
-              date.getMonth() + 1
-            }/${date.getDate()}/${date.getFullYear()}`}
+            message={`${date.getMonth() + 1
+              }/${date.getDate()}/${date.getFullYear()}`}
           />
         );
       },
@@ -198,9 +197,9 @@ export const COLUMNS = (
           />
         );
       },
-      size: 15,
-      minSize: 50,
-      maxSize: 150,
+      size: 5,
+      minSize: 5,
+      maxSize: 15,
     }),
   ];
 };
