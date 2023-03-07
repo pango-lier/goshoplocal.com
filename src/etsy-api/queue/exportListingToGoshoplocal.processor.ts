@@ -8,7 +8,7 @@ import { Job, Queue } from 'bullmq';
 import { CreateListingCsvService } from '../create-listing-csv/create-listing-csv.service';
 
 @Processor('goshoplocal-listing-csv', {
-  concurrency: 8,
+  concurrency: 1,
 })
 export class ExportListingProcessor extends WorkerHost {
   constructor(
