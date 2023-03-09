@@ -25,7 +25,7 @@ export class Oauth2Service {
     await this.redis.hset('state_oauth2', state, 1);
     await this.redis.hset('code_verifier_oauth2', state, codeVerifier);
     await this.redis.hset('scope_oauth2', state, scope);
-    await this.redis.hset('vendor_oauth2', state, vendor);
+    await this.redis.hset('vendor_oauth2', state, vendor.trim());
     this.log.add('getUrlRedirect', { vendor, scope });
     return this.getCoreUrlRedirect(codeVerifier, state, scope);
   }

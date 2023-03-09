@@ -657,9 +657,7 @@ export class CreateListingCsvService {
       fields: this.parseFullHeaderCsv(listings).headerCsvs,
       delimiter: '\t',
     });
-    const csvFileName = `${slugify(accountEntity.vendor.toLowerCase(), '_')}_${
-      accountEntity.etsy_user_id
-    }.csv`;
+    const csvFileName = `${slugify(accountEntity.vendor.toLowerCase(), '-')}.csv`;
     const csvFile = `${this.configService.get(
       'fpt-goshoplocal.folder',
     )}/etsy/listing/${csvFileName}`;
