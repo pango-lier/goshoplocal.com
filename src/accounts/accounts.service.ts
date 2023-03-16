@@ -91,15 +91,17 @@ export class AccountsService {
     } else {
       account.accessToken = createAccountDto.accessToken;
       account.refreshToken = createAccountDto.refreshToken;
-      account.active = true;
+      account.active = false;
       account.primary_email = createAccountDto.primary_email;
       account.last_name = createAccountDto?.last_name || null;
       account.first_name = createAccountDto?.first_name || null;
       account.etsy_user_id = createAccountDto.etsy_user_id;
       account.scope = createAccountDto?.scope || null;
       account.shop = createAccountDto?.shop || null;
-      if (createAccountDto?.vendor) {
-        account.vendor = createAccountDto?.vendor || null;
+      const vendor = createAccountDto?.vendor?.trim() || null;
+      if (vendor) {
+        account.active = true;
+        account.vendor = vendor;
       }
 
       account.shop_id = createAccountDto.shop_id || null;
