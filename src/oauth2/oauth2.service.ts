@@ -8,7 +8,6 @@ import { EtsyApiService } from '../etsy-api/etsy-api.service';
 import { OauthRedisService } from 'src/etsy-api/oauth-redis/oauth-redis.service';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import slugify from 'slugify';
 
 @Injectable()
 export class Oauth2Service {
@@ -26,11 +25,7 @@ export class Oauth2Service {
     await this.redis.hset('state_oauth2', state, 1);
     await this.redis.hset('code_verifier_oauth2', state, codeVerifier);
     await this.redis.hset('scope_oauth2', state, scope);
-    await this.redis.hset(
-      'vendor_oauth2',
-      state,
-      slugify(vendor?.trim()?.toLowerCase() || '', '-'),
-    );
+    await this.redis.hset('vendor_oauth2', state, vendor.trim());
     this.log.add('getUrlRedirect', { vendor, scope });
     return this.getCoreUrlRedirect(codeVerifier, state, scope);
   }
