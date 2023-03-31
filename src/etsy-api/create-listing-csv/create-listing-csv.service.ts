@@ -44,7 +44,7 @@ export class CreateListingCsvService {
     private readonly accountService: AccountsService,
     private readonly mail: MailService,
     @InjectQueue('write-log') private readonly log: Queue,
-  ) {}
+  ) { }
   parseHeaderCsv(listing: IShopListingWithAssociations) {
     const headerCsv = EXPORT_GOSHOPLOCAL_CSV_FIELDS;
     if (listing?.inventory?.products[0]) {
@@ -333,16 +333,15 @@ export class CreateListingCsvService {
           tags: element.tags.join(','),
           [variation1]: variation1?.trim() || '',
           [variation2]: variation2?.trim() || '',
-          prefixEtsyListingId: `${PREFIX_UNIQUE_ETSY}${slugify(vendor, '_')}${
-            element.listing_id
-          }`,
+          prefixEtsyListingId: `${PREFIX_UNIQUE_ETSY}${slugify(vendor, '_')}${element.listing_id
+            }`,
           quantity: offering.quantity,
           offerPrice: '',
           status:
             isListingDeleted === true ||
-            product.is_deleted === true ||
-            offering.is_deleted === true ||
-            offering.is_enabled === false
+              product.is_deleted === true ||
+              offering.is_deleted === true ||
+              offering.is_enabled === false
               ? 'H'
               : status,
           actualPrice: (offering.price.amount / offering.price.divisor).toFixed(
@@ -665,8 +664,8 @@ export class CreateListingCsvService {
       'fpt-goshoplocal.folder',
     )}/etsy/listing/${csvFileName}`;
     await this.createCsvFptFile(json2csvParser.parse(fullCsv), csvFile);
-    if (listingUpdate.length > 0)
-      this.mail.sendAdminCreatedListingCsv(accountEntity, csvFileName);
+    // if (listingUpdate.length > 0)
+    //  this.mail.sendAdminCreatedListingCsv(accountEntity, csvFileName);
     await this.updateListingDb(
       listingUpdate,
       listingDeleted.listingDeleteds,

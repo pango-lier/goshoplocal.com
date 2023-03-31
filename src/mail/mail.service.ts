@@ -57,6 +57,30 @@ export class MailService {
     }
   }
 
+  async sendAdminEtsyRegister(account: Account) {
+    try {
+      const list = this.configService.get('mail.toAdmin').split(',');
+      if (list.length > 0) {
+        await this.mailerService.sendMail({
+          to: list, // List of receivers email address
+          from: this.configService.get('mail.address'), // Senders email address
+          subject: `Listing Manager has just completed OAuth ${account.vendor}`, // Subject line
+          html: `<p>Hi team,</p>
+        
+        <p>A new Etsy vendor ${account.vendor} has just completed OAuth and their CSV file is going to created at the end of this day.</p>
+        <div>Vendor : ${account.vendor}<div>
+        <div>Etsy Shop : ${account.name}<div>
+        `, // HTML body content
+        });
+      }
+    } catch (error) {
+      this.log.add('sendAdminEtsyRegister', {
+        message: error.message,
+      });
+    }
+  }
+
+
   example2(): void {
     this.mailerService
       .sendMail({

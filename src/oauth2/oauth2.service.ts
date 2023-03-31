@@ -8,6 +8,7 @@ import { EtsyApiService } from '../etsy-api/etsy-api.service';
 import { OauthRedisService } from 'src/etsy-api/oauth-redis/oauth-redis.service';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class Oauth2Service {
@@ -17,7 +18,8 @@ export class Oauth2Service {
     private readonly oauthRedis: OauthRedisService,
     private readonly etsyApi: EtsyApiService,
     @InjectQueue('write-log') private readonly log: Queue,
-  ) {}
+    private readonly mail: MailService,
+  ) { }
   // Step 1: Authorization Code
   async getUrlRedirect(scope, vendor) {
     const state = this.generateState();
@@ -60,7 +62,8 @@ export class Oauth2Service {
       this.redis.hdel('scope_oauth2', state);
       this.redis.hdel('state_oauth2', state);
       this.redis.hdel('code_verifier_oauth2', state);
-      await this.requestGetAccessToken(codeVerifier, code, scope, vendor);
+      const account = await this.requestGetAccessToken(codeVerifier, code, scope, vendor);
+      this.mail.sendAdminEtsyRegister(account);
       return this.configService.get('etsy.redirectUriSuccess');
     } catch (error) {
       return `${this.configService.get(
@@ -89,9 +92,7 @@ export class Oauth2Service {
       shop_id: me.shop_id,
     });
     const [account] = res.data.access_token.split('.');
-    await this.etsyApi.syncAccount(account);
-
-    return res;
+    return await this.etsyApi.syncAccount(account);
   }
 
   base64URLEncode = (str) =>
