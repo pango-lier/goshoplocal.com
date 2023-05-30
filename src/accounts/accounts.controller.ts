@@ -26,8 +26,12 @@ export class AccountsController {
   }
 
   @Get()
-  findAll(@Paginate() paginate: IPaginate) {
-    return this.accountsService.findAll(paginate);
+  async findAll(@Paginate() paginate: IPaginate) {
+    const [result, total] = await this.accountsService.findAll(paginate);
+    return {
+      result,
+      total,
+    };
   }
 
   @Get(':id')
@@ -36,8 +40,11 @@ export class AccountsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
-    return this.accountsService.update(+id, updateAccountDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateAccountDto: UpdateAccountDto,
+  ) {
+    return await this.accountsService.update(+id, updateAccountDto);
   }
 
   @Delete(':id')

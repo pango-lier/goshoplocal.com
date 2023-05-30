@@ -8,16 +8,24 @@ export class Oauth2Controller {
 
   @Get('url-redirect')
   getUrlRedirect(@Query() query) {
-    return this.oauth2Service.getUrlRedirect(query.scope);
+    return this.oauth2Service.getUrlRedirect(query.scope, query.vendor);
   }
 
-  @Get('verifier')
+  @Get('etsy-callback')
   async callbackUrl(@Query() query, @Res() res: Response) {
-    console.log(query);
-    const status = await this.oauth2Service.getAccessToken(
+    const urlCallback = await this.oauth2Service.getAccessToken(
       query.state,
       query.code,
     );
-    return res.redirect('http://localhost:3003/connects');
+    return res.redirect(urlCallback);
+  }
+
+  @Get('verifier')
+  async callbackUrlLocal(@Query() query, @Res() res: Response) {
+    const urlCallback = await this.oauth2Service.getAccessToken(
+      query.state,
+      query.code,
+    );
+    return res.redirect(urlCallback);
   }
 }

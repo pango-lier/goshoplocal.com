@@ -1,5 +1,7 @@
 import { Account } from 'src/accounts/entities/account.entity';
 import { Connect } from 'src/connects/entities/connect.entity';
+import { Listing } from 'src/listings/entities/listing.entity';
+import { Shop } from 'src/shops/entities/shop.entity';
 import {
   Column,
   CreateDateColumn,
@@ -18,6 +20,9 @@ export class User {
 
   @Column('varchar', { length: 191, nullable: true })
   name?: string;
+
+  @Column('varchar', { length: 191, nullable: true })
+  vendor?: string;
 
   @Column('varchar', { length: 191, unique: true, nullable: true })
   username?: string;
@@ -54,4 +59,10 @@ export class User {
 
   @OneToMany(() => Connect, (u) => u.user, { nullable: true })
   connects?: Connect[];
+
+  @OneToMany(() => Listing, (u) => u.userb, { nullable: true })
+  listings?: Listing[];
+
+  @OneToMany(() => Shop, (u) => u.user, { nullable: true })
+  shops?: Shop[];
 }

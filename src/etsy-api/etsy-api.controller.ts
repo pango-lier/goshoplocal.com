@@ -30,6 +30,21 @@ export class EtsyApiController {
     return this.etsyApiService.syncAccount(id);
   }
 
+  @Post('sync')
+  syncAccount(@Body() body: { id: number }) {
+    return this.etsyApiService.syncAccount(body.id);
+  }
+
+  @Post('sync/listing')
+  syncListing(@Body() body: { id: number }) {
+    return this.etsyApiService.syncListing(body.id);
+  }
+
+  @Get('listing/csv/:id')
+  getListingCsv(@Param('id') id: string) {
+    return this.etsyApiService.createListingCsv(id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateEtsyApiDto: UpdateEtsyApiDto) {
     return this.etsyApiService.update(+id, updateEtsyApiDto);

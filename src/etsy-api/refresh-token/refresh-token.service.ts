@@ -40,29 +40,17 @@ export class RefreshTokenService {
     });
   };
 
-  refreshAuthLogic = async (
-    apiKey: string,
-    tokens: {
-      accessToken: string;
-      refreshToken: string;
-    },
-  ) => {
-    const response = await axios.request<{
-      access_token: string;
-      refresh_token: string;
-    }>({
+  refreshAuthLogic = async (apiKey: string, refreshToken: string) => {
+    const response = await axios.request({
       method: 'POST',
       url: 'https://api.etsy.com/v3/public/oauth/token',
       data: {
         grant_type: 'refresh_token',
         client_id: apiKey,
-        refresh_token: tokens.refreshToken,
+        refresh_token: refreshToken,
       },
     });
 
-    tokens.accessToken = response.data.access_token;
-    tokens.refreshToken = response.data.refresh_token;
-
-    return Promise.resolve();
+    return response.data.access_token;
   };
 }

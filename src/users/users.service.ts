@@ -12,7 +12,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private readonly repo: Repository<User>,
     private readonly paginateService: PaginateService,
-  ) {}
+  ) { }
 
   create(createUserDto: CreateUserDto) {
     const user = this.repo.create(createUserDto);
@@ -28,12 +28,19 @@ export class UsersService {
     return this.repo.findOne({ where: { username } });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.repo.findOneBy({ id });
+    user.active = updateUserDto.active;
+    user.username = updateUserDto.username;
+    user.password = updateUserDto.password;
+    user.name = updateUserDto.name;
+    user.vendor = updateUserDto.vendor;
+    user.role = updateUserDto?.role || 'vendor';
+    return this.repo.save(user);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    return await this.repo.softDelete(id)
   }
 
   findMe(me: any) {

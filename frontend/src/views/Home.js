@@ -12,10 +12,10 @@ const Home = () => {
           <CardText>
             Please make sure to read our{' '}
             <CardLink
-              href='https://pixinvent.com/demo/vuexy-react-admin-dashboard-template/documentation/'
+              href='/connects/etsy/oauth2?vendor=name'
               target='_blank'
             >
-              Template Documentation
+              Connect OAuth2 with Etsy
             </CardLink>{' '}
             to understand where to go from here and how to use our template.
           </CardText>
@@ -24,16 +24,16 @@ const Home = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Want to integrate JWT? 🔒</CardTitle>
+          <CardTitle>Want to integrate oauth2? 🔒</CardTitle>
         </CardHeader>
         <CardBody>
           <CardText>
-            We carefully crafted JWT flow so you can implement JWT with ease and with minimum efforts.
+            We carefully crafted oauth2 flow so you can implement oauth2 with ease and with minimum efforts.
           </CardText>
           <CardText>
             Please read our{' '}
             <CardLink
-              href='https://pixinvent.com/demo/vuexy-react-admin-dashboard-template/documentation/docs/development/auth'
+              href='/connects/etsy/oauth2?vendor=name'
               target='_blank'
             >
               JWT Documentation

@@ -5,6 +5,8 @@ import databaseConfig from './database.config';
 import ioredis from './ioredis';
 import queueConfig from './queue.config';
 import etsyConfig from './etsy.config';
+import mail from './mail.config';
+import fptGoshopLocalConfig from './fpt.goshoplocal.config';
 
 @Module({
   imports: [
@@ -12,7 +14,15 @@ import etsyConfig from './etsy.config';
       isGlobal: true,
       expandVariables: true,
       cache: false,
-      load: [databaseConfig, authConfig, queueConfig, ioredis, etsyConfig],
+      load: [
+        databaseConfig,
+        authConfig,
+        queueConfig,
+        ioredis,
+        etsyConfig,
+        fptGoshopLocalConfig,
+        mail,
+      ],
     }),
   ],
 })

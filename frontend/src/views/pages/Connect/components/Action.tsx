@@ -21,7 +21,7 @@ const Action = ({
 }) => {
   const history = useHistory();
   const onConnect = (row: IConnect) => {
-    window.open(`/connects/${row.accessToken}/oauth2`, "_blank");
+    window.open(`/connects/${row.accessToken}/oauth2`, '_blank');
   };
   return (
     <>
@@ -32,20 +32,6 @@ const Action = ({
           message={'Create new account'}
           onHandle={() => onConnect(row)}
           icon={<>Connect</>}
-        />
-        <ButtonTooltip
-          color="success"
-          id={'create-account' + row.id}
-          message={'Create new account'}
-          onHandle={() => onEditHandle(row)}
-          icon={<i className="fa-solid fa-pen" style={{ fontSize: 12 }} />}
-        />
-        <ButtonTooltip
-          id={'create-account' + row.id}
-          message={'Create new account'}
-          onHandle={() => onDeleteHandle(row)}
-          icon={<i className="fa-solid fa-pen" style={{ fontSize: 12 }} />}
-          color="danger"
         />
         <UncontrolledDropdown>
           <DropdownToggle

@@ -2,7 +2,7 @@ import { lazy } from 'react'
 import Auth from './Auth'
 import Connect from './Connect'
 // ** Document title
-const TemplateTitle = '%s - Vuexy React Admin Template'
+const TemplateTitle = '%s - Listing Manager'
 
 // ** Default Route
 const DefaultRoute = '/home'
@@ -14,15 +14,19 @@ const Routes = [
     component: lazy(() => import('../../views/Home'))
   },
   {
-    path: '/users',
-    component: lazy(() => import('../../views/pages/User'))
+    path: '/shops',
+    component: lazy(() => import('../../views/pages/Shop'))
   },
   {
-    path: '/about-us',
-    component: lazy(() => import('../../views/SecondPage')),
+    path: '/listings',
+    component: lazy(() => import('../../views/pages/Listing')),
     meta: {
       publicRoute: true
     }
+  },
+  {
+    path: '/users',
+    component: lazy(() => import('../../views/pages/User'))
   },
   ...Auth,
   ...Connect,

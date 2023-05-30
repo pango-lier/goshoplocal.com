@@ -1,4 +1,5 @@
 import { Connect } from 'src/connects/entities/connect.entity';
+import { Listing } from 'src/listings/entities/listing.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -23,13 +24,28 @@ export class Account {
   accessToken?: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
+  scope?: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
   refreshToken?: string;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   status?: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  vendor?: string;
+
+  @Column({ type: 'text', nullable: true })
+  message?: string;
+
   @Column({ type: 'bigint', unsigned: true, nullable: true })
   etsy_user_id?: number;
+
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
+  shop_id?: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  shop_name?: string;
 
   @Column('varchar', { length: 255, nullable: true })
   primary_email?: string;
@@ -66,4 +82,10 @@ export class Account {
 
   @OneToMany(() => Connect, (u) => u.account, { nullable: true })
   connects?: Connect[];
+
+  @OneToMany(() => Listing, (u) => u.account, { nullable: true })
+  listings?: Listing[];
+
+  @Column({ type: 'json', nullable: true })
+  shop?: string; //{}
 }

@@ -1,9 +1,19 @@
 export class CreateAccountDto {
   name?: string;
 
+  message?: string;
+
+  scope?: string;
+
   accessToken?: string;
 
   refreshToken?: string;
+
+  shop_id?: number;
+
+  shop_name?: string;
+
+  vendor?: string;
 
   status?: string;
 
@@ -24,4 +34,6 @@ export class CreateAccountDto {
   expiredAt?: Date;
 
   userId?: number;
+
+  shop?: string;
 }
