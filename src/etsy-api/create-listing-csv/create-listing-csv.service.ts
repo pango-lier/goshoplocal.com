@@ -412,22 +412,31 @@ export class CreateListingCsvService {
     };
   }
 
-  async createCsvFptFile(csv, path, dirLocal = '/tmp/goshoplocal') {
+  makeFolder(path, dirLocal) {
     let fileName = path;
     const folderArray = path.split('/');
     if (folderArray.length > 1) {
       fileName = folderArray[folderArray.length - 1];
       delete folderArray[folderArray.length - 1];
-      dirLocal = dirLocal + '/' + folderArray.join('/');
+      if (dirLocal !== '') {
+        dirLocal = dirLocal + '/' + folderArray.join('/');
+      } else {
+        dirLocal = folderArray.join('/');
+      }
       dirLocal = dirLocal.slice(0, -1);
     }
     if (!existsSync(`${dirLocal}`)) {
       mkdirSync(`${dirLocal}`, { recursive: true });
     }
+    return `${dirLocal}/${fileName}`;
+  }
 
-    const fileLocal = `${dirLocal}/${fileName}`;
+  async createCsvFptFile(csv, path, dirLocal = '') {
+    const fileLocal = this.makeFolder(path, dirLocal);
     writeFileSync(fileLocal, csv);
-    await this.fptFileService.uploadFile(fileLocal, path);
+    if (!this.configService.get('fpt-goshoplocal.isLocal')) {
+      await this.fptFileService.uploadFile(fileLocal, path);
+    }
     return csv;
   }
 
