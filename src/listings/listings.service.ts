@@ -20,10 +20,10 @@ export class ListingsService {
     const receipt = await this.receipt.findOneBy({ id: createListingDto.id });
     if (!receipt) {
       const _receipt = this.receipt.create(createListingDto);
-      await this.receipt.save(_receipt);
+     return await this.receipt.save(_receipt);
     }
 
-    return this.receipt.save({ ...receipt, ...createListingDto });
+    return await this.receipt.save({ ...receipt, orders:createListingDto.orders });
   }
 
   create(createListingDto: CreateListingDto) {

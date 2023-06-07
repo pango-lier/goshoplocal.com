@@ -78,7 +78,7 @@ export class EtsyApiService {
     const options: ExportVendorOptions = {
       isFullProduct: true,
     };
-    await this.goshoplocal.add('import-csv-listing-vendor', {
+    await this.goshoplocal.add('import-receipt-vendor', {
       accountId,
       options,
     });
