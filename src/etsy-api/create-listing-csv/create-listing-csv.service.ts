@@ -598,6 +598,34 @@ export class CreateListingCsvService {
     }
   }
 
+  async getAllReceiptsActive(accountId) {
+    const { api, account } = await this.coreApiService.createApi(accountId);
+    let pageCount = 0;
+    let count = 0;
+    do {
+      const receipts = await api.ShopReceipt.getShopReceipts({
+        shopId: account.shop_id,
+        limit: 100,
+        offset: pageCount * 100,
+      });
+      if (receipts?.data?.results.length) {
+        for (const receipt of receipts.data.results) {
+          await this.listingService.syncReceipt({ id: receipt.receipt_id, orders: JSON.stringify(receipt) });
+        }
+      }
+      await delayMs(300);
+      pageCount++;
+      count = receipts?.data?.results.length || 0;
+    } while (count >= 100);
+  }
+
+  async importReceiptsVendorCsv(
+    accountId,
+    options: ExportVendorOptions = { isFullProduct: false },
+  ) {
+    await this.getAllReceiptsActive(accountId);
+  }
+
   async createListingVendorCsv(
     accountId,
     options: ExportVendorOptions = { isFullProduct: false },

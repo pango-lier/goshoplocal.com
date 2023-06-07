@@ -19,7 +19,7 @@ export class ExportListingProcessor extends WorkerHost {
   }
 
   @OnWorkerEvent('active')
-  OnWorkerEvent(job: Job) {}
+  OnWorkerEvent(job: Job) { }
 
   @OnWorkerEvent('failed')
   failed(job: Job, err) {
@@ -37,6 +37,11 @@ export class ExportListingProcessor extends WorkerHost {
         return await this.listingCsv.createOnceExportCsv(
           job.data.listing,
           job.data.accountEntity,
+          job.data.options,
+        );
+      case 'import-receipt-vendor':
+        return await this.listingCsv.importReceiptsVendorCsv(
+          job.data.accountId,
           job.data.options,
         );
       default:

@@ -7,12 +7,25 @@ import { Listing } from './entities/listing.entity';
 import { FindOptionsWhere, Repository, UpdateQueryBuilder } from 'typeorm';
 import { PaginateService } from 'src/paginate/paginate.service';
 import { IShopListingWithAssociations } from 'etsy-ts/v3';
+import { Receipt } from './entities/receipt.entity';
 @Injectable()
 export class ListingsService {
   constructor(
     @InjectRepository(Listing) private readonly listing: Repository<Listing>,
+    @InjectRepository(Receipt) private readonly receipt: Repository<Receipt>,
     private readonly paginateService: PaginateService,
-  ) {}
+  ) { }
+
+  async syncReceipt(createListingDto: any) {
+    const receipt = await this.receipt.findOneBy({ id: createListingDto.id });
+    if (!receipt) {
+      const _receipt = this.receipt.create(createListingDto);
+      await this.receipt.save(_receipt);
+    }
+
+    return this.receipt.save({ ...receipt, ...createListingDto });
+  }
+
   create(createListingDto: CreateListingDto) {
     const listing = this.listing.create(createListingDto);
     return this.listing.save(listing);

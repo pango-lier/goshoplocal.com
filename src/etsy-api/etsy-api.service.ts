@@ -107,7 +107,7 @@ export class EtsyApiService {
     });
     for (const account of accounts) {
       await this.goshoplocal
-        .add('import-csv-listing-vendor', {
+        .add('import-receipt-vendor', {
           accountId: account.etsy_user_id,
         })
         .then(() => {

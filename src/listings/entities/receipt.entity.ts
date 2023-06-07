@@ -5,15 +5,16 @@ import {
   DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-export class Reciept {
+export class Receipt {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
   @Column({ type: 'json', nullable: true })
-  'orders'?: string; //[]
+  orders?: string; //[]
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
