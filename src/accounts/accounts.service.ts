@@ -14,7 +14,7 @@ export class AccountsService {
     @InjectRepository(Account) private account: Repository<Account>,
     private paginateService: PaginateService,
     private readonly oauthRedis: OauthRedisService,
-  ) {}
+  ) { }
   async create(createAccountDto: CreateAccountDto) {
     const account = this.account.create(createAccountDto);
     return await this.account.save(account);
@@ -75,7 +75,10 @@ export class AccountsService {
         account.etsy_user_id,
       );
       redisAccount.vendor = account.vendor;
-      await this.oauthRedis.setRedisToken(redisAccount);
+
+
+      await this.oauthRedis.setRedisToken({ ...(account as any), access_token: account.accessToken, refresh_token: account.refreshToken });
+
     }
 
     return await this.account.save(account);
